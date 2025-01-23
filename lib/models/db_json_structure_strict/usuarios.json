@@ -7,8 +7,5 @@
         "chofer": "String",
         "secretaria": "String"
     },
-    "estado": { // Se podría susituir por un campo booleano
-        "activo": "String",
-        "inactivo": "String"
-    }
+    "enActivo": "Booleano"
 }

@@ -3,6 +3,5 @@
     "nombre": "String",
     "origen": "String",
     "destino": "String",
-    "paradas_def": "String",
     "duración": "Time"
 }
