@@ -1,0 +1,7 @@
+{
+    "id_vehiculo": "Number",
+    "placa": "String",
+    "modelo": "String",
+    "capacidad": "Number",
+    "disponible": "Boolean" // <- anteriormente "Estado"
+}

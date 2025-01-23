@@ -1,0 +1,7 @@
+{
+    "id_log": "String",
+    "tipo": "String",
+    "usuario": "String",
+    "accion": "Sring",
+    "fecha": "TimeStamp"
+}
