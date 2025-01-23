@@ -1,0 +1,11 @@
+{
+    "id_vehiculo": "String",
+    "matricula": "String",
+    "modelo": "String",
+    "capacidad": "Number",
+    "estado": {
+        "disponible": "String",
+        "no_disponible": "String"
+    }
+
+}
