@@ -1,0 +1,14 @@
+{
+    "id_viaje": "Number",
+    "fecha": "Date",
+    "hora_inicio": "Time",
+    "hora_final": "Time",
+    "totalPersonas": "Number",
+    "estado": {
+        "en_progreso": "String",
+        "finalizado": "String"
+    }, 
+    "id_usuario": "usuarios.id",
+    "id_ruta": "rutas.id",
+    "id_vehiculo": "vehiculos.id"
+}
