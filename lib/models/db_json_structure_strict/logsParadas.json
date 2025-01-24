@@ -1,8 +1,0 @@
-{
-    "id_log": "Number",
-    "id_viaje": "Number",
-    "parada_anterior": "String",
-    "parada_modificada": "String",
-    "fecha_modificacion": "Timestamp",
-    "usuario_mod_id": "Number"
-}

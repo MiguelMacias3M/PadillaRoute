@@ -1,7 +1,0 @@
-{
-    "id_parada": "Number",
-    "id_viaje": "viajes.id",
-    "ubicación": "String",
-    "hora_llegada": "Timestamp",
-    "personas_subidas": "Number"
-}
