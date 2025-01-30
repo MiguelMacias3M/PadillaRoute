@@ -1,0 +1,22 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "padillarouteapp-b4ef8",
+                    "appId": "1:770612837704:android:873b5c8bdba907f3cf477d",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "padillarouteapp-b4ef8",
+                    "configurations": {
+                        "android": "1:770612837704:android:873b5c8bdba907f3cf477d",
+                        "ios": "1:770612837704:ios:cf05b3760cb63975cf477d"
+                    }
+                }
+            }
+        }
+    }
+}

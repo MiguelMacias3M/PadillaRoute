@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "770612837704",
+    "project_id": "padillarouteapp-b4ef8",
+    "storage_bucket": "padillarouteapp-b4ef8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:770612837704:android:873b5c8bdba907f3cf477d",
+        "android_client_info": {
+          "package_name": "com.example.padillaroutea"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClR5udXEu-3Ty5TfmA0VI01LjcCHuzt9M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
