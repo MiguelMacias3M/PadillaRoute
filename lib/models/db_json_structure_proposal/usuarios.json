@@ -10,5 +10,5 @@
         "secretaria": "String"
     },
 
-    "enActivo": "Booleano" // <- Anteriormente "Estado"
+    "enActivo": "Booleano" // <- Anteriormente "Estado">
 }
