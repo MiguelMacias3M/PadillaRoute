@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'package:padillaroutea/services/realtime_database_helper.dart';
+// import 'firebase_options.dart';
 
-void main() {
+// late ObjectBox objectBox;
+main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // objectBox = await ObjectBox.create();
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );  
+
   runApp(const MyApp());
 }
 

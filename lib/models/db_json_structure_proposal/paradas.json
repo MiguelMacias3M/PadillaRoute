@@ -1,0 +1,7 @@
+{
+    "id_parada": "Number",
+    "nombre": "String",
+    "hora_llegada":"",
+    "hora_salidad": "",
+    "coordenadas": "String"
+}

@@ -1,0 +1,24 @@
+{
+    "id_registro": "Nunber",
+    "id_ruta": "Number",
+    "id_vehiculo": "Number",
+    "id_chofer": "Number",
+
+    "paradas_registro": { // En lugar de hacerlo en la colección de las paradas, mejor incluirlo como parte de estos registros
+        "nombre_parada": { // por eso se neceita saber las paradas de cada ruta
+            "omitida": "Boolean",
+            "hora_llegada": "DateTime",
+            "cantidad_personas": "Number"
+        }
+    },
+
+    "hora_inicio": "TimeStamp",
+    "hora_final": "TimeStamp",
+    "tiempo_total": "DateTime",
+    "total_personas": "Number",
+    "distancia_recorrida": "Number",
+    "velocidad_promedio": "Number",
+    "combustible_consumido_promedio": "Number",
+    
+    "finalizado": "Boolean" // <- Anteriromente "Estado"
+}

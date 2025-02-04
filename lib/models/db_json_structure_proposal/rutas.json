@@ -1,0 +1,8 @@
+{
+    "id_ruta": "Number",
+    "id_chpofer": "Number",
+    "nombre": "String",
+    "origen": "String",
+    "destino": "String",
+    "paradas": [ "parada1", "parada2", "parada3"]
+}

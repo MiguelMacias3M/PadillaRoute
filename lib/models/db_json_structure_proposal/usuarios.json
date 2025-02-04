@@ -1,0 +1,16 @@
+{
+    "id_usuario": "Number",
+
+    "nombre": "String",
+    "apellido": "",
+    "telefono": "",
+    "correo": "String",
+    "contrasena": "String",
+
+    "rol": {
+        "chofer": "String",
+        "secretaria": "String"
+    },
+
+    "enActivo": "Booleano" // <- Anteriormente "Estado">
+}

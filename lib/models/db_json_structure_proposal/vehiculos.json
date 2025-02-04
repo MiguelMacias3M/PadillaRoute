@@ -1,0 +1,13 @@
+{
+    "id_vehiculo": "Number",
+    "placa": "String",
+    "marca":"String",
+    "modelo": "String",
+    "capacidad": "Number",
+    "numero_serie": "",
+    "estatus": {
+        "activo": "String",
+        "inactivo": "String",
+        "mantenimiento": "String"
+    } // <- anteriormente "Estado"
+}

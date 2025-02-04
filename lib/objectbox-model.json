@@ -1,0 +1,87 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:4728545412672262595",
+      "lastPropertyId": "12:5307251089363573633",
+      "name": "ViajeRegistro",
+      "properties": [
+        {
+          "id": "1:6271079064170796074",
+          "name": "idRegistro",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7834138693529659243",
+          "name": "idRuta",
+          "type": 6
+        },
+        {
+          "id": "3:1805846596083509090",
+          "name": "idVehiculo",
+          "type": 6
+        },
+        {
+          "id": "4:5687386180560669851",
+          "name": "idUsuario",
+          "type": 6
+        },
+        {
+          "id": "5:7033562502161961306",
+          "name": "horaInicio",
+          "type": 10
+        },
+        {
+          "id": "6:2602739470370353414",
+          "name": "hora",
+          "type": 10
+        },
+        {
+          "id": "7:1344010995553831840",
+          "name": "tiempoTotal",
+          "type": 6
+        },
+        {
+          "id": "8:4135913824219651625",
+          "name": "totalPasajeros",
+          "type": 6
+        },
+        {
+          "id": "9:5853579235906589190",
+          "name": "distanciaRecorrida",
+          "type": 6
+        },
+        {
+          "id": "10:5895363509369567912",
+          "name": "velocidadPromedio",
+          "type": 6
+        },
+        {
+          "id": "11:7193315954222367176",
+          "name": "litrosCombustibleConsumidoAprox",
+          "type": 6
+        },
+        {
+          "id": "12:5307251089363573633",
+          "name": "paradasRegistro",
+          "type": 9
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "1:4728545412672262595",
+  "lastIndexId": "0:0",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}
