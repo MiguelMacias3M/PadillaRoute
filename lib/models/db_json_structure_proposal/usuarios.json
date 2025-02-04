@@ -2,6 +2,8 @@
     "id_usuario": "Number",
 
     "nombre": "String",
+    "apellido": "",
+    "telefono": "",
     "correo": "String",
     "contrasena": "String",
 
