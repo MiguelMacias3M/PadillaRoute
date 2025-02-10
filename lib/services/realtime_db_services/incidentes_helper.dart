@@ -14,7 +14,7 @@ class IncidentesHelper {
 
   }
 
-  Future<IncidenteRegistro?> getOneIncidente(int id) async {
+  Future<IncidenteRegistro?> getOneIncidente(String id) async {
     final data = await RealtimeDbHelper.getEntryById(database, id);
     
     if(data != null) {
@@ -29,7 +29,7 @@ class IncidentesHelper {
     await RealtimeDbHelper.updateEntry(database, id, data.toJson());
   }
 
-  Future<void> deleteIncidente(int id) async {
+  Future<void> deleteIncidente(String id) async {
     await RealtimeDbHelper.deleteEntry(database, id);
   }
 }
