@@ -8,7 +8,7 @@ class IncidenteRegistro {
   final int idUsuario;
   final int idVehiculo;
   final String descripcion;
-  final DateTime fecha;
+  final String fecha;
 
   IncidenteRegistro({
     required this.idRegistro,

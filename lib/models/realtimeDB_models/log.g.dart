@@ -11,7 +11,7 @@ Log _$LogFromJson(Map<String, dynamic> json) => Log(
       tipo: $enumDecode(_$TipoEnumMap, json['tipo']),
       usuario: json['usuario'] as String,
       accion: json['accion'] as String,
-      fecha: DateTime.parse(json['fecha'] as String),
+      fecha: json['fecha'] as String,
     );
 
 Map<String, dynamic> _$LogToJson(Log instance) => <String, dynamic>{
@@ -19,7 +19,7 @@ Map<String, dynamic> _$LogToJson(Log instance) => <String, dynamic>{
       'tipo': _$TipoEnumMap[instance.tipo]!,
       'usuario': instance.usuario,
       'accion': instance.accion,
-      'fecha': instance.fecha.toIso8601String(),
+      'fecha': instance.fecha,
     };
 
 const _$TipoEnumMap = {
