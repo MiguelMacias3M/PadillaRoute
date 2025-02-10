@@ -48,12 +48,12 @@ final _entities = <obx_int.ModelEntity>[
         obx_int.ModelProperty(
             id: const obx_int.IdUid(5, 7033562502161961306),
             name: 'horaInicio',
-            type: 10,
+            type: 9,
             flags: 0),
         obx_int.ModelProperty(
             id: const obx_int.IdUid(6, 2602739470370353414),
             name: 'hora',
-            type: 10,
+            type: 9,
             flags: 0),
         obx_int.ModelProperty(
             id: const obx_int.IdUid(7, 1344010995553831840),
@@ -147,14 +147,16 @@ obx_int.ModelDefinition getObjectBoxModel() {
           object.idRegistro = id;
         },
         objectToFB: (ViajeRegistro object, fb.Builder fbb) {
+          final horaInicioOffset = fbb.writeString(object.horaInicio);
+          final horaOffset = fbb.writeString(object.hora);
           final paradasRegistroOffset = fbb.writeString(object.paradasRegistro);
           fbb.startTable(13);
           fbb.addInt64(0, object.idRegistro);
           fbb.addInt64(1, object.idRuta);
           fbb.addInt64(2, object.idVehiculo);
           fbb.addInt64(3, object.idUsuario);
-          fbb.addInt64(4, object.horaInicio.millisecondsSinceEpoch);
-          fbb.addInt64(5, object.hora.millisecondsSinceEpoch);
+          fbb.addOffset(4, horaInicioOffset);
+          fbb.addOffset(5, horaOffset);
           fbb.addInt64(6, object.tiempoTotal);
           fbb.addInt64(7, object.totalPasajeros);
           fbb.addInt64(8, object.distanciaRecorrida);
@@ -178,10 +180,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
           final paradasRegistroParam =
               const fb.StringReader(asciiOptimization: true)
                   .vTableGet(buffer, rootOffset, 26, '');
-          final horaInicioParam = DateTime.fromMillisecondsSinceEpoch(
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0));
-          final horaParam = DateTime.fromMillisecondsSinceEpoch(
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0));
+          final horaInicioParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 12, '');
+          final horaParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 14, '');
           final tiempoTotalParam =
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0);
           final totalPasajerosParam =
@@ -234,11 +236,11 @@ class ViajeRegistro_ {
 
   /// See [ViajeRegistro.horaInicio].
   static final horaInicio =
-      obx.QueryDateProperty<ViajeRegistro>(_entities[0].properties[4]);
+      obx.QueryStringProperty<ViajeRegistro>(_entities[0].properties[4]);
 
   /// See [ViajeRegistro.hora].
   static final hora =
-      obx.QueryDateProperty<ViajeRegistro>(_entities[0].properties[5]);
+      obx.QueryStringProperty<ViajeRegistro>(_entities[0].properties[5]);
 
   /// See [ViajeRegistro.tiempoTotal].
   static final tiempoTotal =
