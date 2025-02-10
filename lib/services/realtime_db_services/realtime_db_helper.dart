@@ -26,7 +26,7 @@ class RealtimeDbHelper {
 
   static Future<void> updateEntry(DatabaseReference ref, int id, Map<String, dynamic> data) async {
     return ref.child(id.toString()).update(data);
-  } // WORKS; MODIFICATIONS MUST BE DONE
+  } // WORKS; MODIFICATIONS MUST BE DONE (GET THE UID OF EVERY ENTRY)
 
   static Future<void> deleteEntry(DatabaseReference ref, String id) async {
     return ref.child(id).remove();

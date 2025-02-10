@@ -12,7 +12,7 @@ class LogsHelper {
     await RealtimeDbHelper.setNewEntry(database, data.toJson());
   }
 
-  Future<Log?> getOneLog(int id) async {
+  Future<Log?> getOneLog(String id) async {
     final data = await RealtimeDbHelper.getEntryById(database, id);
 
     if (data != null) {
