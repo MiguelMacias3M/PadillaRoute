@@ -16,7 +16,7 @@ class IncidentesHelper {
   } // WORKS!!!
 
   Future<void> update(IncidenteRegistro incidente, int id) async {
-    final keyValue = await getKey(id);
+    final keyValue = await getKey(id, "idRegistro");
     if (keyValue != null) {
       await database.updateEntry(ref, keyValue, incidente.toJson());
     } else {
@@ -25,7 +25,7 @@ class IncidentesHelper {
   } // WORKS!!!
 
   Future<void> delete(int id) async {
-    final keyValue = await getKey(id);
+    final keyValue = await getKey(id, "idRegistro");
     if(keyValue != null) {
       await database.deleteEntry(ref, keyValue);
     } else {
@@ -34,7 +34,7 @@ class IncidentesHelper {
   } // WORKS!!!
 
   Future<IncidenteRegistro?> get(int id) async {
-    final keyValue = await getKey(id);
+    final keyValue = await getKey(id, "idRegistro");
     if(keyValue != null) {
       final data = await database.getEntryById(ref, keyValue);
       return IncidenteRegistro.fromJson(data);
@@ -43,8 +43,8 @@ class IncidentesHelper {
     }
   } // WORKS!!!
   
-  Future<String?> getKey(int id) async {
-    return database.getKeyByField(ref, "idRegistro", id);
+  Future<String?> getKey(int id, String field) async {
+    return database.getKeyByField(ref, field, id);
   } // WORKS!!!
 
 }
