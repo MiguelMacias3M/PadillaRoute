@@ -26,10 +26,21 @@ class ParadasHelper {
 
   Future<void> delete(int id) async {
     final keyValue = await getKey(id, "idParada");  
+    if(keyValue != null) {
+      await database.deleteEntry(ref, keyValue);
+    } else {
+      throw Exception("No entry found with the id: $id");
+    }
   }
 
   Future<Parada?> get(int id) async {
     final keyValue = await getKey(id, "idParada");
+    if(keyValue != null) {
+      final data = await database.getEntryById(ref, keyValue);
+      return Parada.fromJson(data);
+    } else {
+      return null;
+    }
   }
 
   Future<String?> getKey(int id, String field) async {

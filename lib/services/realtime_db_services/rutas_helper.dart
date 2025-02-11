@@ -25,11 +25,22 @@ class RutasHelper {
   } // WORKS!!!
 
   Future<void> delete(int id) async {
-    final keyValue = await getKey(id, "idRuta");  
+    final keyValue = await getKey(id, "idRuta");
+    if (keyValue != null) {
+      await database.deleteEntry(ref, keyValue);
+    } else {
+      throw Exception("No entry found with the id: $id");
+    }
   }
 
   Future<Ruta?> get(int id) async {
     final keyValue = await getKey(id, "idRuta");
+    if (keyValue != null) {
+      final data = await database.getEntryById(ref, keyValue);
+      return Ruta.fromJson(data);
+    } else {
+      throw Exception("No entry found with the id: $id");
+    }
   }
 
   Future<String?> getKey(int id, String field) async {

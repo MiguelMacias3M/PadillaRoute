@@ -26,10 +26,21 @@ class UsuariosHelper {
 
   Future<void> delete(int id) async {
     final keyValue = await getKey(id, "idUsuario");  
+    if(keyValue != null) {
+      await database.deleteEntry(ref, keyValue);
+    } else {
+      throw Exception("No entry found with the id: $id");
+    }
   }
 
   Future<Usuario?> get(int id) async {
     final keyValue = await getKey(id, "idUsuario");
+    if(keyValue != null) {
+      final data = await database.getEntryById(ref, keyValue);
+      return Usuario.fromJson(data);
+    } else {
+      return null;
+    }
   }
 
   Future<String?> getKey(int id, String field) async {
