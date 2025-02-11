@@ -6,29 +6,66 @@ class RealtimeDbHelper {
 
   RealtimeDbHelper();
 
-  static DatabaseReference setCollection(String collection) {
+  DatabaseReference setCollection(String collection) {
     return connection.ref().child(collection);
   }
 
-  static Future<void> setNewEntry(DatabaseReference ref, Map<String, dynamic> data) async {
-    return ref.push().set(data);
+  Future<void> setNewEntry(
+      DatabaseReference ref, Map<String, dynamic> data) async {
+    try {
+      await ref.push().set(data);
+    } catch (e) {
+      print("ERROR: $e");
+    }
   } // WORKS
 
-  static Future<Map<String, dynamic>?> getEntryById(DatabaseReference ref, String id) async {
-    final snapshot = await ref.child(id).get();
+  Future<Map<String, dynamic>> getEntryById(DatabaseReference ref, String id) async {
+    try {
+      final snapshot = await ref.child(id).get();
 
-    if (snapshot.exists) {
-      return Map<String, dynamic>.from(snapshot.value as Map);
+      if (snapshot.exists) {
+        return Map<String, dynamic>.from(snapshot.value as Map);
+      } else {
+        throw Exception("No entry found");
+      }
+      
+    } catch (e) {
+      print("ERROR: $e");
+      throw Exception("Failed to get entry");
     }
-
-    return null;
   } // WORKS; MODIFIACTIONS MUST BE DONE
 
-  static Future<void> updateEntry(DatabaseReference ref, int id, Map<String, dynamic> data) async {
-    return ref.child(id.toString()).update(data);
+  Future<void> updateEntry(DatabaseReference ref, String id, Map<String, dynamic> data) async {
+    try {
+      
+      await ref.child(id.toString()).update(data);
+    } catch (e) {
+      print("ERROR: $e");
+      
+    }
   } // WORKS; MODIFICATIONS MUST BE DONE (GET THE UID OF EVERY ENTRY)
 
-  static Future<void> deleteEntry(DatabaseReference ref, String id) async {
-    return ref.child(id).remove();
+  Future<void> deleteEntry(DatabaseReference ref, String id) async {
+    try {
+      await ref.child(id).remove();
+    } catch (e) {
+      print("ERROR: $e");
+    }
   } // FUNCIONA
+
+  Future<String?> getKeyByField(DatabaseReference ref, String field, dynamic value) async {
+    try {
+      final snapshot = await ref.orderByChild(field).equalTo(value).limitToFirst(1).get();
+
+      if (snapshot.exists) {
+        final data = snapshot.value as Map;
+        return data.keys.first;
+      }
+      return null;
+
+    } catch (e) {
+      print("ERROR: $e");
+    }
+
+  }
 }
