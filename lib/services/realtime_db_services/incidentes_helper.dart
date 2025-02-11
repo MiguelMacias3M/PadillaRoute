@@ -8,17 +8,17 @@ class IncidentesHelper {
   late DatabaseReference ref;
 
   IncidentesHelper(this.database) {
-    ref = database.setCollection(DbCollections.test);
+    ref = database.setCollection(DbCollections.incidentes);
   }
 
   Future<void> setNew(IncidenteRegistro incidente) async {
     await database.setNewEntry(ref, incidente.toJson());
   } // WORKS!!!
 
-  Future<void> update(IncidenteRegistro incidente, int id) async {
+  Future<void> update(int id, Map<String, dynamic> data) async {
     final keyValue = await getKey(id, "idRegistro");
     if (keyValue != null) {
-      await database.updateEntry(ref, keyValue, incidente.toJson());
+      await database.updateEntry(ref, keyValue, data);
     } else {
       throw Exception("No entry found with the id: $id");
     }

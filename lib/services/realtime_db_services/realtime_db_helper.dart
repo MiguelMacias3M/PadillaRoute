@@ -66,6 +66,7 @@ class RealtimeDbHelper {
     } catch (e) {
       print("ERROR: $e");
     }
+    return null;
 
   }
 }

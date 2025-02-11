@@ -4,25 +4,46 @@ import 'package:firebase_database/firebase_database.dart';
 import 'db_collections.dart';
 
 class LogsHelper {
-  DatabaseReference database = RealtimeDbHelper.setCollection(DbCollections.logs);
+  RealtimeDbHelper database;
+  late DatabaseReference ref;
 
-  LogsHelper();
-
-  Future<void> setNewLog(Log data) async {
-    await RealtimeDbHelper.setNewEntry(database, data.toJson());
+  LogsHelper(this.database) {
+    ref = database.setCollection(DbCollections.logs);
   }
 
-  Future<Log?> getOneLog(String id) async {
-    final data = await RealtimeDbHelper.getEntryById(database, id);
+  Future<void> setNew(Log data) async {
+    await database.setNewEntry(ref, data.toJson());
+  }
 
-    if (data != null) {
-      return Log.fromJson(data);
+  Future<void> update(int id, Map<String, dynamic> data) async {
+    final keyValue = await getKey(id, "idLog");
+    if (keyValue != null) {
+      await database.updateEntry(ref, keyValue, data);
+    } else {
+      throw Exception("No entry found with the id: $id");
     }
-
-    return null;
   }
 
-  Future<void> updateLog(int id, Log data) async {
-    
+  Future<void> delete(int id) async {
+    final keyValue = await getKey(id, "idLog");
+    if(keyValue != null) {
+      await database.deleteEntry(ref, keyValue);
+    } else {
+      throw Exception("No entry found with the id: $id");
+    }
+  }
+
+  Future<Log?> get(int id) async {
+    final keyValue = await getKey(id, "idLog");
+    if(keyValue != null) {
+      final data = await database.getEntryById(ref, keyValue);
+      return Log.fromJson(data);
+    } else {
+      return null;
+    }
+  }
+
+  Future<String?> getKey(int id, String field) async {
+    return database.getKeyByField(ref, field, id);
   }
 }
