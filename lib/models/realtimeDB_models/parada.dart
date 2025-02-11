@@ -6,8 +6,8 @@ part 'parada.g.dart';
 class Parada {
   final int idParada;
   final String nombre;
-  final DateTime horaLlegada;
-  final DateTime horaSalida;
+  final String horaLlegada;
+  final String horaSalida;
   final String coordenadas;
 
   Parada({

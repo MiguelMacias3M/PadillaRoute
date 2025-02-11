@@ -8,8 +8,8 @@ class ViajeRegistro {
   final int idVehiculo;
   final int idUsuario;
   final Map<String, dynamic> paradasRegistro;
-  final DateTime horaInicio;
-  final DateTime horaFinal;
+  final String horaInicio;
+  final String horaFinal;
   final int tiempoTotal;
   final int totalPasajeros;
   final int distanciaRecorrida;

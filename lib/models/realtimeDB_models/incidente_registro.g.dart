@@ -12,7 +12,7 @@ IncidenteRegistro _$IncidenteRegistroFromJson(Map<String, dynamic> json) =>
       idUsuario: (json['idUsuario'] as num).toInt(),
       idVehiculo: (json['idVehiculo'] as num).toInt(),
       descripcion: json['descripcion'] as String,
-      fecha: DateTime.parse(json['fecha'] as String),
+      fecha: json['fecha'] as String,
     );
 
 Map<String, dynamic> _$IncidenteRegistroToJson(IncidenteRegistro instance) =>
@@ -21,5 +21,5 @@ Map<String, dynamic> _$IncidenteRegistroToJson(IncidenteRegistro instance) =>
       'idUsuario': instance.idUsuario,
       'idVehiculo': instance.idVehiculo,
       'descripcion': instance.descripcion,
-      'fecha': instance.fecha.toIso8601String(),
+      'fecha': instance.fecha,
     };

@@ -10,8 +10,8 @@ class ViajeRegistro {
   int idVehiculo;
   int idUsuario;
   String paradasRegistro;
-  DateTime horaInicio;
-  DateTime hora;
+  String horaInicio;
+  String hora;
   int tiempoTotal;
   int totalPasajeros;
   int distanciaRecorrida;

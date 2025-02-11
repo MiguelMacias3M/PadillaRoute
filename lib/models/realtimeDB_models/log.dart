@@ -17,7 +17,7 @@ class Log {
   final Tipo tipo;
   final String usuario;
   final String accion;
-  final DateTime fecha;
+  final String fecha;
 
   Log({
     required this.idLog,
