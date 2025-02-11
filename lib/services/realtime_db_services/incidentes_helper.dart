@@ -4,32 +4,47 @@ import 'package:firebase_database/firebase_database.dart';
 import 'db_collections.dart';
 
 class IncidentesHelper {
+  RealtimeDbHelper database;
+  late DatabaseReference ref;
 
-  DatabaseReference database = RealtimeDbHelper.setCollection(DbCollections.test);
-
-  IncidentesHelper();
-
-  Future<void> setNewIncidente(IncidenteRegistro data) async {
-    await RealtimeDbHelper.setNewEntry(database, data.toJson());
-
+  IncidentesHelper(this.database) {
+    ref = database.setCollection(DbCollections.test);
   }
 
-  Future<IncidenteRegistro?> getOneIncidente(String id) async {
-    final data = await RealtimeDbHelper.getEntryById(database, id);
-    
-    if(data != null) {
-      return IncidenteRegistro.fromJson(data);
+  Future<void> setNew(IncidenteRegistro incidente) async {
+    await database.setNewEntry(ref, incidente.toJson());
+  } // WORKS!!!
+
+  Future<void> update(IncidenteRegistro incidente, int id) async {
+    final keyValue = await getKey(id);
+    if (keyValue != null) {
+      await database.updateEntry(ref, keyValue, incidente.toJson());
+    } else {
+      throw Exception("No entry found with the id: $id");
     }
+  } // WORKS!!!
 
-    return null;
+  Future<void> delete(int id) async {
+    final keyValue = await getKey(id);
+    if(keyValue != null) {
+      await database.deleteEntry(ref, keyValue);
+    } else {
+      throw Exception("No entry found with the id: $id");
+    }
+  } // WORKS!!!
 
-  }
+  Future<IncidenteRegistro?> get(int id) async {
+    final keyValue = await getKey(id);
+    if(keyValue != null) {
+      final data = await database.getEntryById(ref, keyValue);
+      return IncidenteRegistro.fromJson(data);
+    } else {
+      return null;
+    }
+  } // WORKS!!!
+  
+  Future<String?> getKey(int id) async {
+    return database.getKeyByField(ref, "idRegistro", id);
+  } // WORKS!!!
 
-  Future<void> updateIncidente(int id, IncidenteRegistro data) async {
-    await RealtimeDbHelper.updateEntry(database, id, data.toJson());
-  }
-
-  Future<void> deleteIncidente(String id) async {
-    await RealtimeDbHelper.deleteEntry(database, id);
-  }
 }
