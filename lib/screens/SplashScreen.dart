@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'loginscreen.dart';
+import 'menuScreenAdmin.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreenAdmin extends StatefulWidget {
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  _SplashScreenAdminState createState() => _SplashScreenAdminState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenAdminState extends State<SplashScreenAdmin> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 3), () {
+    Timer(Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
+        MaterialPageRoute(builder: (context) => MenuScreenAdmin()),
       );
     });
   }
@@ -29,18 +28,20 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/logo.png',
-              height: 350,
+              'assets/logo.png', // Asegúrate de tener esta imagen en la carpeta assets
+              height: 200,
             ),
             SizedBox(height: 20),
             Text(
-              'Bienvenido',
+              'Bienvenido a PadillaRoute',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.teal,
+                color: Colors.blueAccent,
               ),
             ),
+            SizedBox(height: 10),
+            CircularProgressIndicator(color: Colors.blueAccent),
           ],
         ),
       ),
@@ -48,16 +49,9 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: SplashScreen(), // Pantalla de bienvenida
-    );
-  }
-}
-
 void main() {
-  runApp(MyApp());
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: SplashScreenAdmin(),
+  ));
 }
