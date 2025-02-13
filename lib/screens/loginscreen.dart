@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:padillaroutea/screens/SplashScreen.dart'; // Importa la pantalla de bienvenida
-import 'package:padillaroutea/screens/menuScreenAdmin.dart'; // Importa la pantalla del menú
-import 'package:padillaroutea/screens/ForgotPasswordScreen.dart'; // Importa la pantalla de recuperación de contraseña
+import 'package:padillaroutea/screens/forgotPasswordScreen.dart'; // Pantalla de recuperación de contraseña
+import 'package:padillaroutea/screens/SplashScreen.dart';
+import 'package:padillaroutea/screens/menuScreenAdmin.dart'; 
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -11,6 +11,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -23,27 +24,50 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/logo.png',
+                'assets/logo.png', // Asegúrate de tener esta imagen en la carpeta assets
                 height: 150,
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Iniciar sesión',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: const Color.fromARGB(255, 0, 183, 255),
+                ),
               ),
               SizedBox(height: 20),
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
-                  labelText: 'Usuario',
+                  labelText: 'Correo electrónico',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
+                  prefixIcon: Icon(Icons.email, color: const Color.fromARGB(255, 0, 0, 0)),
                 ),
+                keyboardType: TextInputType.emailAddress,
               ),
               SizedBox(height: 15),
               TextField(
                 controller: _passwordController,
-                obscureText: true,
+                obscureText: !_isPasswordVisible,
                 decoration: InputDecoration(
                   labelText: 'Contraseña',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  prefixIcon: Icon(Icons.lock, color: const Color.fromARGB(255, 0, 0, 0)),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                      color: const Color.fromARGB(255, 0, 0, 0),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
                   ),
                 ),
               ),
@@ -59,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   child: Text(
                     '¿Olvidaste tu contraseña?',
-                    style: TextStyle(color: Colors.blue),
+                    style: TextStyle(color: Colors.blueAccent),
                   ),
                 ),
               ),
@@ -69,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SplashScreen()),
+                      MaterialPageRoute(builder: (context) => SplashScreenAdmin()),
                     );
                     Future.delayed(Duration(seconds: 3), () {
                       Navigator.pushReplacement(
@@ -79,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.blueAccent,
                     padding: EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
