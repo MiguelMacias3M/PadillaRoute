@@ -40,4 +40,16 @@ class FirebaseAuthHelper {
       throw Exception("An error occurred while trying to log out.");
     }
   }
+
+  Future<void> resetPassword(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        throw Exception('No user found for that email.');
+      }
+    } catch (e) {
+      throw Exception("An error occurred while trying to restore the password.");
+    }
+  }
 }
