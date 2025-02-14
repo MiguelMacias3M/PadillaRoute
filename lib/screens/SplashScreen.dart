@@ -37,7 +37,7 @@ class _SplashScreenAdminState extends State<SplashScreenAdmin> {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.blueAccent,
+                color: const Color.fromARGB(255, 0, 183, 234),
               ),
             ),
             SizedBox(height: 10),

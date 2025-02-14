@@ -5,11 +5,23 @@ class MenuScreenAdmin extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Menú Principal', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+        title: Text(
+          'Menú Principal',
+          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.blue),
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 15, top: 10),
+            child: Image.asset(
+              'assets/logoU.png', // Asegúrate de tener el logo en la carpeta assets
+              height: 60,
+            ),
+          ),
+        ],
       ),
       body: GridView.count(
         crossAxisCount: 2,
