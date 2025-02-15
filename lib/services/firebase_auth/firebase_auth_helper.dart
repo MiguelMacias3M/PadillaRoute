@@ -5,51 +5,17 @@ class FirebaseAuthHelper {
 
   FirebaseAuthHelper();
 
-  Future<void> createUser(String email, String password) async {
+  Future<String> createUser(String email, String password) async {
     try {
-      await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      return userCredential.user!.uid; // Retorna el UID del usuario creado
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        throw Exception("The password provided is too weak.");
+        throw Exception("La contraseña es demasiado débil.");
       } else if (e.code == 'email-already-in-use') {
-        throw Exception("The account already exists for that email.");
+        throw Exception("El correo ya está registrado.");
       }
-    } catch (e) {
-      throw Exception("An error occurred while creating the account.");
-    }
-  }
-
-  Future<void> logIn(String email, String password) async {
-    try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        throw Exception('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        throw Exception('Wrong password provided for that user.');
-      }
-    } catch (e) {
-      throw Exception("An error occurred while trying to log in.");
-    }
-  }
-
-  Future<void> logOut() async {
-    try {
-      await _auth.signOut();
-    } catch (e) {
-      throw Exception("An error occurred while trying to log out.");
-    }
-  }
-
-  Future<void> resetPassword(String email) async {
-    try {
-      await _auth.sendPasswordResetEmail(email: email);
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        throw Exception('No user found for that email.');
-      }
-    } catch (e) {
-      throw Exception("An error occurred while trying to restore the password.");
+      throw Exception("Error al crear la cuenta.");
     }
   }
 }

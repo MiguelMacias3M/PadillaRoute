@@ -9,7 +9,8 @@
 
     "rol": {
         "chofer": "String",
-        "secretaria": "String"
+        "administrativo": "String",
+        "gerente": "String"
     },
 
     "enActivo": "Booleano" // <- Anteriormente "Estado">
