@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/UserScreenRegister.dart';
 
 class UserScreenSelect extends StatelessWidget {
@@ -84,8 +85,12 @@ class UserScreenSelect extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => UserScreenRegister()),
                     );
                   }),
-                  SizedBox(height: 15),
-                  _optionButton(context, 'Gestionar usuarios', null),
+                   _optionButton(context, 'Gestión de usuarios', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => UserScreenManagement()),
+                    );
+                  }),
                 ],
               ),
             ),
