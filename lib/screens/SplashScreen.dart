@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'menuScreenAdmin.dart';
+import 'MenuScreenAdmin.dart';
 
 class SplashScreenAdmin extends StatefulWidget {
   @override

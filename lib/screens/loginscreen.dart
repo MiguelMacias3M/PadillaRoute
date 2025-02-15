@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/forgotPasswordScreen.dart'; // Pantalla de recuperación de contraseña
 import 'package:padillaroutea/screens/SplashScreen.dart';
-import 'package:padillaroutea/screens/menuScreenAdmin.dart'; 
+import 'package:padillaroutea/screens/MenuScreenAdmin.dart'; 
 
 class LoginScreen extends StatefulWidget {
   @override

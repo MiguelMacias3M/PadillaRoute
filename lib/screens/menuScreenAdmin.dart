@@ -1,61 +1,88 @@
 import 'package:flutter/material.dart';
+import 'package:padillaroutea/screens/UserScreenRegister.dart';
+import 'package:padillaroutea/screens/UserScreenSelect.dart';
 
 class MenuScreenAdmin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Menú Principal',
-          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.blue),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 15, top: 10),
-            child: Image.asset(
-              'assets/logoU.png', // Asegúrate de tener el logo en la carpeta assets
-              height: 60,
+        automaticallyImplyLeading: false, // Oculta la flecha de retroceso
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Menú Principal',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
             ),
-          ),
-        ],
+          ],
+        ),
+        backgroundColor: Colors.blueAccent,
+        elevation: 4,
+        centerTitle: true,
+       
       ),
-      body: GridView.count(
-        crossAxisCount: 2,
-        padding: EdgeInsets.all(20.0),
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 20,
-        children: [
-          _menuItem(context, Icons.people, 'Usuarios'),
-          _menuItem(context, Icons.directions_bus, 'Rutas'),
-          _menuItem(context, Icons.location_on, 'Monitorear'),
-          _menuItem(context, Icons.directions_car, 'Vehículos'),
-          _menuItem(context, Icons.bar_chart, 'Reportes'),
-          _menuItem(context, Icons.local_parking, 'Paradas'),
-          _menuItem(context, Icons.warning, 'Incidencias'),
-        ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.white, Colors.blue.shade100],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: GridView.count(
+          crossAxisCount: 2,
+          padding: EdgeInsets.all(20.0),
+          crossAxisSpacing: 20,
+          mainAxisSpacing: 20,
+          children: [
+            _menuItem(context, Icons.people, 'Usuarios', screen: UserScreenSelect()),
+            _menuItem(context, Icons.directions_bus, 'Rutas'),
+            _menuItem(context, Icons.location_on, 'Monitorear'),
+            _menuItem(context, Icons.directions_car, 'Vehículos'),
+            _menuItem(context, Icons.bar_chart, 'Reportes'),
+            _menuItem(context, Icons.local_parking, 'Paradas'),
+           _menuItem(context, Icons.person_add, 'Registrar Usuario', screen: UserScreenRegister()),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _menuItem(BuildContext context, IconData icon, String title) {
+  Widget _menuItem(BuildContext context, IconData icon, String title, {Widget? screen}) {
     return GestureDetector(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$title seleccionado')));
+        if (screen != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => screen),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('$title en desarrollo...')),
+          );
+        }
       },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 60, color: Colors.black),
-          SizedBox(height: 10),
-          Text(
-            title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-        ],
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 2),
+          ],
+        ),
+        padding: EdgeInsets.all(15),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 60, color: Colors.blueAccent),
+            SizedBox(height: 10),
+            Text(
+              title,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
+          ],
+        ),
       ),
     );
   }
