@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'screens/UserScreenRegister.dart'; // Importamos la pantalla de inicio de sesión
+import 'screens/loginScreen.dart'; // Importamos la pantalla de inicio de sesión
 import 'firebase_options.dart'; // Asegúrate de que este archivo está generado
 
 void main() async {
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: UserScreenRegister(),
+      home: LoginScreen(),
     );
   }
 }
