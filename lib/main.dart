@@ -1,13 +1,27 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'screens/loginScreen.dart'; // Importamos la pantalla de inicio de sesión
-import 'firebase_options.dart'; // Asegúrate de que este archivo está generado
+import 'package:flutter/material.dart';
+import 'package:padillaroutea/firebase_options.dart';
+import 'package:padillaroutea/objectbox.g.dart';
+import 'package:padillaroutea/services/connectors/objectbox_connector.dart';
+git import '../screens/loginscreen.dart'; // Importamos la pantalla de inicio de sesión
 
-void main() async {
+late ObjectBox objectBox;
+  void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  try {
+    objectBox = await ObjectBox.create();
+  } on ObjectBoxException catch (e) {
+    throw Exception("Someting went wrong when trying to run ObjectBox: $e");
+  }
+
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } on FirebaseException catch (e) {
+    throw Exception("Something went wrong when trying to run Firebase: $e");
+  }   
 
   runApp(const MyApp());
 }
