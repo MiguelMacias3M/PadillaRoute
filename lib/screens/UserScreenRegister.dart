@@ -25,19 +25,20 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Usuarios',
-          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.white,
+        title: Text('Usuarios'),
+        backgroundColor: Colors.blue,
         elevation: 2,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.blue),
+        iconTheme: IconThemeData(color: Colors.white),
+        titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 15),
             child: Image.asset(
-              'assets/logo.png', // Asegúrate de tener el logo en la carpeta assets
+              'assets/logo.png',
               height: 40,
             ),
           ),
@@ -50,19 +51,25 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
           children: [
             Text(
               'Ingrese los datos del usuario:',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 15),
+            _labelText('Nombre'),
             _inputField('Nombre', _nameController),
             SizedBox(height: 10),
+            _labelText('Apellidos'),
             _inputField('Apellidos', _lastNameController),
             SizedBox(height: 10),
+            _labelText('Teléfono'),
             _inputField('Teléfono', _phoneController, inputType: TextInputType.phone),
             SizedBox(height: 10),
+            _labelText('Correo'),
             _inputField('Correo', _emailController, inputType: TextInputType.emailAddress),
             SizedBox(height: 10),
+            _labelText('Contraseña'),
             _inputField('Contraseña', _passwordController, isPassword: true),
             SizedBox(height: 10),
+            _labelText('Rol'),
             _roleDropdown(),
             SizedBox(height: 20),
             Center(
@@ -122,6 +129,14 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
+  }
+
+  // Widget para los textos de etiquetas
+  Widget _labelText(String text) {
+    return Text(
+      text,
+      style: TextStyle(fontWeight: FontWeight.bold),
+    );
   }
 
   // Widget para los campos de texto

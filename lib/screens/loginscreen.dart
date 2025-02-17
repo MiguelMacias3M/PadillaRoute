@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:padillaroutea/screens/forgotPasswordScreen.dart'; // Pantalla de recuperación de contraseña
 import 'package:padillaroutea/screens/SplashScreen.dart';
 import 'package:padillaroutea/screens/menuScreenAdmin.dart'; 
+import 'package:padillaroutea/screens/UserScreenRegister.dart'; // Importar la pantalla de registro
+
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -89,21 +91,34 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 15),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
-                    );
-                  },
-                  child: Text(
-                    '¿Olvidaste tu contraseña?',
-                    style: TextStyle(color: Colors.blueAccent),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => UserScreenRegister()),
+                      );
+                    },
+                    child: Text(
+                      'Registrarse',
+                      style: TextStyle(color: Colors.blueAccent),
+                    ),
                   ),
-                ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+                      );
+                    },
+                    child: Text(
+                      '¿Olvidaste tu contraseña?',
+                      style: TextStyle(color: Colors.blueAccent),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(
                 width: double.infinity,
