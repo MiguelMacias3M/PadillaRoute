@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:padillaroutea/screens/forgotPasswordScreen.dart'; // Pantalla de recuperación de contraseña
 import 'package:padillaroutea/screens/SplashScreen.dart';
-import 'package:padillaroutea/screens/MenuScreenAdmin.dart'; 
+import 'package:padillaroutea/screens/menuScreenAdmin.dart'; 
+import 'package:padillaroutea/screens/UserScreenRegister.dart'; // Importar la pantalla de registro
+
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,6 +15,32 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Función para iniciar sesión
+  Future<void> _login() async {
+    try {
+      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      
+      // Si el login es exitoso, navega al menú
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MenuScreenAdmin()),
+      );
+    } on FirebaseAuthException catch (e) {
+      // Si hay un error, muestra un mensaje
+      String errorMessage = 'Error desconocido';
+      if (e.code == 'user-not-found') {
+        errorMessage = 'No se encontró un usuario con este correo electrónico.';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'La contraseña es incorrecta, intenta de nuevo.';
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,37 +100,39 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 15),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
-                    );
-                  },
-                  child: Text(
-                    '¿Olvidaste tu contraseña?',
-                    style: TextStyle(color: Colors.blueAccent),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => UserScreenRegister()),
+                      );
+                    },
+                    child: Text(
+                      'Registrarse',
+                      style: TextStyle(color: Colors.blueAccent),
+                    ),
                   ),
-                ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+                      );
+                    },
+                    child: Text(
+                      '¿Olvidaste tu contraseña?',
+                      style: TextStyle(color: Colors.blueAccent),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SplashScreenAdmin()),
-                    );
-                    Future.delayed(Duration(seconds: 3), () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => MenuScreenAdmin()),
-                      );
-                    });
-                  },
+                  onPressed: _login, // Llama a la función _login
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
                     padding: EdgeInsets.symmetric(vertical: 15),

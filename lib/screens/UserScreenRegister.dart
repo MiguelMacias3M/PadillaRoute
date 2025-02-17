@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:padillaroutea/services/firebase_auth/firebase_auth_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
+import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/db_collections.dart';
 
 class UserScreenRegister extends StatefulWidget {
   @override
@@ -11,26 +16,29 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  
-  String? _selectedRole; // Variable para el rol seleccionado
+
+  String? _selectedRole;
+  final FirebaseAuthHelper _authHelper = FirebaseAuthHelper();
+  final UsuariosHelper _usuariosHelper = UsuariosHelper(RealtimeDbHelper());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Usuarios',
-          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.white,
+        title: Text('Usuarios'),
+        backgroundColor: Colors.blue,
         elevation: 2,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.blue),
+        iconTheme: IconThemeData(color: Colors.white),
+        titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 15),
             child: Image.asset(
-              'assets/logo.png', // Asegúrate de tener el logo en la carpeta assets
+              'assets/logo.png',
               height: 40,
             ),
           ),
@@ -43,29 +51,30 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
           children: [
             Text(
               'Ingrese los datos del usuario:',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 15),
+            _labelText('Nombre'),
             _inputField('Nombre', _nameController),
             SizedBox(height: 10),
+            _labelText('Apellidos'),
             _inputField('Apellidos', _lastNameController),
             SizedBox(height: 10),
+            _labelText('Teléfono'),
             _inputField('Teléfono', _phoneController, inputType: TextInputType.phone),
             SizedBox(height: 10),
+            _labelText('Correo'),
             _inputField('Correo', _emailController, inputType: TextInputType.emailAddress),
             SizedBox(height: 10),
+            _labelText('Contraseña'),
             _inputField('Contraseña', _passwordController, isPassword: true),
             SizedBox(height: 10),
+            _labelText('Rol'),
             _roleDropdown(),
             SizedBox(height: 20),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  // Aquí puedes agregar la lógica para registrar el usuario
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Usuario registrado exitosamente')),
-                  );
-                },
+                onPressed: _registerUser,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
@@ -82,6 +91,51 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _registerUser() async {
+    try {
+      final email = _emailController.text;
+      final password = _passwordController.text.trim();
+      final nombre = _nameController.text.trim();
+      final apellidos = _lastNameController.text.trim();
+      final telefono = int.parse(_phoneController.text.trim());
+      final rol = _selectedRole ?? 'Chofer'; // Valor por defecto en caso de que no se seleccione rol
+
+      final uid = await _authHelper.createUser(email, password);
+
+      // Validamos el rol seleccionado antes de usarlo, haciendo la comparación en minúsculas
+      final rolEnum = Rol.values.firstWhere(
+        (r) => r.toString().split('.').last.toLowerCase() == rol.toLowerCase(),
+        orElse: () => Rol.chofer, // Valor por defecto en caso de que el rol no sea válido
+      );
+
+      // Crear el objeto usuario utilizando el UID de Firebase sin convertirlo a int
+      final usuario = Usuario(
+        idUsuario: DateTime.now().millisecondsSinceEpoch, // Usar un ID numérico basado en el tiempo
+        nombre: nombre,
+        apellidos: apellidos,
+        telefono: telefono,
+        correo: email,
+        contrasena: password,
+        rol: rolEnum,
+        activo: true,
+      );
+
+      await _usuariosHelper.setNew(usuario);
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Usuario registrado exitosamente')));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
+
+  // Widget para los textos de etiquetas
+  Widget _labelText(String text) {
+    return Text(
+      text,
+      style: TextStyle(fontWeight: FontWeight.bold),
     );
   }
 
@@ -106,7 +160,7 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
         labelText: 'Rol',
         border: OutlineInputBorder(),
       ),
-      items: ['Administrador', 'Administrativo', 'Chofer'].map((role) {
+      items: ['Chofer', 'Administrativo', 'Gerente'].map((role) {
         return DropdownMenuItem(
           value: role,
           child: Text(role),
