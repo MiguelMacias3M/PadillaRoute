@@ -57,6 +57,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 150,
               ),
               SizedBox(height: 20),
+              Text(
+                'Iniciar sesión',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: const Color.fromARGB(255, 0, 183, 255),
+                ),
+              ),
+              SizedBox(height: 20),
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
