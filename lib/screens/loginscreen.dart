@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (e.code == 'user-not-found') {
         errorMessage = 'No se encontró un usuario con este correo electrónico.';
       } else if (e.code == 'wrong-password') {
-        errorMessage = 'La contraseña es incorrecta.';
+        errorMessage = 'La contraseña es incorrecta, intenta de nuevo.';
       }
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
     }
