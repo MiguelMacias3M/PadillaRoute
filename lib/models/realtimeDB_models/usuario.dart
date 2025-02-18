@@ -2,11 +2,11 @@ import 'package:json_annotation/json_annotation.dart';
 part 'usuario.g.dart';
 
 enum Rol { 
-  @JsonValue('Chofer')
+  @JsonValue('chofer')
   chofer, 
-  @JsonValue('Administrativo')
+  @JsonValue('administrativo')
   administrativo, 
-  @JsonValue('Gerente')
+  @JsonValue('gerente')
   gerente 
 }
 
