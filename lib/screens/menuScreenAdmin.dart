@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/UserScreenRegister.dart';
 import 'package:padillaroutea/screens/UserScreenSelect.dart';
+import 'package:padillaroutea/screens/VehiclesScreen.dart';
+import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 
 class MenuScreenAdmin extends StatelessWidget {
   @override
@@ -39,10 +41,10 @@ class MenuScreenAdmin extends StatelessWidget {
             _menuItem(context, Icons.people, 'Usuarios', screen: UserScreenSelect()),
             _menuItem(context, Icons.directions_bus, 'Rutas'),
             _menuItem(context, Icons.location_on, 'Monitorear'),
-            _menuItem(context, Icons.directions_car, 'Vehículos'),
+            _menuItem(context, Icons.directions_car, 'Vehículos', screen: VehiclesScreenManagement()),
             _menuItem(context, Icons.bar_chart, 'Reportes'),
             _menuItem(context, Icons.local_parking, 'Paradas'),
-           _menuItem(context, Icons.person_add, 'Registrar Usuario', screen: UserScreenRegister()),
+           _menuItem(context, Icons.warning_amber, 'Inciderncias'),
           ],
         ),
       ),

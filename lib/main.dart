@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:padillaroutea/firebase_options.dart';
 import 'package:padillaroutea/objectbox.g.dart';
 import 'package:padillaroutea/services/connectors/objectbox_connector.dart';
-git import '../screens/loginscreen.dart'; // Importamos la pantalla de inicio de sesión
+import '../screens/loginscreen.dart'; // Importamos la pantalla de inicio de sesión
 
 late ObjectBox objectBox;
   void main() async {

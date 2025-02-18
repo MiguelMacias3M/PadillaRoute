@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:padillaroutea/screens/UserScreenManagement.dart';
+import 'package:padillaroutea/screens/UserScreenEdit.dart';
 
 class UserScreenManagement extends StatefulWidget {
   @override
@@ -74,7 +74,7 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
               child: ListView.builder(
                 itemCount: filteredUsers.length,
                 itemBuilder: (context, index) {
-                  return _userItem(filteredUsers[index]);
+                  return _userItem(context, filteredUsers[index]);
                 },
               ),
             ),
@@ -84,7 +84,7 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
     );
   }
 
-  Widget _userItem(String userName) {
+  Widget _userItem(BuildContext context, String userName) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 10),
       elevation: 3,
@@ -96,8 +96,9 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
         ),
         title: Text(userName, style: TextStyle(fontWeight: FontWeight.bold)),
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Gestión de $userName en desarrollo...')),
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => UserScreenEdit()),
           );
         },
       ),
