@@ -43,14 +43,22 @@ class UsuariosHelper {
     }
   }
 
-  Future<List> getAll() async {
-    final data = await database.getAllEntries(ref);
-    if (data.isNotEmpty) {
-      return data.map((e) => Usuario.fromJson(e)).toList();
-    } else {
-      return [];
-    }
+  Future<List<Usuario>> getAll() async {
+  final data = await database.getAllEntries(ref);
+
+  // Imprimir los datos recibidos en la consola
+  print('Datos recibidos desde la base de datos: $data');
+
+  if (data.isNotEmpty) {
+    return data.map((e) {
+      // Verifica la estructura de cada elemento
+      print('Elemento de datos: $e');
+      return Usuario.fromJson(Map<String, dynamic>.from(e));
+    }).toList();
+  } else {
+    return [];
   }
+}
 
   Future<String?> getKey(int id, String field) async {
     return database.getKeyByField(ref, field, id);
