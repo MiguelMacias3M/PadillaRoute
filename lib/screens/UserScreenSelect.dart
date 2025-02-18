@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
 import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
 import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/UserScreenRegister.dart';
@@ -118,6 +119,7 @@ class UserScreenSelect extends StatelessWidget {
             _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
             _drawerItem(context, Icons.people, 'Usuarios', UserScreenSelect()),
             _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
             Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
           ],
