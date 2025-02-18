@@ -8,12 +8,12 @@ class IncidentsScreenAdmin extends StatefulWidget {
 class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
   final TextEditingController _searchController = TextEditingController();
   List<String> incidents = [
-    'Ruta Rincón - Jorge',
-    'Ruta Centro - María',
-    'Ruta Norte - Pedro',
-    'Ruta Este - Luisa',
-    'Ruta Oeste - Carlos',
-    'Ruta Sur - Ana',
+    'Choque - Jorge',
+    'Trafico - María',
+    'Trafico - Pedro',
+    'Vialidad cerrada - Luisa',
+    'Choque - Carlos',
+    'Trafico - Ana',
   ];
   List<String> filteredIncidents = [];
 
@@ -63,7 +63,7 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
               onChanged: _filterIncidents,
               decoration: InputDecoration(
                 prefixIcon: Icon(Icons.search),
-                hintText: 'Buscar ruta',
+                hintText: 'Buscar incidente',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -93,7 +93,9 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
         title: Text(incident.split(' - ')[0], style: TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text('Usuario a cargo: ${incident.split(' - ')[1]}'),
         trailing: ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            _showIncidentDetails(context, incident);
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
             shape: RoundedRectangleBorder(
@@ -103,6 +105,42 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
           child: Text('Ver incidencia', style: TextStyle(color: Colors.white)),
         ),
       ),
+    );
+  }
+
+  void _showIncidentDetails(BuildContext context, String incident) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Detalles de la incidencia'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Nombre de la incidencia: Choque'),
+              SizedBox(height: 5),
+              Text('Usuario a cargo: Juan'),
+              SizedBox(height: 5),
+              Text('Descripción: Choque frontal'),
+              SizedBox(height: 5),
+              Text('Hora y fecha: 12:31 12 de febrero 2024'),
+              SizedBox(height: 5),
+              Text('Ruta: Bajio'),
+              SizedBox(height: 5),
+              Text('Vehiculo: #108'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cerrar'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
