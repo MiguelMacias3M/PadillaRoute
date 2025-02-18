@@ -43,6 +43,15 @@ class ViajesHelper {
     }
   }
 
+  Future<List> getAll() async {
+    final data = await database.getAllEntries(ref);
+    if (data.isNotEmpty) {
+      return data.map((e) => ViajeRegistro.fromJson(e)).toList();
+    } else {
+      return [];
+    }
+  }
+
   Future<String?> getKey(int id, String field) async {
     return database.getKeyByField(ref, field, id);
   }

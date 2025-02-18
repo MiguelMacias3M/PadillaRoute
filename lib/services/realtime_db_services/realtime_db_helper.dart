@@ -1,8 +1,11 @@
 import 'package:padillaroutea/services/connectors/realtime_db_connector.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:logger/logger.dart';
 
 class RealtimeDbHelper {
   static final FirebaseDatabase connection = RealtimedbConnector.getConnection();
+
+  final Logger _logger = Logger();
 
   RealtimeDbHelper();
 
@@ -15,7 +18,7 @@ class RealtimeDbHelper {
     try {
       await ref.push().set(data);
     } catch (e) {
-      print("ERROR: $e");
+      _logger.e("ERROR: $e");
     }
   } // WORKS
 
@@ -30,7 +33,7 @@ class RealtimeDbHelper {
       }
       
     } catch (e) {
-      print("ERROR: $e");
+      _logger.e("ERROR: $e");
       throw Exception("Failed to get entry");
     }
   } // WORKS; MODIFIACTIONS MUST BE DONE
@@ -40,7 +43,7 @@ class RealtimeDbHelper {
       
       await ref.child(id.toString()).update(data);
     } catch (e) {
-      print("ERROR: $e");
+      _logger.e("ERROR: $e");
       
     }
   } // WORKS; MODIFICATIONS MUST BE DONE (GET THE UID OF EVERY ENTRY)
@@ -49,7 +52,7 @@ class RealtimeDbHelper {
     try {
       await ref.child(id).remove();
     } catch (e) {
-      print("ERROR: $e");
+      _logger.e("ERROR: $e");
     }
   } // FUNCIONA
 
@@ -64,9 +67,24 @@ class RealtimeDbHelper {
       return null;
 
     } catch (e) {
-      print("ERROR: $e");
+      _logger.e("ERROR: $e");
     }
     return null;
 
+  }
+
+  Future<List> getAllEntries(DatabaseReference ref) async {
+    try {
+      final snapshot = await ref.get();
+
+      if (snapshot.exists) {
+        final data = snapshot.value as Map;
+        return data.values.toList();
+      }
+      return [];
+    } catch (e) {
+      _logger.e("ERROR: $e");
+      return [];
+    }
   }
 }
