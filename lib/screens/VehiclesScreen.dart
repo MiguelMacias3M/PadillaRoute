@@ -1,17 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
-import 'package:padillaroutea/screens/UserScreenManagement.dart';
-import 'package:padillaroutea/screens/UserScreenRegister.dart';
+import 'package:padillaroutea/screens/UserScreenSelect.dart';
 import 'package:padillaroutea/screens/VehiclesScreen.dart';
+import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 
-class UserScreenSelect extends StatelessWidget {
+class VehiclesScreen extends StatefulWidget {
+  @override
+  _VehiclesScreenState createState() => _VehiclesScreenState();
+}
+
+class _VehiclesScreenState extends State<VehiclesScreen> {
+  final TextEditingController _brandController = TextEditingController();
+  final TextEditingController _modelController = TextEditingController();
+  final TextEditingController _numberController = TextEditingController();
+  final TextEditingController _plateController = TextEditingController();
+  final TextEditingController _capacityController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Usuarios',
+          'Vehículos',
           style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -20,9 +31,9 @@ class UserScreenSelect extends StatelessWidget {
         iconTheme: IconThemeData(color: Colors.blue),
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 15, top: 10),
+            padding: EdgeInsets.only(right: 15),
             child: Image.asset(
-              'assets/logo.png',
+              'assets/logo.png', // Asegúrate de tener el logo en la carpeta assets
               height: 40,
             ),
           ),
@@ -35,26 +46,38 @@ class UserScreenSelect extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Bienvenido al apartado de usuarios, ¿qué te gustaría hacer hoy?',
+              'Bienvenido al apartado de vehículos, registra tu flotilla',
               style: TextStyle(fontSize: 16),
             ),
+            SizedBox(height: 15),
+            _inputField('Marca', _brandController),
+            SizedBox(height: 10),
+            _inputField('Modelo', _modelController),
+            SizedBox(height: 10),
+            _inputField('Num. Combi', _numberController),
+            SizedBox(height: 10),
+            _inputField('Placa', _plateController),
+            SizedBox(height: 10),
+            _inputField('Capacidad', _capacityController, inputType: TextInputType.number),
             SizedBox(height: 20),
             Center(
-              child: Column(
-                children: [
-                  _optionButton(context, 'Dar de alta usuarios', () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => UserScreenRegister()),
-                    );
-                  }),
-                  _optionButton(context, 'Gestión de usuarios', () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => UserScreenManagement()),
-                    );
-                  }),
-                ],
+              child: ElevatedButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Vehículo registrado correctamente')),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text(
+                  'Guardar',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
               ),
             ),
           ],
@@ -63,20 +86,13 @@ class UserScreenSelect extends StatelessWidget {
     );
   }
 
-  Widget _optionButton(BuildContext context, String title, VoidCallback? onPressed) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 15),
-          side: BorderSide(color: Colors.black),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-        child: Text(
-          title,
-          style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
-        ),
+  Widget _inputField(String label, TextEditingController controller, {TextInputType inputType = TextInputType.text}) {
+    return TextField(
+      controller: controller,
+      keyboardType: inputType,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
       ),
     );
   }
@@ -95,22 +111,19 @@ class UserScreenSelect extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
+              decoration: BoxDecoration(color: Colors.blue),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 30,
-                    child: Icon(Icons.person, color: Colors.blue, size: 40),
+                    child: Icon(Icons.directions_car, color: Colors.blue, size: 40),
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'Administrador',
+                    'Gestión de Vehículos',
                     style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    'admin@empresa.com',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                 ],
               ),
@@ -118,6 +131,7 @@ class UserScreenSelect extends StatelessWidget {
             _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
             _drawerItem(context, Icons.people, 'Usuarios', UserScreenSelect()),
             _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
+            _drawerItem(context, Icons.settings, 'Configuración', UserScreenManagement()),
             Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
           ],
@@ -142,7 +156,7 @@ class UserScreenSelect extends StatelessWidget {
         }
       },
       tileColor: Colors.blue.shade800,
-      contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
     );
   }
 }
