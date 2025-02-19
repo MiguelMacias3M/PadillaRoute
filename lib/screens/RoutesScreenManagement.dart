@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:padillaroutea/screens/RoutesScreenRegister.dart';
 
 class RoutesScreenManagement extends StatelessWidget {
   @override
@@ -47,7 +48,12 @@ class RoutesScreenManagement extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => RoutesScreenRegister()),
+          );
+        },
         backgroundColor: Colors.blue,
         child: Icon(Icons.add, color: Colors.white),
       ),

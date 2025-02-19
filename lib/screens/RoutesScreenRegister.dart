@@ -1,12 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
 
-class RoutesScreenManagement extends StatelessWidget {
+class RoutesScreenRegister extends StatefulWidget {
+  @override
+  _RoutesScreenRegisterState createState() => _RoutesScreenRegisterState();
+}
+
+class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
+  final TextEditingController _routeNameController = TextEditingController();
+  List<String> stops = ['Saucillo', 'Bajío', 'Rincón']; // Opciones de paradas
+  List<String> selectedStops = ['Saucillo', 'Bajío', 'Rincón'];
+
+  void _addStop() {
+    setState(() {
+      selectedStops.add('');
+    });
+  }
+
+  void _removeStop(int index) {
+    setState(() {
+      selectedStops.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Rutas',
+          'Crear rutas',
           style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -29,72 +51,83 @@ class RoutesScreenManagement extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Bienvenido al apartado de rutas. Aquí puedes gestionar todas tus rutas y asignar paradas.',
-              style: TextStyle(fontSize: 16, color: Colors.black87),
-            ),
-            SizedBox(height: 10),
-            Expanded(
-              child: ListView(
-                children: [
-                  _routeCard(context, 'Ruta Rincón', ['Rincón', 'Saltillito', 'Concha'], 'Jorge'),
-                  _routeCard(context, 'Ruta Rincón Noche', ['Chayote', 'Alamitos', 'El barranco'], 'Bruno'),
-                  _routeCard(context, 'Ruta Cosío', ['Cosío', 'Bajío', 'Saucillo'], 'José'),
-                ],
+            TextField(
+              controller: _routeNameController,
+              decoration: InputDecoration(
+                labelText: 'Nombre de la ruta',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: Colors.blue,
-        child: Icon(Icons.add, color: Colors.white),
-      ),
-    );
-  }
-
-  Widget _routeCard(BuildContext context, String routeName, List<String> stops, String user) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Padding(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(routeName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            SizedBox(height: 5),
-            Text('Paradas asignadas:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-            Wrap(
-              children: stops.map((stop) => Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4),
-                child: Chip(label: Text(stop)),
-              )).toList(),
-            ),
-            SizedBox(height: 5),
-            Text('Usuario a cargo: $user', style: TextStyle(fontSize: 14)),
             SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                  child: Text('Asignar usuario', style: TextStyle(color: Colors.white)),
+            GestureDetector(
+              onTap: () {},
+              child: Text(
+                'Asignar paradas',
+                style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+              ),
+            ),
+            SizedBox(height: 15),
+            Expanded(
+              child: ListView.builder(
+                itemCount: selectedStops.length,
+                itemBuilder: (context, index) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Parada ${index + 1}'),
+                      DropdownButton<String>(
+                        value: selectedStops[index].isNotEmpty ? selectedStops[index] : null,
+                        items: stops.map((String stop) {
+                          return DropdownMenuItem<String>(
+                            value: stop,
+                            child: Text(stop),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedStops[index] = newValue ?? '';
+                          });
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _removeStop(index),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 10),
+            Center(
+              child: ElevatedButton(
+                onPressed: _addStop,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  shape: CircleBorder(),
+                  padding: EdgeInsets.all(15),
                 ),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
-                  child: Text('Editar', style: TextStyle(color: Colors.black)),
+                child: Icon(Icons.add, color: Colors.white),
+              ),
+            ),
+            SizedBox(height: 10),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  child: Text('Eliminar', style: TextStyle(color: Colors.white)),
+                child: Text(
+                  'Registrar ruta',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
-              ],
+              ),
             ),
           ],
         ),
@@ -132,9 +165,7 @@ class RoutesScreenManagement extends StatelessWidget {
                 ],
               ),
             ),
-            _drawerItem(context, Icons.home, 'Inicio', null),
-            _drawerItem(context, Icons.people, 'Usuarios', null),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', null),
+            _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
             Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
           ],
