@@ -65,7 +65,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
               onTap: () {},
               child: Text(
                 'Asignar paradas',
-                style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontWeight: FontWeight.bold, fontSize: 17 )
               ),
             ),
             SizedBox(height: 15),
