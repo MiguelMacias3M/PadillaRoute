@@ -101,15 +101,16 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
               ),
             ),
             SizedBox(height: 10),
-            Center(
+            Align(
+              alignment: Alignment.centerRight,
               child: ElevatedButton(
                 onPressed: _addStop,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
+                  backgroundColor: const Color.fromARGB(255, 255, 234, 0),
                   shape: CircleBorder(),
                   padding: EdgeInsets.all(15),
                 ),
-                child: Icon(Icons.add, color: Colors.white),
+                child: Icon(Icons.add, color: const Color.fromARGB(255, 0, 0, 0)),
               ),
             ),
             SizedBox(height: 10),
