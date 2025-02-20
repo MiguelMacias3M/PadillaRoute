@@ -17,6 +17,7 @@ class UsuariosHelper {
 
   Future<void> update(int id, Map<String, dynamic> data) async {
     final keyValue = await getKey(id, "idUsuario");
+    print("Clave encontrada para actualización: $keyValue");
     if (keyValue != null) {
       await database.updateEntry(ref, keyValue, data);
     } else {
@@ -26,7 +27,7 @@ class UsuariosHelper {
 
   Future<void> delete(int id) async {
     final keyValue = await getKey(id, "idUsuario");
-    if(keyValue != null) {
+    if (keyValue != null) {
       await database.deleteEntry(ref, keyValue);
     } else {
       throw Exception("No entry found with the id: $id");
@@ -35,7 +36,7 @@ class UsuariosHelper {
 
   Future<Usuario?> get(int id) async {
     final keyValue = await getKey(id, "idUsuario");
-    if(keyValue != null) {
+    if (keyValue != null) {
       final data = await database.getEntryById(ref, keyValue);
       return Usuario.fromJson(data);
     } else {
@@ -44,21 +45,21 @@ class UsuariosHelper {
   }
 
   Future<List<Usuario>> getAll() async {
-  final data = await database.getAllEntries(ref);
+    final data = await database.getAllEntries(ref);
 
-  // Imprimir los datos recibidos en la consola
-  print('Datos recibidos desde la base de datos: $data');
+    // Imprimir los datos recibidos en la consola
+    print('Datos recibidos desde la base de datos: $data');
 
-  if (data.isNotEmpty) {
-    return data.map((e) {
-      // Verifica la estructura de cada elemento
-      print('Elemento de datos: $e');
-      return Usuario.fromJson(Map<String, dynamic>.from(e));
-    }).toList();
-  } else {
-    return [];
+    if (data.isNotEmpty) {
+      return data.map((e) {
+        // Verifica la estructura de cada elemento
+        // print('Elemento de datos: $e');
+        return Usuario.fromJson(Map<String, dynamic>.from(e));
+      }).toList();
+    } else {
+      return [];
+    }
   }
-}
 
   Future<String?> getKey(int id, String field) async {
     return database.getKeyByField(ref, field, id);
