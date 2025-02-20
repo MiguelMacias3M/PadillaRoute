@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:padillaroutea/screens/forgotPasswordScreen.dart'; // Pantalla de recuperación de contraseña
-import 'package:padillaroutea/screens/SplashScreen.dart';
 import 'package:padillaroutea/screens/menuScreenAdmin.dart'; 
 import 'package:padillaroutea/screens/UserScreenRegister.dart'; // Importar la pantalla de registro
 

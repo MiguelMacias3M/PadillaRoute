@@ -1,17 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
 import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
-import 'package:padillaroutea/screens/UserScreenSelect.dart';
-import 'package:padillaroutea/screens/VehiclesScreen.dart';
-import 'package:padillaroutea/screens/VehiclesScreenEdit.dart';
 
-class VehiclesScreenManagement extends StatelessWidget {
+class RoutesScreenRegister extends StatefulWidget {
+  @override
+  _RoutesScreenRegisterState createState() => _RoutesScreenRegisterState();
+}
+
+class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
+  final TextEditingController _routeNameController = TextEditingController();
+  List<String> stops = ['Saucillo', 'Bajío', 'Rincón']; // Opciones de paradas
+  List<String> selectedStops = ['Saucillo', 'Bajío', 'Rincón'];
+
+  void _addStop() {
+    setState(() {
+      selectedStops.add('');
+    });
+  }
+
+  void _removeStop(int index) {
+    setState(() {
+      selectedStops.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Gestión de vehículos',
+          'Crear rutas',
           style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -34,29 +51,72 @@ class VehiclesScreenManagement extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 0.85,
+            TextField(
+              controller: _routeNameController,
+              decoration: InputDecoration(
+                labelText: 'Nombre de la ruta',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                itemCount: 6, // Número de vehículos de ejemplo
+              ),
+            ),
+            SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {},
+              child: Text(
+                'Asignar paradas',
+                style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontWeight: FontWeight.bold, fontSize: 17 )
+              ),
+            ),
+            SizedBox(height: 15),
+            Expanded(
+              child: ListView.builder(
+                itemCount: selectedStops.length,
                 itemBuilder: (context, index) {
-                  return _vehicleCard(context);
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Parada ${index + 1}'),
+                      DropdownButton<String>(
+                        value: selectedStops[index].isNotEmpty ? selectedStops[index] : null,
+                        items: stops.map((String stop) {
+                          return DropdownMenuItem<String>(
+                            value: stop,
+                            child: Text(stop),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedStops[index] = newValue ?? '';
+                          });
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _removeStop(index),
+                      ),
+                    ],
+                  );
                 },
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: _addStop,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 255, 234, 0),
+                  shape: CircleBorder(),
+                  padding: EdgeInsets.all(15),
+                ),
+                child: Icon(Icons.add, color: const Color.fromARGB(255, 0, 0, 0)),
+              ),
+            ),
+            SizedBox(height: 10),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => VehiclesScreen()),
-                  );
-                },
+                onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
@@ -65,45 +125,9 @@ class VehiclesScreenManagement extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  'Registrar vehículo',
+                  'Registrar ruta',
                   style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _vehicleCard(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      elevation: 3,
-      child: Padding(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('#101', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            Text('Toyota', style: TextStyle(fontSize: 16, color: Colors.blueAccent)),
-            Text('Hilux 2016', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-            Spacer(),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => VehiclesScreenEdit()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Text('Editar', style: TextStyle(color: Colors.black)),
               ),
             ),
           ],
@@ -132,20 +156,17 @@ class VehiclesScreenManagement extends StatelessWidget {
                   CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 30,
-                    child: Icon(Icons.directions_car, color: Colors.blue, size: 40),
+                    child: Icon(Icons.directions_bus, color: Colors.blue, size: 40),
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'Gestión de Vehículos',
+                    'Gestión de Rutas',
                     style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
             _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
-            _drawerItem(context, Icons.people, 'Usuarios', UserScreenSelect()),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreen()),
-            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
             Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
           ],
