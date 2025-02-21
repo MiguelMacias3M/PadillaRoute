@@ -13,7 +13,7 @@ class VehiculosHelper {
 
   Future<void> setNew(Vehiculo vehiculo) async {
     await database.setNewEntry(ref, vehiculo.toJson());
-  } // WORKS!!!
+  }
 
   Future<void> update(int id, Map<String, dynamic> data) async {
     final keyValue = await getKey(id, "idVehiculo");
@@ -22,11 +22,11 @@ class VehiculosHelper {
     } else {
       throw Exception("No entry found with the id: $id");
     }
-  } // WORKS!!!
+  }
 
   Future<void> delete(int id) async {
-    final keyValue = await getKey(id, "idVehiculo");  
-    if(keyValue != null) {
+    final keyValue = await getKey(id, "idVehiculo");
+    if (keyValue != null) {
       await database.deleteEntry(ref, keyValue);
     } else {
       throw Exception("No entry found with the id: $id");
@@ -35,18 +35,18 @@ class VehiculosHelper {
 
   Future<Vehiculo?> get(int id) async {
     final keyValue = await getKey(id, "idVehiculo");
-    if(keyValue != null) {
+    if (keyValue != null) {
       final data = await database.getEntryById(ref, keyValue);
-      return Vehiculo.fromJson(data);
+      return Vehiculo.fromJson(Map<String, dynamic>.from(data));
     } else {
       return null;
     }
   }
 
-  Future<List> getAll() async {
+  Future<List<Vehiculo>> getAll() async {
     final data = await database.getAllEntries(ref);
     if (data.isNotEmpty) {
-      return data.map((e) => Vehiculo.fromJson(e)).toList();
+      return data.map((e) => Vehiculo.fromJson(Map<String, dynamic>.from(e))).toList();
     } else {
       return [];
     }

@@ -21,16 +21,17 @@ class Vehiculo {
   final int numeroSerie;
   final Estatus estatus;
 
-  Vehiculo(
-      {required this.idVehiculo,
-      required this.placa,
-      required this.marca,
-      required this.modelo,
-      required this.capacidad,
-      required this.numeroSerie,
-      required this.estatus
+  Vehiculo({
+    required this.idVehiculo,
+    required this.placa,
+    required this.marca,
+    required this.modelo,
+    required this.capacidad,
+    required this.numeroSerie,
+    required this.estatus,
   });
 
-  factory Vehiculo.fromJson(Map<String, dynamic> json) => _$VehiculoFromJson(json);
+  factory Vehiculo.fromJson(Map<String, dynamic> json) =>
+      _$VehiculoFromJson(json);
   Map<String, dynamic> toJson() => _$VehiculoToJson(this);
 }
