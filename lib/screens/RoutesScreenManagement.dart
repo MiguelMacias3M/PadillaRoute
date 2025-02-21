@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
 import 'package:padillaroutea/screens/RoutesScreenEdit.dart';
 import 'package:padillaroutea/screens/RoutesScreenRegister.dart';
 import 'package:padillaroutea/screens/RoutesScreenAssign.dart';
+import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
+import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
+import 'package:padillaroutea/screens/UserScreenManagement.dart';
+
 
 class RoutesScreenManagement extends StatelessWidget {
   @override
@@ -30,7 +35,7 @@ class RoutesScreenManagement extends StatelessWidget {
           ),
         ],
       ),
-      drawer: _buildDrawer(context),
+      drawer: _buildDrawer(context), // Menú lateral funcional
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -128,7 +133,6 @@ class RoutesScreenManagement extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => RoutesScreenEdit()),
                 );
               }),
-              _actionButton(context, 'Eliminar', Colors.red, Icons.delete, () {}),
             ],
           ),
         ],
@@ -179,9 +183,10 @@ class RoutesScreenManagement extends StatelessWidget {
                 ],
               ),
             ),
-            _drawerItem(context, Icons.home, 'Inicio', null),
-            _drawerItem(context, Icons.people, 'Usuarios', null),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', null),
+            _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
+            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement()),
+            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
             Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
           ],
