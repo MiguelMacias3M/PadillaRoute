@@ -10,10 +10,14 @@ class RoutesScreenManagement extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Rutas',
-          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.blue.shade900,
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+          ),
         ),
         backgroundColor: Colors.white,
-        elevation: 2,
+        elevation: 0,
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.blue),
         actions: [
@@ -28,15 +32,15 @@ class RoutesScreenManagement extends StatelessWidget {
       ),
       drawer: _buildDrawer(context),
       body: Padding(
-        padding: EdgeInsets.all(20.0),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Bienvenido al apartado de rutas. Aquí puedes gestionar todas tus rutas y asignar paradas.',
+              'Gestiona todas tus rutas y asigna paradas fácilmente.',
               style: TextStyle(fontSize: 16, color: Colors.black87),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 15),
             Expanded(
               child: ListView(
                 children: [
@@ -56,66 +60,91 @@ class RoutesScreenManagement extends StatelessWidget {
             MaterialPageRoute(builder: (context) => RoutesScreenRegister()),
           );
         },
-        backgroundColor: Colors.blue,
-        child: Icon(Icons.add, color: Colors.white),
+        backgroundColor: Colors.blue.shade900,
+        child: Icon(Icons.add, color: Colors.white, size: 30),
       ),
     );
   }
 
   Widget _routeCard(BuildContext context, String routeName, List<String> stops, String user) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Padding(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(routeName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            SizedBox(height: 5),
-            Text('Paradas asignadas:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-            Wrap(
-              children: stops.map((stop) => Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4),
-                child: Chip(label: Text(stop)),
-              )).toList(),
-            ),
-            SizedBox(height: 5),
-            Text('Usuario a cargo: $user', style: TextStyle(fontSize: 14)),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => RoutesScreenAssign()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                  child: Text('Asignar usuario', style: TextStyle(color: Colors.white)),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                     Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => RoutesScreenEdit()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
-                  child: Text('Editar', style: TextStyle(color: Colors.black)),
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  child: Text('Eliminar', style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-          ],
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 12),
+      padding: EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade100, Colors.white],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6,
+            spreadRadius: 1,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            routeName,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.blue.shade900),
+          ),
+          Divider(color: Colors.blue.shade300),
+          SizedBox(height: 8),
+          Text('Paradas asignadas:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          SizedBox(height: 5),
+          Wrap(
+            spacing: 8,
+            runSpacing: 5,
+            children: stops.map((stop) {
+              return Chip(
+                label: Text(stop, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                backgroundColor: Colors.blue.shade200,
+              );
+            }).toList(),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Usuario a cargo: $user',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+          SizedBox(height: 15),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _actionButton(context, 'Asignar usuario', Colors.blue, Icons.person_add, () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RoutesScreenAssign()),
+                );
+              }),
+              _actionButton(context, 'Editar', Colors.amber, Icons.edit, () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RoutesScreenEdit()),
+                );
+              }),
+              _actionButton(context, 'Eliminar', Colors.red, Icons.delete, () {}),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _actionButton(BuildContext context, String text, Color color, IconData icon, VoidCallback onPressed) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, color: Colors.white),
+      label: Text(text, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
