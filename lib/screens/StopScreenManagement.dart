@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
+import 'package:padillaroutea/screens/StopScreenRegister.dart';
 import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 import 'package:padillaroutea/screens/menuScreenAdmin.dart';
@@ -59,7 +60,7 @@ class StopScreenManagement extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => StopScreenManagement()),
+            MaterialPageRoute(builder: (context) => StopScreenRegister()),
           );
         },
         backgroundColor: Colors.blue,
@@ -95,7 +96,7 @@ class StopScreenManagement extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => StopScreenManagement()),
+                      MaterialPageRoute(builder: (context) => StopScreenRegister()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
