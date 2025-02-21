@@ -195,7 +195,8 @@ class RoutesScreenManagement extends StatelessWidget {
     );
   }
 
-  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
+ 
+  } Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
       title: Text(
@@ -213,5 +214,4 @@ class RoutesScreenManagement extends StatelessWidget {
       tileColor: Colors.blue.shade800,
       contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
     );
-  }
 }

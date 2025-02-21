@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
+import 'package:padillaroutea/screens/UserScreenManagement.dart';
+import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
+import 'package:padillaroutea/screens/menuScreenAdmin.dart';
 
 
 class StopScreenManagement extends StatelessWidget {
@@ -117,6 +121,7 @@ class StopScreenManagement extends StatelessWidget {
     );
   }
 
+
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: Container(
@@ -141,17 +146,17 @@ class StopScreenManagement extends StatelessWidget {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'Gestión de Paradas',
+                    'Gestión de paradas',
                     style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
-            _drawerItem(context, Icons.home, 'Inicio', null),
-            _drawerItem(context, Icons.people, 'Usuarios', null),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', null),
-            _drawerItem(context, Icons.directions_bus, 'Rutas', null),
-            _drawerItem(context, Icons.warning, 'Incidencias', null),
+            _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
+            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement()),
+            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
+             _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement()),
             Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
           ],
