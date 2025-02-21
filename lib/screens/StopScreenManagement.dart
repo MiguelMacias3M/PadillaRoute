@@ -1,50 +1,13 @@
 import 'package:flutter/material.dart';
 
-class StopScreenManagement extends StatefulWidget {
-  @override
-  _StopScreenManagementState createState() => _StopScreenManagementState();
-}
 
-class _StopScreenManagementState extends State<StopScreenManagement> {
-  final TextEditingController _searchController = TextEditingController();
-  List<Map<String, String>> stops = [
-    {
-      'name': 'Bajío',
-      'address': 'C. Arellano Randel #102, Bajío, Rincón de Romos',
-      'arrival': '14:00',
-      'departure': '14:05',
-      'wait': '5 min'
-    },
-    {
-      'name': 'Saltillito',
-      'address': 'C. Arellano Randel #102, Bajío, Rincón de Romos',
-      'arrival': '14:00',
-      'departure': '14:05',
-      'wait': '5 min'
-    }
-  ];
-  List<Map<String, String>> filteredStops = [];
-
-  @override
-  void initState() {
-    super.initState();
-    filteredStops = stops;
-  }
-
-  void _filterStops(String query) {
-    setState(() {
-      filteredStops = stops
-          .where((stop) => stop['name']!.toLowerCase().contains(query.toLowerCase()))
-          .toList();
-    });
-  }
-
+class StopScreenManagement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Gestión de paradas',
+          'Gestión de Paradas',
           style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -68,8 +31,6 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
-              controller: _searchController,
-              onChanged: _filterStops,
               decoration: InputDecoration(
                 prefixIcon: Icon(Icons.search),
                 hintText: 'Buscar parada',
@@ -80,54 +41,72 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
             ),
             SizedBox(height: 20),
             Expanded(
-              child: ListView.builder(
-                itemCount: filteredStops.length,
-                itemBuilder: (context, index) {
-                  return _stopCard(filteredStops[index]);
-                },
+              child: ListView(
+                children: [
+                  _stopCard(context, 'Bajio', 'C. Arellano Randel #102, Bajio, Rincon de Romos', '14:00', '14:05', '5 min'),
+                  _stopCard(context, 'Saltillito', 'C. Arellano Randel #102, Bajio, Rincon de Romos', '14:00', '14:05', '5 min'),
+                ],
               ),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => StopScreenManagement()),
+          );
+        },
         backgroundColor: Colors.blue,
         child: Icon(Icons.add, color: Colors.white),
       ),
     );
   }
 
-  Widget _stopCard(Map<String, String> stop) {
+  Widget _stopCard(BuildContext context, String stopName, String address, String arrival, String departure, String wait) {
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      elevation: 5,
       margin: EdgeInsets.symmetric(vertical: 10),
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.all(15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(stop['name']!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(
+              stopName,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blueAccent),
+            ),
             SizedBox(height: 5),
-            Text('Dirección: ${stop['address']}',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-            Text('Hora de llegada: ${stop['arrival']}', style: TextStyle(fontSize: 14)),
-            Text('Hora de salida: ${stop['departure']}', style: TextStyle(fontSize: 14)),
-            Text('Espera: ${stop['wait']}', style: TextStyle(fontSize: 14)),
+            Text('📍 Dirección: $address', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            Text('🕒 Hora de llegada: $arrival', style: TextStyle(fontSize: 14)),
+            Text('🕑 Hora de salida: $departure', style: TextStyle(fontSize: 14)),
+            Text('⏳ Tiempo de espera: $wait', style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic)),
             SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => StopScreenManagement()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
                   child: Text('Editar', style: TextStyle(color: Colors.black)),
                 ),
                 SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: () {},
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
                   child: Text('Eliminar', style: TextStyle(color: Colors.white)),
                 ),
               ],
@@ -169,9 +148,10 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
               ),
             ),
             _drawerItem(context, Icons.home, 'Inicio', null),
+            _drawerItem(context, Icons.people, 'Usuarios', null),
+            _drawerItem(context, Icons.directions_car, 'Vehículos', null),
             _drawerItem(context, Icons.directions_bus, 'Rutas', null),
-            _drawerItem(context, Icons.warning_amber, 'Incidencias', null),
-            _drawerItem(context, Icons.settings, 'Configuración', null),
+            _drawerItem(context, Icons.warning, 'Incidencias', null),
             Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
           ],
