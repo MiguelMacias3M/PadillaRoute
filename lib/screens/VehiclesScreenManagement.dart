@@ -6,7 +6,8 @@ import 'package:padillaroutea/screens/VehiclesScreenEdit.dart';
 
 class VehiclesScreenManagement extends StatefulWidget {
   @override
-  _VehiclesScreenManagementState createState() => _VehiclesScreenManagementState();
+  _VehiclesScreenManagementState createState() =>
+      _VehiclesScreenManagementState();
 }
 
 class _VehiclesScreenManagementState extends State<VehiclesScreenManagement> {
@@ -87,77 +88,78 @@ class _VehiclesScreenManagementState extends State<VehiclesScreenManagement> {
   }
 
   Widget _vehicleCard(BuildContext context, Vehiculo vehiculo) {
-  Color getStatusColor(Estatus estatus) {
-    switch (estatus) {
-      case Estatus.activo:
-        return Colors.green;
-      case Estatus.inactivo:
-        return Colors.red;
-      case Estatus.mantenimiento:
-        return Colors.orange;
-      default:
-        return Colors.grey;
+    Color getStatusColor(Estatus estatus) {
+      switch (estatus) {
+        case Estatus.activo:
+          return Colors.green;
+        case Estatus.inactivo:
+          return Colors.red;
+        case Estatus.mantenimiento:
+          return Colors.orange;
+        default:
+          return Colors.grey;
+      }
     }
-  }
 
-  return Card(
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-    elevation: 3,
-    child: Padding(
-      padding: EdgeInsets.all(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            vehiculo.marca,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          Text(
-            vehiculo.modelo,
-            style: TextStyle(fontSize: 16, color: Colors.blueAccent),
-          ),
-          SizedBox(height: 5),
-          Row(
-            children: [
-              Icon(Icons.circle, color: getStatusColor(vehiculo.estatus), size: 14),
-              SizedBox(width: 5),
-              Text(
-                vehiculo.estatus.name.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: getStatusColor(vehiculo.estatus),
-                ),
-              ),
-            ],
-          ),
-          Spacer(),
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => VehiclesScreenEdit(),
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 3,
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              vehiculo.marca,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            Text(
+              vehiculo.modelo,
+              style: TextStyle(fontSize: 16, color: Colors.blueAccent),
+            ),
+            SizedBox(height: 5),
+            Row(
+              children: [
+                Icon(Icons.circle,
+                    color: getStatusColor(vehiculo.estatus), size: 14),
+                SizedBox(width: 5),
+                Text(
+                  vehiculo.estatus.name.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: getStatusColor(vehiculo.estatus),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
                 ),
-              ),
-              child: Text(
-                'Editar',
-                style: TextStyle(color: Colors.black),
+              ],
+            ),
+            Spacer(),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          VehiclesScreenEdit(vehiculo: vehiculo),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  'Editar',
+                  style: TextStyle(color: Colors.black),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 }
