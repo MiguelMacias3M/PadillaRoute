@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
+import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
 import 'package:padillaroutea/screens/RoutesScreenEdit.dart';
 import 'package:padillaroutea/screens/RoutesScreenRegister.dart';
 import 'package:padillaroutea/screens/RoutesScreenAssign.dart';
+import 'package:padillaroutea/screens/StopScreenManagement.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
 import 'package:padillaroutea/screens/UserScreenManagement.dart';
+import 'package:padillaroutea/screens/loginscreen.dart';
 
 
 class RoutesScreenManagement extends StatelessWidget {
@@ -187,8 +190,10 @@ class RoutesScreenManagement extends StatelessWidget {
             _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement()),
             _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
             _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
+            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement()),
+            _drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement()),
             Divider(color: Colors.white),
-            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
+            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
           ],
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/MonitoringRouteSceen.dart';
+import 'package:padillaroutea/screens/loginscreen.dart';
 import 'package:padillaroutea/screens/menuScreenAdmin.dart';
 import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
@@ -173,8 +174,9 @@ class MonitoringScreenManagement extends StatelessWidget {
             _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
             _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
             _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement()),
+            _drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement()),
             Divider(color: Colors.white),
-            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
+            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
           ],
         ),
       ),
