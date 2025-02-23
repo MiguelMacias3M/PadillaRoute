@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
+import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
 import 'package:padillaroutea/screens/RoutesScreenManagement.dart';
 import 'package:padillaroutea/screens/StopScreenManagement.dart';
 import 'package:padillaroutea/screens/UserScreenRegister.dart';
@@ -44,7 +45,7 @@ class MenuScreenAdmin extends StatelessWidget {
           children: [
             _menuItem(context, Icons.people, 'Usuarios', screen: UserScreenSelect()),
             _menuItem(context, Icons.directions_bus, 'Rutas', screen: RoutesScreenManagement()),
-            _menuItem(context, Icons.location_on, 'Monitorear'),
+            _menuItem(context, Icons.location_on, 'Monitorear', screen: MonitoringScreenManagement()),
             _menuItem(context, Icons.directions_car, 'Vehículos', screen: VehiclesScreenManagement()),
             _menuItem(context, Icons.bar_chart, 'Reportes'),
             _menuItem(context, Icons.local_parking, 'Paradas', screen: StopScreenManagement()),

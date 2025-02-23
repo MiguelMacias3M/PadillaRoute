@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 
-class StopScreenRegister extends StatefulWidget {
+class StopScreenEdit extends StatefulWidget {
   @override
-  _StopScreenRegisterState createState() => _StopScreenRegisterState();
+  _StopScreenEditState createState() => _StopScreenEditState();
 }
 
-class _StopScreenRegisterState extends State<StopScreenRegister> {
+class _StopScreenEditState extends State<StopScreenEdit> {
   TextEditingController _routeNameController = TextEditingController();
   TextEditingController _startTimeController = TextEditingController();
   TextEditingController _endTimeController = TextEditingController();
@@ -50,7 +50,7 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Registrar Ruta"),
+        title: Text("Editar Ruta"),
         backgroundColor: Colors.blueAccent,
       ),
       body: Padding(
@@ -101,11 +101,11 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  // Lógica para registrar la ruta
-                  print("Ruta Registrada: ${_routeNameController.text}, Coordenadas: ${_coordinatesController.text}");
+                  // Lógica para guardar la ruta editada
+                  print("Ruta Guardada: ${_routeNameController.text}, Coordenadas: ${_coordinatesController.text}");
                 },
                 child: Text(
-                  "Registrar Ruta",
+                  "Guardar Ruta",
                   style: TextStyle(color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(

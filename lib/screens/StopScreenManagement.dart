@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
+import 'package:padillaroutea/screens/StopScreenEdit.dart';
 import 'package:padillaroutea/screens/StopScreenRegister.dart';
 import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
@@ -96,7 +97,7 @@ class StopScreenManagement extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => StopScreenRegister()),
+                      MaterialPageRoute(builder: (context) => StopScreenEdit()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
