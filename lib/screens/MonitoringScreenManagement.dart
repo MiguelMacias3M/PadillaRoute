@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:padillaroutea/screens/MonitoringRouteSceen.dart';
 import 'package:padillaroutea/screens/menuScreenAdmin.dart';
 import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
@@ -62,7 +63,7 @@ class MonitoringScreenManagement extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MonitoringScreenManagement()),
+                    MaterialPageRoute(builder: (context) => MonitoringRouteScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -119,7 +120,7 @@ class MonitoringScreenManagement extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MonitoringScreenManagement()),
+                    MaterialPageRoute(builder: (context) => MonitoringRouteScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
