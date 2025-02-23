@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -9,25 +10,37 @@ class MonitoringRouteScreen extends StatefulWidget {
 class _MonitoringRouteScreenState extends State<MonitoringRouteScreen> {
   GoogleMapController? _mapController;
   LatLng _vehiclePosition = LatLng(22.229896, -102.321105);
-  
+  Timer? _timer;
+
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
   }
-  
-  void _updateVehiclePosition() {
-    setState(() {
-      _vehiclePosition = LatLng(
-        _vehiclePosition.latitude + 0.0001,
-        _vehiclePosition.longitude + 0.0001,
-      );
+
+  void _startRealTimeTracking() {
+    _timer = Timer.periodic(Duration(seconds: 2), (timer) {
+      setState(() {
+        _vehiclePosition = LatLng(
+          _vehiclePosition.latitude + 0.0001,
+          _vehiclePosition.longitude + 0.0001,
+        );
+        _mapController?.animateCamera(
+          CameraUpdate.newLatLng(_vehiclePosition),
+        );
+      });
     });
   }
-  
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Monitoreo de Vehículo"),
+        title: Text("Monitoreo de Vehículo en Tiempo Real"),
         backgroundColor: Colors.blueAccent,
       ),
       body: Column(
@@ -50,12 +63,12 @@ class _MonitoringRouteScreenState extends State<MonitoringRouteScreen> {
           ),
           SizedBox(height: 10),
           ElevatedButton(
-            onPressed: _updateVehiclePosition,
+            onPressed: _startRealTimeTracking,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
             ),
-            child: Text("Actualizar Ubicación", style: TextStyle(color: Colors.white)),
+            child: Text("Iniciar Seguimiento", style: TextStyle(color: Colors.white)),
           ),
           SizedBox(height: 10),
         ],
