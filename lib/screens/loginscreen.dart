@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:padillaroutea/screens/forgotPasswordScreen.dart'; // Pantalla de recuperación de contraseña
 import 'package:padillaroutea/screens/menuScreenAdmin.dart'; 
-import 'package:padillaroutea/screens/UserScreenRegister.dart'; // Importar la pantalla de registro
+import 'package:padillaroutea/screens/user/IncidentsScreenRegister.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -106,11 +106,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => UserScreenRegister()),
+                        MaterialPageRoute(builder: (context) => IncidentsScreenRegister()),
                       );
                     },
                     child: Text(
-                      'Registrarse',
+                      'Registrar incidencia',
                       style: TextStyle(color: Colors.blueAccent),
                     ),
                   ),

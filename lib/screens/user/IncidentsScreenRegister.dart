@@ -1,6 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:padillaroutea/models/realtimeDB_models/incidente_registro.dart';
+import 'package:padillaroutea/services/realtime_db_services/incidentes_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 
-class IncidentsScreenRegister extends StatelessWidget {
+class IncidentsScreenRegister extends StatefulWidget {
+  @override
+  _IncidentsScreenRegisterState createState() =>
+      _IncidentsScreenRegisterState();
+}
+
+class _IncidentsScreenRegisterState extends State<IncidentsScreenRegister> {
+  final TextEditingController _nombreController = TextEditingController();
+  final TextEditingController _descripcionController = TextEditingController();
+  late IncidentesHelper incidentesHelper;
+
+  @override
+  void initState() {
+    super.initState();
+    incidentesHelper = IncidentesHelper(RealtimeDbHelper());
+  }
+
+  Future<void> _guardarIncidencia() async {
+    String nombre = _nombreController.text.trim();
+    String descripcion = _descripcionController.text.trim();
+
+    if (nombre.isEmpty || descripcion.isEmpty) {
+      _mostrarMensaje('Por favor, completa todos los campos.');
+      return;
+    }
+
+    IncidenteRegistro nuevoIncidente = IncidenteRegistro(
+      idRegistro: DateTime.now().millisecondsSinceEpoch,
+      idUsuario: 1, // Reemplazar con el ID del usuario autenticado si aplica
+      descripcion: descripcion,
+      fecha: DateTime.now().toString(),
+      idVehiculo: 1, // Reemplazar con el ID del vehículo si aplica
+    );
+
+    await incidentesHelper.setNew(nuevoIncidente);
+    _mostrarMensaje('Incidencia registrada exitosamente.');
+    _nombreController.clear();
+    _descripcionController.clear();
+  }
+
+  void _mostrarMensaje(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(mensaje)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,13 +81,13 @@ class IncidentsScreenRegister extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
-            _buildTextField('Nombre de la incidencia'),
+            _buildTextField('Nombre de la incidencia', _nombreController),
             SizedBox(height: 20),
-            _buildDescriptionField('Descripción'),
+            _buildDescriptionField('Descripción', _descripcionController),
             SizedBox(height: 30),
             Center(
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: _guardarIncidencia,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
@@ -59,8 +107,9 @@ class IncidentsScreenRegister extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField(String hintText) {
+  Widget _buildTextField(String hintText, TextEditingController controller) {
     return TextField(
+      controller: controller,
       decoration: InputDecoration(
         hintText: hintText,
         border: OutlineInputBorder(
@@ -70,8 +119,10 @@ class IncidentsScreenRegister extends StatelessWidget {
     );
   }
 
-  Widget _buildDescriptionField(String hintText) {
+  Widget _buildDescriptionField(
+      String hintText, TextEditingController controller) {
     return TextField(
+      controller: controller,
       maxLines: 5,
       decoration: InputDecoration(
         hintText: hintText,

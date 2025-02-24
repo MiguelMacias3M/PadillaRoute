@@ -26,7 +26,7 @@ class IncidentesHelper {
 
   Future<void> delete(int id) async {
     final keyValue = await getKey(id, "idRegistro");
-    if(keyValue != null) {
+    if (keyValue != null) {
       await database.deleteEntry(ref, keyValue);
     } else {
       throw Exception("No entry found with the id: $id");
@@ -35,18 +35,20 @@ class IncidentesHelper {
 
   Future<IncidenteRegistro?> get(int id) async {
     final keyValue = await getKey(id, "idRegistro");
-    if(keyValue != null) {
+    if (keyValue != null) {
       final data = await database.getEntryById(ref, keyValue);
       return IncidenteRegistro.fromJson(data);
     } else {
       return null;
     }
   } // WORKS!!!
-  
-  Future<List> getAll() async {
+
+  Future<List<IncidenteRegistro>> getAll() async {
     final data = await database.getAllEntries(ref);
     if (data.isNotEmpty) {
-      return data.map((e) => IncidenteRegistro.fromJson(e)).toList();
+      return data
+          .map((e) => IncidenteRegistro.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
     } else {
       return [];
     }
@@ -55,5 +57,4 @@ class IncidentesHelper {
   Future<String?> getKey(int id, String field) async {
     return database.getKeyByField(ref, field, id);
   } // WORKS!!!
-
 }

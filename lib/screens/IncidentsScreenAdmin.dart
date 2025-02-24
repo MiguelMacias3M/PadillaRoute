@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:padillaroutea/models/realtimeDB_models/incidente_registro.dart';
+import 'package:padillaroutea/services/realtime_db_services/incidentes_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 
 class IncidentsScreenAdmin extends StatefulWidget {
   @override
@@ -7,26 +10,32 @@ class IncidentsScreenAdmin extends StatefulWidget {
 
 class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
   final TextEditingController _searchController = TextEditingController();
-  List<String> incidents = [
-    'Choque - Jorge',
-    'Trafico - María',
-    'Trafico - Pedro',
-    'Vialidad cerrada - Luisa',
-    'Choque - Carlos',
-    'Trafico - Ana',
-  ];
-  List<String> filteredIncidents = [];
+  List<IncidenteRegistro> incidents = [];
+  List<IncidenteRegistro> filteredIncidents = [];
+  late IncidentesHelper incidentesHelper;
 
   @override
   void initState() {
     super.initState();
-    filteredIncidents = incidents;
+    incidentesHelper = IncidentesHelper(RealtimeDbHelper());
+    _loadIncidents();
   }
 
+  // Cargar incidentes desde la base de datos
+  Future<void> _loadIncidents() async {
+    List<IncidenteRegistro> incidentList = await incidentesHelper.getAll();
+    setState(() {
+      incidents = incidentList;
+      filteredIncidents = incidentList;
+    });
+  }
+
+  // Filtrar incidentes por descripción
   void _filterIncidents(String query) {
     setState(() {
       filteredIncidents = incidents
-          .where((incident) => incident.toLowerCase().contains(query.toLowerCase()))
+          .where((incident) =>
+              incident.descripcion.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -71,12 +80,14 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
             ),
             SizedBox(height: 20),
             Expanded(
-              child: ListView.builder(
-                itemCount: filteredIncidents.length,
-                itemBuilder: (context, index) {
-                  return _incidentItem(filteredIncidents[index]);
-                },
-              ),
+              child: filteredIncidents.isEmpty
+                  ? Center(child: CircularProgressIndicator()) // Cargando incidentes
+                  : ListView.builder(
+                      itemCount: filteredIncidents.length,
+                      itemBuilder: (context, index) {
+                        return _incidentItem(filteredIncidents[index]);
+                      },
+                    ),
             ),
           ],
         ),
@@ -84,17 +95,17 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
     );
   }
 
-  Widget _incidentItem(String incident) {
+  Widget _incidentItem(IncidenteRegistro incidente) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 10),
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
-        title: Text(incident.split(' - ')[0], style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('Usuario a cargo: ${incident.split(' - ')[1]}'),
+        title: Text(incidente.descripcion, style: TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text('ID Usuario: ${incidente.idUsuario}'),
         trailing: ElevatedButton(
           onPressed: () {
-            _showIncidentDetails(context, incident);
+            _showIncidentDetails(context, incidente);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
@@ -108,7 +119,7 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
     );
   }
 
-  void _showIncidentDetails(BuildContext context, String incident) {
+  void _showIncidentDetails(BuildContext context, IncidenteRegistro incidente) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -118,17 +129,15 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Nombre de la incidencia: Choque'),
+              Text('ID Registro: ${incidente.idRegistro}'),
               SizedBox(height: 5),
-              Text('Usuario a cargo: Juan'),
+              Text('ID Usuario: ${incidente.idUsuario}'),
               SizedBox(height: 5),
-              Text('Descripción: Choque frontal'),
+              Text('Descripción: ${incidente.descripcion}'),
               SizedBox(height: 5),
-              Text('Hora y fecha: 12:31 12 de febrero 2024'),
+              Text('Fecha: ${incidente.fecha}'),
               SizedBox(height: 5),
-              Text('Ruta: Bajio'),
-              SizedBox(height: 5),
-              Text('Vehiculo: #108'),
+              Text('ID Vehículo: ${incidente.idVehiculo}'),
             ],
           ),
           actions: [
