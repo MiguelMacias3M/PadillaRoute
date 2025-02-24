@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:padillaroutea/screens/RoutesScreenEdit.dart';
 import 'package:padillaroutea/screens/RoutesScreenRegister.dart';
+import 'package:padillaroutea/screens/RoutesScreenAssign.dart';
 
 class RoutesScreenManagement extends StatelessWidget {
   @override
@@ -86,12 +88,22 @@ class RoutesScreenManagement extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RoutesScreenAssign()),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
                   child: Text('Asignar usuario', style: TextStyle(color: Colors.white)),
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                     Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RoutesScreenEdit()),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.amber),
                   child: Text('Editar', style: TextStyle(color: Colors.black)),
                 ),
