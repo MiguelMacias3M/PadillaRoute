@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
+import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
+import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 
 class RoutesScreenRegister extends StatefulWidget {
   @override
@@ -10,6 +13,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
   final TextEditingController _routeNameController = TextEditingController();
   List<String> stops = ['Saucillo', 'Bajío', 'Rincón']; // Opciones de paradas
   List<String> selectedStops = ['Saucillo', 'Bajío', 'Rincón'];
+  final RutasHelper _rutasHelper = RutasHelper(RealtimeDbHelper());
 
   void _addStop() {
     setState(() {
@@ -21,6 +25,46 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
     setState(() {
       selectedStops.removeAt(index);
     });
+  }
+
+  Future<void> _registerRoute() async {
+    if (_routeNameController.text.isNotEmpty && selectedStops.isNotEmpty) {
+      // Crear una nueva ruta
+      Ruta nuevaRuta = Ruta(
+        idRuta: DateTime.now().millisecondsSinceEpoch, // Generar un ID único
+        idChofer: 1, // Asigna un ID de chofer apropiado
+        nombre: _routeNameController.text,
+        origen: selectedStops.first, // Puedes ajustar esto según tu lógica
+        destino: selectedStops.last, // Puedes ajustar esto según tu lógica
+        paradas: selectedStops,
+      );
+
+      try {
+        // Guardar la ruta en la base de datos
+        await _rutasHelper.setNew(nuevaRuta);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Ruta registrada con éxito!'),
+          backgroundColor: Colors.green,
+        ));
+        // Reiniciar el formulario
+        _routeNameController.clear();
+        setState(() {
+          selectedStops = ['Saucillo', 'Bajío', 'Rincón']; // Reiniciar paradas
+        });
+      } catch (e) {
+        // Manejar errores
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Error al registrar la ruta: $e'),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } else {
+      // Manejar el caso de campos vacíos
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Por favor, completa todos los campos.'),
+        backgroundColor: Colors.orange,
+      ));
+    }
   }
 
   @override
@@ -65,7 +109,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
               onTap: () {},
               child: Text(
                 'Asignar paradas',
-                style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontWeight: FontWeight.bold, fontSize: 17 )
+                style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontWeight: FontWeight.bold, fontSize: 17 ),
               ),
             ),
             SizedBox(height: 15),
@@ -116,7 +160,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
             SizedBox(height: 10),
             Center(
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: _registerRoute,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
