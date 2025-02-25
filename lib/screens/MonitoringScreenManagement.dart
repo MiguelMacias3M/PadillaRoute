@@ -6,8 +6,10 @@ import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
 import 'package:padillaroutea/screens/StopScreenManagement.dart';
+import 'package:padillaroutea/services/firebase_auth/firebase_auth_helper.dart';
 
 class MonitoringScreenManagement extends StatelessWidget {
+  FirebaseAuthHelper authHelper = FirebaseAuthHelper();
   final List<Map<String, dynamic>> routes = [
     {
       'name': 'Ruta Rincón',
@@ -25,6 +27,32 @@ class MonitoringScreenManagement extends StatelessWidget {
       'user': 'Jose'
     }
   ];
+
+  void _handleLogout(BuildContext context) async {
+    await authHelper.logOut();
+    Navigator.pushAndRemoveUntil(
+        context, 
+        MaterialPageRoute(builder: (contex) => LoginScreen()),
+        (Route<dynamic> route) => false
+      );
+  }
+
+  Widget _drawerItem(BuildContext context, IconData icon, String text, VoidCallback onTap, Widget? screen) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(
+        text,
+        style: TextStyle(fontSize: 16, color: Colors.white),
+      ),
+      onTap: () {
+        if (screen != null) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
+        }
+      },
+      tileColor: Colors.blue.shade800,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +92,8 @@ class MonitoringScreenManagement extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MonitoringRouteScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => MonitoringRouteScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -95,7 +124,10 @@ class MonitoringScreenManagement extends StatelessWidget {
           children: [
             Text(
               route['name'],
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blueAccent),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.blueAccent),
             ),
             SizedBox(height: 5),
             Wrap(
@@ -104,7 +136,9 @@ class MonitoringScreenManagement extends StatelessWidget {
                         padding: const EdgeInsets.only(right: 8.0),
                         child: Text(
                           stop,
-                          style: TextStyle(decoration: TextDecoration.underline, fontSize: 14),
+                          style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              fontSize: 14),
                         ),
                       ))
                   .toList(),
@@ -121,7 +155,8 @@ class MonitoringScreenManagement extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MonitoringRouteScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => MonitoringRouteScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -152,31 +187,41 @@ class MonitoringScreenManagement extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
+            const DrawerHeader(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 30,
-                    child: Icon(Icons.location_on, color: Colors.blue, size: 40),
+                    child:
+                        Icon(Icons.location_on, color: Colors.blue, size: 40),
                   ),
                   SizedBox(height: 10),
                   Text(
                     'Monitoreo',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
-            _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
-            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement()),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
-            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
-            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement()),
-            _drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement()),
-            Divider(color: Colors.white),
-            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
+            _drawerItem(context, Icons.home, 'Inicio', () {}, MenuScreenAdmin()),
+            _drawerItem(
+                context, Icons.people, 'Usuarios', () {}, UserScreenManagement()),
+            _drawerItem(context, Icons.directions_car, 'Vehículos', () {}, 
+                VehiclesScreenManagement()),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias', () {}, 
+                IncidentsScreenAdmin()),
+            _drawerItem(context, Icons.local_parking, 'Paradas', () {}, 
+                StopScreenManagement()),
+            _drawerItem(context, Icons.location_on, 'Monioreo', () {},
+                MonitoringScreenManagement()),
+            const Divider(color: Colors.white),
+            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', () => _handleLogout(context), git),
+            
           ],
         ),
       ),
@@ -184,22 +229,23 @@ class MonitoringScreenManagement extends StatelessWidget {
   }
 }
 
-  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white),
-      title: Text(
-        title,
-        style: TextStyle(fontSize: 16, color: Colors.white),
-      ),
-      onTap: () {
-        if (screen != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => screen),
-          );
-        }
-      },
-      tileColor: Colors.blue.shade800,
-      contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-    );
-  }
+Widget _drawerItem(
+    BuildContext context, IconData icon, String title, Widget? screen) {
+  return ListTile(
+    leading: Icon(icon, color: Colors.white),
+    title: Text(
+      title,
+      style: TextStyle(fontSize: 16, color: Colors.white),
+    ),
+    onTap: () {
+      if (screen != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => screen),
+        );
+      }
+    },
+    tileColor: Colors.blue.shade800,
+    contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+  );
+}
