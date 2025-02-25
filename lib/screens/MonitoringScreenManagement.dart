@@ -220,7 +220,7 @@ class MonitoringScreenManagement extends StatelessWidget {
             _drawerItem(context, Icons.location_on, 'Monioreo', () {},
                 MonitoringScreenManagement()),
             const Divider(color: Colors.white),
-            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', () => _handleLogout(context), git),
+            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', () => _handleLogout(context), null),
             
           ],
         ),
