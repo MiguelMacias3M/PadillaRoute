@@ -162,11 +162,17 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
                 );
               }),
               _actionButton(context, 'Editar', Colors.amber, Icons.edit, () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RoutesScreenEdit(routeId: ruta.idRuta)),
-                );
-              }),
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => RoutesScreenEdit(
+        routeId: ruta.idRuta, // ID de la ruta
+        ruta: ruta, // Pasar la ruta
+      ),
+    ),
+  );
+}),
+
             ],
           ),
         ],
