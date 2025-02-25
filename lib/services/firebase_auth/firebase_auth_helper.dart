@@ -24,10 +24,17 @@ class FirebaseAuthHelper {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        throw Exception('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        throw Exception('Wrong password provided for that user.');
+      switch (e.code) {
+        case 'user-not-found':
+          throw Exception('No user found for that email.');
+        case 'wrong-password':
+          throw Exception('Incorrect password. Please try again.');
+        case 'user-disabled':
+          throw Exception('This account has been disabled. Contact support.');
+        case 'too-many-requests':
+          throw Exception('Too many failed attempts. Try again later.');
+        default:
+          throw Exception('Login failed: ${e.message}');
       }
     } catch (e) {
       throw Exception("An error occurred while trying to log in.");
