@@ -37,12 +37,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 150,
               ),
               const SizedBox(height: 20),
-              Text(
+              const Text(
                 'Iniciar sesión',
                 style: TextStyle(
                   fontSize: 24,
-                  fontWeight: const FontWeight.bold,
-                  color: const Color.fromARGB(255, 0, 183, 255),
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 0, 183, 255),
                 ),
               ),
               const SizedBox(height: 20),
