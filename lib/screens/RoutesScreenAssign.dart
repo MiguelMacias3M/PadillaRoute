@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
+import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
+import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 
 class RoutesScreenAssign extends StatefulWidget {
   @override
@@ -8,34 +13,45 @@ class RoutesScreenAssign extends StatefulWidget {
 class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
   final TextEditingController _searchController = TextEditingController();
   String? selectedUser;
-  List<String> users = [
-    'Jorge Manuel Lopez',
-    'Bruno Martinez',
-    'Carlos Ramirez',
-    'Maria Gonzalez',
-    'Ana Fernandez'
-  ];
-  List<String> filteredUsers = [];
+  String? selectedRoute;
+  List<Usuario> users = [];
+  List<Ruta> routes = [];
+  List<Usuario> filteredUsers = [];
+  List<Ruta> filteredRoutes = [];
+
+  late UsuariosHelper usuariosHelper;
+  late RutasHelper rutasHelper;
 
   @override
   void initState() {
     super.initState();
-    filteredUsers = users;
+    usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+    rutasHelper = RutasHelper(RealtimeDbHelper());
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    users = await usuariosHelper.getAll();
+    routes = await rutasHelper.getAll();
+    setState(() {
+      filteredUsers = users;
+      filteredRoutes = routes;
+    });
   }
 
   void _filterUsers(String query) {
     setState(() {
       filteredUsers = users
-          .where((user) => user.toLowerCase().contains(query.toLowerCase()))
+          .where((user) => user.nombre.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
 
-  void _selectUser(String user) {
+  void _selectUser(Usuario user) {
     setState(() {
-      selectedUser = user;
-      _searchController.text = user;
-      filteredUsers = users;
+      selectedUser = user.nombre;
+      _searchController.text = user.nombre;
+      filteredUsers = users; // Reset filtered users
     });
   }
 
@@ -89,7 +105,7 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
                             backgroundColor: Colors.blue,
                             child: Icon(Icons.person, color: Colors.white),
                           ),
-                          title: Text(filteredUsers[index]),
+                          title: Text(filteredUsers[index].nombre),
                           onTap: () => _selectUser(filteredUsers[index]),
                         );
                       },
@@ -116,15 +132,35 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
             SizedBox(height: 15),
             Text('Ruta asignada', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             SizedBox(height: 5),
-            Chip(label: Text('Rincón noche')),
+            DropdownButton<String>(
+              value: selectedRoute,
+              hint: Text('Selecciona una ruta'),
+              items: routes.map((Ruta route) {
+                return DropdownMenuItem<String>(
+                  value: route.nombre,
+                  child: Text(route.nombre),
+                );
+              }).toList(),
+              onChanged: (String? value) {
+                setState(() {
+                  selectedRoute = value;
+                });
+              },
+            ),
             SizedBox(height: 15),
             Text('Horario', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             SizedBox(height: 5),
-            Chip(label: Text('20:00')),
+            Chip(label: Text('20:00')), // Aquí puedes personalizar el horario
             SizedBox(height: 20),
             Center(
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  // Aquí puedes agregar la lógica para asignar la ruta al usuario
+                  if (selectedUser != null && selectedRoute != null) {
+                    // Lógica para asignar la ruta
+                    print('Ruta asignada a $selectedUser: $selectedRoute');
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
