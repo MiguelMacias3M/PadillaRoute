@@ -3,6 +3,8 @@ import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/paradas_helper.dart';
+import 'package:padillaroutea/models/realtimeDB_models/parada.dart';
 
 class RoutesScreenRegister extends StatefulWidget {
   @override
@@ -11,13 +13,34 @@ class RoutesScreenRegister extends StatefulWidget {
 
 class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
   final TextEditingController _routeNameController = TextEditingController();
-  List<String> stops = ['Saucillo', 'Bajío', 'Rincón']; // Opciones de paradas
-  List<String> selectedStops = ['Saucillo', 'Bajío', 'Rincón'];
+  List<Parada> stops = []; // Lista de paradas
+  List<Parada?> selectedStops = []; // Paradas seleccionadas
   final RutasHelper _rutasHelper = RutasHelper(RealtimeDbHelper());
+  final ParadasHelper _paradasHelper = ParadasHelper(RealtimeDbHelper());
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStops(); // Cargar las paradas al iniciar
+    _initializeDefaultStop(); // Inicializar parada por defecto
+  }
+
+  Future<void> _loadStops() async {
+    List<Parada> allStops = await _paradasHelper.getAll();
+    setState(() {
+      stops = allStops;
+    });
+  }
+
+  void _initializeDefaultStop() {
+    setState(() {
+      selectedStops = [null]; // Inicializa con una parada vacía
+    });
+  }
 
   void _addStop() {
     setState(() {
-      selectedStops.add('');
+      selectedStops.add(null); // Añadir un nuevo campo vacío
     });
   }
 
@@ -29,37 +52,46 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
 
   Future<void> _registerRoute() async {
     if (_routeNameController.text.isNotEmpty && selectedStops.isNotEmpty) {
-      // Crear una nueva ruta
-      Ruta nuevaRuta = Ruta(
-        idRuta: DateTime.now().millisecondsSinceEpoch, // Generar un ID único
-        idChofer: 1, // Asigna un ID de chofer apropiado
-        nombre: _routeNameController.text,
-        origen: selectedStops.first, // Puedes ajustar esto según tu lógica
-        destino: selectedStops.last, // Puedes ajustar esto según tu lógica
-        paradas: selectedStops,
-      );
+      // Filtrar paradas seleccionadas que no son nulas
+      final validStops = selectedStops.where((stop) => stop != null).toList();
+      if (validStops.isNotEmpty) {
+        // Crear una nueva ruta
+        Ruta nuevaRuta = Ruta(
+          idRuta: DateTime.now().millisecondsSinceEpoch,
+          idChofer: 1,
+          nombre: _routeNameController.text,
+          origen: validStops.first!.nombre,
+          destino: validStops.last!.nombre,
+          paradas: validStops.map((stop) => stop!.nombre).toList(),
+        );
 
-      try {
-        // Guardar la ruta en la base de datos
-        await _rutasHelper.setNew(nuevaRuta);
+        try {
+          // Guardar la ruta en la base de datos
+          await _rutasHelper.setNew(nuevaRuta);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Ruta registrada con éxito!'),
+            backgroundColor: Colors.green,
+          ));
+          // Reiniciar el formulario
+          _routeNameController.clear();
+          setState(() {
+            selectedStops.clear(); // Reiniciar paradas
+            _initializeDefaultStop(); // Inicializa parada por defecto nuevamente
+          });
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Error al registrar la ruta: $e'),
+            backgroundColor: Colors.red,
+          ));
+        }
+      } else {
+        // Manejar el caso de que no haya paradas válidas
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Ruta registrada con éxito!'),
-          backgroundColor: Colors.green,
-        ));
-        // Reiniciar el formulario
-        _routeNameController.clear();
-        setState(() {
-          selectedStops = ['Saucillo', 'Bajío', 'Rincón']; // Reiniciar paradas
-        });
-      } catch (e) {
-        // Manejar errores
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Error al registrar la ruta: $e'),
-          backgroundColor: Colors.red,
+          content: Text('Por favor, selecciona al menos una parada.'),
+          backgroundColor: Colors.orange,
         ));
       }
     } else {
-      // Manejar el caso de campos vacíos
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Por favor, completa todos los campos.'),
         backgroundColor: Colors.orange,
@@ -109,7 +141,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
               onTap: () {},
               child: Text(
                 'Asignar paradas',
-                style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontWeight: FontWeight.bold, fontSize: 17 ),
+                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 17),
               ),
             ),
             SizedBox(height: 15),
@@ -121,17 +153,17 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Parada ${index + 1}'),
-                      DropdownButton<String>(
-                        value: selectedStops[index].isNotEmpty ? selectedStops[index] : null,
-                        items: stops.map((String stop) {
-                          return DropdownMenuItem<String>(
-                            value: stop,
-                            child: Text(stop),
+                      DropdownButton<Parada?>(
+                        value: selectedStops[index],
+                        items: stops.map((Parada parada) {
+                          return DropdownMenuItem<Parada?>(
+                            value: parada,
+                            child: Text(parada.nombre),
                           );
                         }).toList(),
-                        onChanged: (String? newValue) {
+                        onChanged: (Parada? newValue) {
                           setState(() {
-                            selectedStops[index] = newValue ?? '';
+                            selectedStops[index] = newValue; // Guardar la parada seleccionada
                           });
                         },
                       ),
