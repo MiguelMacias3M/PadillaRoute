@@ -2,7 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart';
 import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
+import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
+import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
+import 'package:padillaroutea/screens/StopScreenManagement.dart';
+import 'package:padillaroutea/screens/UserScreenManagement.dart';
+import 'package:padillaroutea/screens/UserScreenSelect.dart';
+import 'package:padillaroutea/screens/VehiclesScreen.dart';
 import 'package:padillaroutea/screens/VehiclesScreenEdit.dart';
+import 'package:padillaroutea/screens/loginscreen.dart';
 
 class VehiclesScreenManagement extends StatefulWidget {
   @override
@@ -160,6 +168,70 @@ class _VehiclesScreenManagementState extends State<VehiclesScreenManagement> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.blue.shade900, Colors.blueAccent],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 30,
+                    child: Icon(Icons.directions_car, color: Colors.blue, size: 40),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Gestión de Vehículos',
+                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+             _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
+            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement()),
+            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
+            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement()),
+            _drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement()),
+            Divider(color: Colors.white),
+            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(
+        title,
+        style: TextStyle(fontSize: 16, color: Colors.white),
+      ),
+      onTap: () {
+        if (screen != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => screen),
+          );
+        }
+      },
+      tileColor: Colors.blue.shade800,
+      contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
     );
   }
 }
