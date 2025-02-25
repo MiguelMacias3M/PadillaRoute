@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/screens/forgotPasswordScreen.dart'; // Pantalla de recuperación de contraseña
 import 'package:padillaroutea/screens/menuScreenAdmin.dart';
@@ -17,10 +18,44 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
+  final Logger _logger = Logger();
   FirebaseAuthHelper authHelper = FirebaseAuthHelper();
-  
+
   final UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
   // Función para iniciar sesión
+
+  Future<void> _handleLogin() async {
+    final userEmail = _emailController.text;
+    final userPass = _passwordController.text;
+
+    if (userEmail.isEmpty || userPass.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Some values are missing!!!")));
+      return;
+    }
+
+    try {
+      await authHelper.logIn(userEmail, userPass);
+
+      Usuario? usuario = await usuariosHelper.getByEmail(_emailController.text);
+      final rolUsuario = usuario?.rol;
+
+      _logger.e("= = = = A Q U I = = = =");
+      _logger.e(rolUsuario.toString());
+
+      if (rolUsuario != null) {  // Si el login es exitoso, navega al menú
+        Navigator.pushReplacement( 
+          context, 
+          MaterialPageRoute(builder: (context) => MenuScreenAdmin()),
+        );
+      }
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString()))
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,35 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      authHelper.logIn(
-                          _emailController.text, _passwordController.text);
-
-                      Usuario? usuario = await usuariosHelper.getByEmail(_emailController.text);
-                      final rolUsuario = usuario?.rol;
-                      print("= = = = A Q U I = = = =");
-                      print(rolUsuario);
-                      // Si el login es exitoso, navega al menú
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MenuScreenAdmin()),
-                      );
-                    } on FirebaseAuthException catch (e) {
-                      // Si hay un error, muestra un mensaje
-                      String errorMessage = 'Error desconocido';
-                      if (e.code == 'user-not-found') {
-                        errorMessage =
-                            'No se encontró un usuario con este correo electrónico.';
-                      } else if (e.code == 'wrong-password') {
-                        errorMessage =
-                            'La contraseña es incorrecta, intenta de nuevo.';
-                      }
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text(errorMessage)));
-                    }
-                  }, // Llama a la función _login
+                  onPressed: _handleLogin, // Llama a la función _login
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
                     padding: const EdgeInsets.symmetric(vertical: 15),
