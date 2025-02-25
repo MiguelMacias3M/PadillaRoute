@@ -1,25 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:intl/intl.dart';
+import 'package:padillaroutea/models/realtimeDB_models/parada.dart';
+import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/paradas_helper.dart';
 
 class StopScreenEdit extends StatefulWidget {
+  final Parada parada; // Recibir el objeto Parada
+
+  StopScreenEdit({required this.parada}); // Constructor con parámetro requerido
+
   @override
   _StopScreenEditState createState() => _StopScreenEditState();
 }
 
 class _StopScreenEditState extends State<StopScreenEdit> {
-  TextEditingController _routeNameController = TextEditingController();
-  TextEditingController _startTimeController = TextEditingController();
-  TextEditingController _endTimeController = TextEditingController();
-  TextEditingController _coordinatesController = TextEditingController();
-  
+  late TextEditingController _routeNameController;
+  late TextEditingController _startTimeController;
+  late TextEditingController _endTimeController;
+  late TextEditingController _coordinatesController;
+
   Set<Marker> _markers = {};
   GoogleMapController? _mapController;
-  
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Inicializar controladores con los datos de la parada
+    _routeNameController = TextEditingController(text: widget.parada.nombre);
+    _startTimeController = TextEditingController(text: widget.parada.horaLlegada);
+    _endTimeController = TextEditingController(text: widget.parada.horaSalida);
+    _coordinatesController = TextEditingController(text: widget.parada.coordenadas);
+    
+    // Agregar marcador en la ubicación de la parada
+    List<String> coords = widget.parada.coordenadas.split(', ');
+    if (coords.length == 2) {
+      double lat = double.tryParse(coords[0]) ?? 0.0;
+      double lng = double.tryParse(coords[1]) ?? 0.0;
+      _markers.add(Marker(
+        markerId: MarkerId(widget.parada.idParada.toString()),
+        position: LatLng(lat, lng),
+        infoWindow: InfoWindow(title: widget.parada.nombre),
+      ));
+    }
+  }
+
+  @override
+  void dispose() {
+    _routeNameController.dispose();
+    _startTimeController.dispose();
+    _endTimeController.dispose();
+    _coordinatesController.dispose();
+    super.dispose();
+  }
+
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
   }
-  
+
   void _addMarker(LatLng position) {
     setState(() {
       _markers.clear();
@@ -33,7 +71,7 @@ class _StopScreenEditState extends State<StopScreenEdit> {
       _coordinatesController.text = "${position.latitude}, ${position.longitude}";
     });
   }
-  
+
   Future<void> _selectTime(BuildContext context, TextEditingController controller) async {
     TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -45,12 +83,47 @@ class _StopScreenEditState extends State<StopScreenEdit> {
       });
     }
   }
-  
+
+  void _saveRoute() async {
+    String routeName = _routeNameController.text;
+    String startTime = _startTimeController.text;
+    String endTime = _endTimeController.text;
+    String coordinates = _coordinatesController.text;
+
+    if (routeName.isEmpty || startTime.isEmpty || endTime.isEmpty || coordinates.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Por favor, complete todos los campos")),
+      );
+      return;
+    }
+
+    // Crear un mapa con los datos a actualizar
+    Map<String, dynamic> updatedData = {
+      'nombre': routeName,
+      'horaLlegada': startTime,
+      'horaSalida': endTime,
+      'coordenadas': coordinates,
+    };
+
+    try {
+      // Llamar al método update del ParadasHelper
+      await ParadasHelper(RealtimeDbHelper()).update(widget.parada.idParada, updatedData);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Ruta actualizada correctamente")),
+      );
+      Navigator.pop(context); // Regresar a la pantalla anterior
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error al actualizar la ruta: $e")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Editar Ruta"),
+        title: Text("Editar Parada"),
         backgroundColor: Colors.blueAccent,
       ),
       body: Padding(
@@ -60,14 +133,14 @@ class _StopScreenEditState extends State<StopScreenEdit> {
           children: [
             TextField(
               controller: _routeNameController,
-              decoration: InputDecoration(labelText: "Nombre de la Ruta"),
+              decoration: InputDecoration(labelText: "Nombre de la Parada"),
             ),
             GestureDetector(
               onTap: () => _selectTime(context, _startTimeController),
               child: AbsorbPointer(
                 child: TextField(
                   controller: _startTimeController,
-                  decoration: InputDecoration(labelText: "Hora de Inicio"),
+                  decoration: InputDecoration(labelText: "Hora de Llegada"),
                 ),
               ),
             ),
@@ -76,7 +149,7 @@ class _StopScreenEditState extends State<StopScreenEdit> {
               child: AbsorbPointer(
                 child: TextField(
                   controller: _endTimeController,
-                  decoration: InputDecoration(labelText: "Hora de Fin"),
+                  decoration: InputDecoration(labelText: "Hora de Salida"),
                 ),
               ),
             ),
@@ -90,22 +163,19 @@ class _StopScreenEditState extends State<StopScreenEdit> {
               child: GoogleMap(
                 onMapCreated: _onMapCreated,
                 initialCameraPosition: CameraPosition(
-                  target: LatLng(-12.0464, -77.0428), // Coordenadas iniciales
+                  target: _markers.isNotEmpty ? _markers.first.position : LatLng(-12.0464, -77.0428),
                   zoom: 12,
                 ),
                 markers: _markers,
-                onTap: _addMarker, // Agrega paradas con un toque
+                onTap: _addMarker,
               ),
             ),
             SizedBox(height: 10),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  // Lógica para guardar la ruta editada
-                  print("Ruta Guardada: ${_routeNameController.text}, Coordenadas: ${_coordinatesController.text}");
-                },
+                onPressed: _saveRoute,
                 child: Text(
-                  "Guardar Ruta",
+                  "Guardar Cambios",
                   style: TextStyle(color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(

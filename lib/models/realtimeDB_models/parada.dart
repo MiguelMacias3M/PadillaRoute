@@ -15,7 +15,7 @@ class Parada {
     required this.nombre,
     required this.horaLlegada,
     required this.horaSalida,
-    required this.coordenadas
+    required this.coordenadas,
   });
 
   factory Parada.fromJson(Map<String, dynamic> json) => _$ParadaFromJson(json);
