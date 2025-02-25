@@ -44,6 +44,16 @@ class UsuariosHelper {
     }
   }
 
+    Future<Usuario?> getByEmail(String id) async {
+    final keyValue = await getKey(id, "correo");
+    if(keyValue != null) {
+      final data = await database.getEntryById(ref, keyValue);
+      return Usuario.fromJson(data);
+    } else {
+      return null;
+    }
+  }
+
   Future<List<Usuario>> getAll() async {
     final data = await database.getAllEntries(ref);
 
@@ -61,7 +71,7 @@ class UsuariosHelper {
     }
   }
 
-  Future<String?> getKey(int id, String field) async {
+  Future<String?> getKey(dynamic id, String field) async {
     return database.getKeyByField(ref, field, id);
   }
 }
