@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
 import 'package:padillaroutea/screens/UserScreenSelect.dart';
-import 'package:padillaroutea/screens/VehiclesScreen.dart';
-import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
+import 'package:padillaroutea/screens/UserScreenManagement.dart';
+import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart';
+import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
 
 class VehiclesScreen extends StatefulWidget {
   @override
@@ -16,6 +18,9 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
   final TextEditingController _numberController = TextEditingController();
   final TextEditingController _plateController = TextEditingController();
   final TextEditingController _capacityController = TextEditingController();
+
+  // Instancia del helper para la BD
+  final VehiculosHelper _vehiculosHelper = VehiculosHelper(RealtimeDbHelper());
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +38,7 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
           Padding(
             padding: EdgeInsets.only(right: 15),
             child: Image.asset(
-              'assets/logo.png', // Asegúrate de tener el logo en la carpeta assets
+              'assets/logo.png',
               height: 40,
             ),
           ),
@@ -54,7 +59,7 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
             SizedBox(height: 10),
             _inputField('Modelo', _modelController),
             SizedBox(height: 10),
-            _inputField('Num. Combi', _numberController),
+            _inputField('Num. Combi', _numberController, inputType: TextInputType.number),
             SizedBox(height: 10),
             _inputField('Placa', _plateController),
             SizedBox(height: 10),
@@ -62,11 +67,7 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
             SizedBox(height: 20),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Vehículo registrado correctamente')),
-                  );
-                },
+                onPressed: _registerVehicle,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
@@ -95,6 +96,51 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
         border: OutlineInputBorder(),
       ),
     );
+  }
+
+  void _registerVehicle() async {
+    // Validar que los campos no estén vacíos
+    if (_brandController.text.isEmpty ||
+        _modelController.text.isEmpty ||
+        _numberController.text.isEmpty ||
+        _plateController.text.isEmpty ||
+        _capacityController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Todos los campos son obligatorios')),
+      );
+      return;
+    }
+
+    // Convertir valores
+    int idVehiculo = DateTime.now().millisecondsSinceEpoch; // ID único basado en tiempo
+    int capacidad = int.tryParse(_capacityController.text) ?? 0;
+    int numeroSerie = int.tryParse(_numberController.text) ?? 0;
+
+    // Crear objeto Vehiculo
+    Vehiculo vehiculo = Vehiculo(
+      idVehiculo: idVehiculo,
+      placa: _plateController.text,
+      marca: _brandController.text,
+      modelo: _modelController.text,
+      capacidad: capacidad,
+      numeroSerie: numeroSerie,
+      estatus: Estatus.activo, // Se registra como activo por defecto
+    );
+
+    // Guardar en Firebase
+    await _vehiculosHelper.setNew(vehiculo);
+
+    // Mostrar mensaje de éxito
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Vehículo registrado correctamente')),
+    );
+
+    // Limpiar los campos
+    _brandController.clear();
+    _modelController.clear();
+    _numberController.clear();
+    _plateController.clear();
+    _capacityController.clear();
   }
 
   Widget _buildDrawer(BuildContext context) {

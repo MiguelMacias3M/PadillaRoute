@@ -83,7 +83,8 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
             SizedBox(height: 20),
             Expanded(
               child: filteredUsers.isEmpty
-                  ? Center(child: CircularProgressIndicator()) // Cargando usuarios
+                  ? Center(
+                      child: CircularProgressIndicator()) // Cargando usuarios
                   : ListView.builder(
                       itemCount: filteredUsers.length,
                       itemBuilder: (context, index) {
@@ -97,26 +98,30 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
     );
   }
 
-  Widget _userItem(BuildContext context, Usuario usuario) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.blueAccent,
-          child: Icon(Icons.person, color: Colors.white),
-        ),
-        title: Text(usuario.nombre + ' ' + usuario.apellidos,
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(usuario.correo),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => UserScreenEdit()),
-          );
-        },
+  Widget _userItem(BuildContext context, Usuario usuario) { 
+  return Card(
+    margin: EdgeInsets.symmetric(vertical: 10),
+    elevation: 3,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    child: ListTile(
+      leading: CircleAvatar(
+        backgroundColor: Colors.blueAccent,
+        child: Icon(Icons.person, color: Colors.white),
       ),
-    );
-  }
+      title: Text('${usuario.nombre} ${usuario.apellidos}',
+          style: TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text(usuario.correo),
+      onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => UserScreenEdit(usuario: usuario),
+    ),
+  );
+},
+
+    ),
+  );
+}
+
 }

@@ -9,9 +9,38 @@ import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
 import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/loginscreen.dart';
+import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
+import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 
+class RoutesScreenManagement extends StatefulWidget {
+  @override
+  _RoutesScreenManagementState createState() => _RoutesScreenManagementState();
+}
 
-class RoutesScreenManagement extends StatelessWidget {
+class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
+  final RutasHelper _rutasHelper = RutasHelper(RealtimeDbHelper());
+  List<Ruta> _routes = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRoutes();
+  }
+
+  Future<void> _loadRoutes() async {
+    try {
+      _routes = await _rutasHelper.getAll();
+    } catch (e) {
+      print('Error al cargar rutas: $e');
+    } finally {
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,29 +67,31 @@ class RoutesScreenManagement extends StatelessWidget {
           ),
         ],
       ),
-      drawer: _buildDrawer(context), // Menú lateral funcional
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Gestiona todas tus rutas y asigna paradas fácilmente.',
-              style: TextStyle(fontSize: 16, color: Colors.black87),
-            ),
-            SizedBox(height: 15),
-            Expanded(
-              child: ListView(
+      drawer: _buildDrawer(context),
+      body: _loading
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _routeCard(context, 'Ruta Rincón', ['Rincón', 'Saltillito', 'Concha'], 'Jorge'),
-                  _routeCard(context, 'Ruta Rincón Noche', ['Chayote', 'Alamitos', 'El barranco'], 'Bruno'),
-                  _routeCard(context, 'Ruta Cosío', ['Cosío', 'Bajío', 'Saucillo'], 'José'),
+                  Text(
+                    'Gestiona todas tus rutas y asigna paradas fácilmente.',
+                    style: TextStyle(fontSize: 16, color: Colors.black87),
+                  ),
+                  SizedBox(height: 15),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _routes.length,
+                      itemBuilder: (context, index) {
+                        final ruta = _routes[index];
+                        return _routeCard(context, ruta);
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -74,7 +105,7 @@ class RoutesScreenManagement extends StatelessWidget {
     );
   }
 
-  Widget _routeCard(BuildContext context, String routeName, List<String> stops, String user) {
+  Widget _routeCard(BuildContext context, Ruta ruta) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 12),
       padding: EdgeInsets.all(15),
@@ -98,7 +129,7 @@ class RoutesScreenManagement extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            routeName,
+            ruta.nombre,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.blue.shade900),
           ),
           Divider(color: Colors.blue.shade300),
@@ -108,7 +139,7 @@ class RoutesScreenManagement extends StatelessWidget {
           Wrap(
             spacing: 8,
             runSpacing: 5,
-            children: stops.map((stop) {
+            children: ruta.paradas.map((stop) {
               return Chip(
                 label: Text(stop, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                 backgroundColor: Colors.blue.shade200,
@@ -117,7 +148,7 @@ class RoutesScreenManagement extends StatelessWidget {
           ),
           SizedBox(height: 8),
           Text(
-            'Usuario a cargo: $user',
+            'Usuario a cargo: ${ruta.idChofer}',
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           ),
           SizedBox(height: 15),
@@ -131,11 +162,17 @@ class RoutesScreenManagement extends StatelessWidget {
                 );
               }),
               _actionButton(context, 'Editar', Colors.amber, Icons.edit, () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RoutesScreenEdit()),
-                );
-              }),
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => RoutesScreenEdit(
+        routeId: ruta.idRuta, // ID de la ruta
+        ruta: ruta, // Pasar la ruta
+      ),
+    ),
+  );
+}),
+
             ],
           ),
         ],
@@ -191,7 +228,7 @@ class RoutesScreenManagement extends StatelessWidget {
             _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
             _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
             _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement()),
-            _drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement()),
+            _drawerItem(context, Icons.location_on, 'Monitoreo', MonitoringScreenManagement()),
             Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
           ],
@@ -200,8 +237,7 @@ class RoutesScreenManagement extends StatelessWidget {
     );
   }
 
- 
-  } Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
+  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
       title: Text(
@@ -219,4 +255,5 @@ class RoutesScreenManagement extends StatelessWidget {
       tileColor: Colors.blue.shade800,
       contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
     );
+  }
 }

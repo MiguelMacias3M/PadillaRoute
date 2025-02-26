@@ -25,8 +25,8 @@ class ParadasHelper {
   } // WORKS!!!
 
   Future<void> delete(int id) async {
-    final keyValue = await getKey(id, "idParada");  
-    if(keyValue != null) {
+    final keyValue = await getKey(id, "idParada");
+    if (keyValue != null) {
       await database.deleteEntry(ref, keyValue);
     } else {
       throw Exception("No entry found with the id: $id");
@@ -35,7 +35,7 @@ class ParadasHelper {
 
   Future<Parada?> get(int id) async {
     final keyValue = await getKey(id, "idParada");
-    if(keyValue != null) {
+    if (keyValue != null) {
       final data = await database.getEntryById(ref, keyValue);
       return Parada.fromJson(data);
     } else {
@@ -43,15 +43,13 @@ class ParadasHelper {
     }
   }
 
-  Future<List> getAll() async {
+  Future<List<Parada>> getAll() async {
     final data = await database.getAllEntries(ref);
-    if (data.isNotEmpty) {
-      return data.map((e) => Parada.fromJson(e)).toList();
-    } else {
-      return [];
-    }
+    return data.isNotEmpty
+        ? data.map((e) => Parada.fromJson(Map<String, dynamic>.from(e))).toList()
+        : [];
   }
-  
+
   Future<String?> getKey(int id, String field) async {
     return database.getKeyByField(ref, field, id);
   }
