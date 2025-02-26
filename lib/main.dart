@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/firebase_options.dart';
 import 'package:padillaroutea/objectbox.g.dart';
+import 'package:padillaroutea/screens/user/RouteScreenManagementU.dart';
 import 'package:padillaroutea/services/connectors/objectbox_connector.dart';
 import '../screens/loginscreen.dart'; // Importamos la pantalla de inicio de sesión
 
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: LoginScreen(),
+      home: RouteScreenManagementU(),
     );
   }
 }
