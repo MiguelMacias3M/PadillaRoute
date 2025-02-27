@@ -1,63 +1,88 @@
 import 'package:flutter/material.dart';
-import 'package:padillaroutea/screens/loginscreen.dart';
+import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/screens/user/RouteScreenU.dart';
 import 'package:padillaroutea/screens/user/SupportScreenUser.dart';
+import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:padillaroutea/screens/loginscreen.dart';
 
-class RouteScreenManagementU extends StatelessWidget {
-  final List<Map<String, dynamic>> routes = [
-    {
-      'name': 'Ruta Rincón',
-      'stops': ['Rincón', 'Saltitrillo', 'Concha'],
-    },
-    {
-      'name': 'Ruta Rincón Noche',
-      'stops': ['Rincón', 'Saltitrillo', 'Concha'],
-    },
-  ];
+class RouteScreenManagementU extends StatefulWidget {
+  final Usuario chofer;
+
+  RouteScreenManagementU({required this.chofer});
+
+  @override
+  _RouteScreenManagementUState createState() => _RouteScreenManagementUState();
+}
+
+class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
+  final RutasHelper rutasHelper = RutasHelper(RealtimeDbHelper());
+  List<Ruta> rutas = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRutas();
+  }
+
+  Future<void> _loadRutas() async {
+    try {
+      List<Ruta> todasLasRutas = await rutasHelper.getAll();
+      List<Ruta> rutasFiltradas = todasLasRutas
+          .where((ruta) => ruta.idChofer == widget.chofer.idUsuario)
+          .toList();
+
+      setState(() {
+        rutas = rutasFiltradas;
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Error cargando rutas: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Bienvenido',
+          'Bienvenido, ${widget.chofer.nombre}',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.blue.shade800,
-        elevation: 4,
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.white),
       ),
       drawer: _buildDrawer(context),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Bienvenido, aquí podrás ver las rutas asignadas para el día de hoy',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: routes.length,
-                itemBuilder: (context, index) {
-                  return _routeCard(context, routes[index]);
-                },
-              ),
-            ),
-          ],
-        ),
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : rutas.isEmpty
+                ? Center(
+                    child: Text(
+                      'No tienes rutas asignadas',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: rutas.length,
+                    itemBuilder: (context, index) {
+                      return _routeCard(context, rutas[index]);
+                    },
+                  ),
       ),
     );
   }
 
-  Widget _routeCard(BuildContext context, Map<String, dynamic> route) {
+  Widget _routeCard(BuildContext context, Ruta ruta) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       elevation: 5,
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Container(
@@ -75,13 +100,12 @@ class RouteScreenManagementU extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                route['name'],
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+                ruta.nombre,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
               ),
               SizedBox(height: 5),
               Wrap(
-                children: route['stops']
+                children: ruta.paradas
                     .map<Widget>((stop) => Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child: Text(
@@ -102,12 +126,10 @@ class RouteScreenManagementU extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => RouteScreenU(routeName: route['name'])),
+                          builder: (context) => RouteScreenU(routeName: ruta.nombre)),
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                  ),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
                   child: Text(
                     'Hacer ruta',
                     style: TextStyle(color: Colors.blue.shade800),
@@ -136,7 +158,8 @@ class RouteScreenManagementU extends StatelessWidget {
             DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.blue.shade700,
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
+                borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -149,37 +172,27 @@ class RouteScreenManagementU extends StatelessWidget {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'Usuario Activo',
+                    widget.chofer.nombre,
                     style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
-            _drawerItem(context, Icons.home, 'Inicio', RouteScreenManagementU()),
+            _drawerItem(context, Icons.home, 'Inicio', RouteScreenManagementU(chofer: widget.chofer)),
             _drawerItem(context, Icons.support_agent, 'Soporte', SupportScreenUser()),
             Spacer(),
-            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen(), color: const Color.fromARGB(255, 255, 255, 255)),
+            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
           ],
         ),
       ),
     );
   }
 
-  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen, {Color color = Colors.white}) {
+  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget screen) {
     return ListTile(
-      leading: Icon(icon, color: color),
-      title: Text(
-        title,
-        style: TextStyle(fontSize: 16, color: color),
-      ),
-      onTap: () {
-        if (screen != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => screen),
-          );
-        }
-      },
+      leading: Icon(icon, color: Colors.white),
+      title: Text(title, style: TextStyle(fontSize: 16, color: Colors.white)),
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => screen)),
     );
   }
 }

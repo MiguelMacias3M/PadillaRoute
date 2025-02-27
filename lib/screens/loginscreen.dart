@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Widget nextScreen;
         switch (rolUsuario) {
           case Rol.chofer:
-            nextScreen = RouteScreenManagementU();
+            nextScreen = RouteScreenManagementU(chofer: usuario);
             break;
           case Rol.administrativo:
             nextScreen = MonitoringScreenManagement();
