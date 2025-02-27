@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/screens/forgotPasswordScreen.dart'; // Pantalla de recuperación de contraseña
 import 'package:padillaroutea/screens/menuScreenAdmin.dart';
-import 'package:padillaroutea/screens/UserScreenRegister.dart'; // Importar la pantalla de registro
 import 'package:padillaroutea/services/firebase_auth/firebase_auth_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:padillaroutea/screens/user/RouteScreenManagementU.dart';
+import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -22,7 +22,6 @@ class _LoginScreenState extends State<LoginScreen> {
   FirebaseAuthHelper authHelper = FirebaseAuthHelper();
 
   final UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
-  // Función para iniciar sesión
 
   Future<void> _handleLogin() async {
     final userEmail = _emailController.text;
@@ -36,24 +35,39 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       await authHelper.logIn(userEmail, userPass);
-
       Usuario? usuario = await usuariosHelper.getByEmail(_emailController.text);
-      final rolUsuario = usuario?.rol;
 
-      _logger.e("= = = = A Q U I = = = =");
-      _logger.e(rolUsuario.toString());
+      if (usuario != null) {
+        final rolUsuario = usuario.rol;
 
-      if (rolUsuario != null) {  // Si el login es exitoso, navega al menú
-        Navigator.pushReplacement( 
-          context, 
-          MaterialPageRoute(builder: (context) => MenuScreenAdmin()),
+        Widget nextScreen;
+        switch (rolUsuario) {
+          case Rol.chofer:
+            nextScreen = RouteScreenManagementU();
+            break;
+          case Rol.administrativo:
+            nextScreen = MonitoringScreenManagement();
+            break;
+          case Rol.gerente:
+            nextScreen = MenuScreenAdmin();
+            break;
+          default:
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Rol no reconocido")));
+            return;
+        }
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => nextScreen),
         );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Usuario no encontrado")));
       }
-
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString()))
-      );
+          SnackBar(content: Text(e.toString())));
     }
   }
 
@@ -68,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/logo.png', // Asegúrate de tener esta imagen en la carpeta assets
+                'assets/logo.png',
                 height: 150,
               ),
               const SizedBox(height: 20),
@@ -88,8 +102,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  prefixIcon: const Icon(Icons.email,
-                      color: Color.fromARGB(255, 0, 0, 0)),
+                  prefixIcon:
+                      const Icon(Icons.email, color: Color.fromARGB(255, 0, 0, 0)),
                 ),
                 keyboardType: TextInputType.emailAddress,
               ),
@@ -102,13 +116,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  prefixIcon: const Icon(Icons.lock,
-                      color: Color.fromARGB(255, 0, 0, 0)),
+                  prefixIcon:
+                      const Icon(Icons.lock, color: Color.fromARGB(255, 0, 0, 0)),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _isPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
+                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
                       color: const Color.fromARGB(255, 0, 0, 0),
                     ),
                     onPressed: () {
@@ -119,41 +131,25 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => UserScreenRegister()),
-                      );
-                    },
-                    child: const Text(
-                      'Registrarse',
-                      style: TextStyle(color: Colors.blueAccent),
-                    ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+                    );
+                  },
+                  child: const Text(
+                    '¿Olvidaste tu contraseña?',
+                    style: TextStyle(color: Colors.blueAccent),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ForgotPasswordScreen()),
-                      );
-                    },
-                    child: const Text(
-                      '¿Olvidaste tu contraseña?',
-                      style: TextStyle(color: Colors.blueAccent),
-                    ),
-                  ),
-                ],
+                ),
               ),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _handleLogin, // Llama a la función _login
+                  onPressed: _handleLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
                     padding: const EdgeInsets.symmetric(vertical: 15),
