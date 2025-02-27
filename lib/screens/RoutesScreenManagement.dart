@@ -10,8 +10,10 @@ import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
 import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/loginscreen.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 
 class RoutesScreenManagement extends StatefulWidget {
   @override
@@ -20,7 +22,9 @@ class RoutesScreenManagement extends StatefulWidget {
 
 class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
   final RutasHelper _rutasHelper = RutasHelper(RealtimeDbHelper());
+  final UsuariosHelper _usuariosHelper = UsuariosHelper(RealtimeDbHelper());
   List<Ruta> _routes = [];
+  Map<int, String> _choferNombres = {};
   bool _loading = true;
 
   @override
@@ -29,14 +33,35 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
     _loadRoutes();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadRoutes();
+  }
+
   Future<void> _loadRoutes() async {
+    setState(() {
+      _loading = true;
+    });
+
     try {
       _routes = await _rutasHelper.getAll();
+      await _loadChoferes();
     } catch (e) {
       print('Error al cargar rutas: $e');
     } finally {
       setState(() {
         _loading = false;
+      });
+    }
+  }
+
+  Future<void> _loadChoferes() async {
+    _choferNombres.clear();
+    for (var ruta in _routes) {
+      Usuario? chofer = await _usuariosHelper.get(ruta.idChofer);
+      setState(() {
+        _choferNombres[ruta.idChofer] = chofer?.nombre ?? 'Desconocido';
       });
     }
   }
@@ -97,7 +122,7 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => RoutesScreenRegister()),
-          );
+          ).then((_) => _loadRoutes()); // Recargar al regresar
         },
         backgroundColor: Colors.blue.shade900,
         child: Icon(Icons.add, color: Colors.white, size: 30),
@@ -106,6 +131,8 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
   }
 
   Widget _routeCard(BuildContext context, Ruta ruta) {
+    String choferNombre = _choferNombres[ruta.idChofer] ?? 'Cargando...';
+
     return Container(
       margin: EdgeInsets.symmetric(vertical: 12),
       padding: EdgeInsets.all(15),
@@ -154,7 +181,7 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
           ),
           SizedBox(height: 8),
           Text(
-            'Usuario a cargo: ${ruta.idChofer}',
+            'Usuario a cargo: $choferNombre',
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           ),
           SizedBox(height: 15),
@@ -170,18 +197,18 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
                     builder: (context) =>
                         RoutesScreenAssign(rutaSeleccionada: ruta),
                   ),
-                );
+                ).then((_) => _loadRoutes()); // Recargar al regresar
               }),
               _actionButton(context, 'Editar', Colors.amber, Icons.edit, () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => RoutesScreenEdit(
-                      routeId: ruta.idRuta, // ID de la ruta
-                      ruta: ruta, // Pasar la ruta
+                      routeId: ruta.idRuta,
+                      ruta: ruta,
                     ),
                   ),
-                );
+                ).then((_) => _loadRoutes()); // Recargar al regresar
               }),
             ],
           ),
@@ -207,54 +234,15 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
 
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue.shade900, Colors.blueAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      child: ListView(
+        children: [
+          DrawerHeader(
+            child: Text('Gestión de Rutas', style: TextStyle(fontSize: 20)),
           ),
-        ),
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 30,
-                    child: Icon(Icons.directions_bus,
-                        color: Colors.blue, size: 40),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Gestión de Rutas',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-            _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
-            _drawerItem(
-                context, Icons.people, 'Usuarios', UserScreenManagement()),
-            _drawerItem(context, Icons.directions_car, 'Vehículos',
-                VehiclesScreenManagement()),
-            _drawerItem(context, Icons.warning_amber, 'Incidencias',
-                IncidentsScreenAdmin()),
-            _drawerItem(context, Icons.local_parking, 'Paradas',
-                StopScreenManagement()),
-            _drawerItem(context, Icons.location_on, 'Monitoreo',
-                MonitoringScreenManagement()),
-            Divider(color: Colors.white),
-            _drawerItem(
-                context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
-          ],
-        ),
+          _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
+          _drawerItem(
+              context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
+        ],
       ),
     );
   }
@@ -262,11 +250,8 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
   Widget _drawerItem(
       BuildContext context, IconData icon, String title, Widget? screen) {
     return ListTile(
-      leading: Icon(icon, color: Colors.white),
-      title: Text(
-        title,
-        style: TextStyle(fontSize: 16, color: Colors.white),
-      ),
+      leading: Icon(icon),
+      title: Text(title),
       onTap: () {
         if (screen != null) {
           Navigator.push(
@@ -275,8 +260,6 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
           );
         }
       },
-      tileColor: Colors.blue.shade800,
-      contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
     );
   }
 }
