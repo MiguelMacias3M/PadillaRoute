@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:padillaroutea/screens/user/IncidentsScreenRegister.dart';
 
 class RouteScreenU extends StatefulWidget {
@@ -13,6 +14,59 @@ class RouteScreenU extends StatefulWidget {
 
 class _RouteScreenUState extends State<RouteScreenU> {
   bool _isRouteStarted = false;
+  LatLng? _currentPosition;
+  late GoogleMapController mapController;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLocationPermissions();
+  }
+
+  Future<void> _checkLocationPermissions() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        print("Location permissions are denied");
+        return; // No se puede continuar sin permisos
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      print("Location permissions are permanently denied");
+      return; // No se puede continuar sin permisos
+    }
+
+    print("Location permissions granted");
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best,
+      );
+      setState(() {
+        _currentPosition = LatLng(position.latitude, position.longitude);
+      });
+      print("Current position: $_currentPosition");
+      mapController.animateCamera(CameraUpdate.newLatLng(_currentPosition!));
+      _updateLocation();
+    } catch (e) {
+      print("Error getting current location: $e");
+    }
+  }
+
+  void _updateLocation() {
+    Geolocator.getPositionStream().listen((Position position) {
+      setState(() {
+        _currentPosition = LatLng(position.latitude, position.longitude);
+      });
+      mapController.animateCamera(CameraUpdate.newLatLng(_currentPosition!));
+      print("Updated position: $_currentPosition");
+    });
+  }
 
   void _showPassengerDialog(BuildContext context) {
     TextEditingController _passengerController = TextEditingController();
@@ -99,50 +153,61 @@ class _RouteScreenUState extends State<RouteScreenU> {
         title: Text(widget.routeName),
         backgroundColor: Colors.blueAccent,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: LatLng(22.229896, -102.321105),
-                zoom: 15,
-              ),
-              myLocationEnabled: true,
+      body: _currentPosition == null
+          ? Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Expanded(
+                  child: GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: _currentPosition!,
+                      zoom: 15,
+                    ),
+                    myLocationEnabled: true,
+                    onMapCreated: (GoogleMapController controller) {
+                      mapController = controller;
+                    },
+                    markers: {
+                      Marker(
+                        markerId: MarkerId("current_location"),
+                        position: _currentPosition!,
+                      ),
+                    },
+                  ),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _isRouteStarted ? null : _startRoute,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      ),
+                      child: Text("Iniciar Ruta", style: TextStyle(color: Colors.white)),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => _showPassengerDialog(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      ),
+                      child: Text("Registrar Parada", style: TextStyle(color: Colors.white)),
+                    ),
+                    ElevatedButton(
+                      onPressed: _isRouteStarted ? _endRoute : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      ),
+                      child: Text("Terminar Viaje", style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+              ],
             ),
-          ),
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: _isRouteStarted ? null : _startRoute,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                ),
-                child: Text("Iniciar Ruta", style: TextStyle(color: Colors.white)),
-              ),
-              ElevatedButton(
-                onPressed: () => _showPassengerDialog(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                ),
-                child: Text("Registrar Parada", style: TextStyle(color: Colors.white)),
-              ),
-              ElevatedButton(
-                onPressed: _isRouteStarted ? _endRoute : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                ),
-                child: Text("Terminar Viaje", style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-        ],
-      ),
     );
   }
 }
