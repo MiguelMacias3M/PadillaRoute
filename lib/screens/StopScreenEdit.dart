@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:padillaroutea/models/realtimeDB_models/parada.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/paradas_helper.dart';
+import 'package:geolocator/geolocator.dart';
 
 class StopScreenEdit extends StatefulWidget {
   final Parada parada; // Recibir el objeto Parada
@@ -21,28 +22,40 @@ class _StopScreenEditState extends State<StopScreenEdit> {
 
   Set<Marker> _markers = {};
   GoogleMapController? _mapController;
+  LatLng? _currentLocation;
 
   @override
   void initState() {
     super.initState();
-    
+
     // Inicializar controladores con los datos de la parada
     _routeNameController = TextEditingController(text: widget.parada.nombre);
     _startTimeController = TextEditingController(text: widget.parada.horaLlegada);
     _endTimeController = TextEditingController(text: widget.parada.horaSalida);
     _coordinatesController = TextEditingController(text: widget.parada.coordenadas);
-    
-    // Agregar marcador en la ubicación de la parada
-    List<String> coords = widget.parada.coordenadas.split(', ');
-    if (coords.length == 2) {
-      double lat = double.tryParse(coords[0]) ?? 0.0;
-      double lng = double.tryParse(coords[1]) ?? 0.0;
-      _markers.add(Marker(
-        markerId: MarkerId(widget.parada.idParada.toString()),
-        position: LatLng(lat, lng),
-        infoWindow: InfoWindow(title: widget.parada.nombre),
-      ));
+
+    // Obtener la ubicación actual
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    LocationPermission permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      print("Permiso de ubicación denegado");
+      return;
     }
+
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      _currentLocation = LatLng(position.latitude, position.longitude);
+      _mapController?.moveCamera(CameraUpdate.newLatLng(_currentLocation!));
+      _markers.add(Marker(
+        markerId: MarkerId('current_location'),
+        position: _currentLocation!,
+        infoWindow: InfoWindow(title: 'Ubicación Actual'),
+      ));
+    });
+    print("Ubicación actual: $_currentLocation");
   }
 
   @override
@@ -163,7 +176,7 @@ class _StopScreenEditState extends State<StopScreenEdit> {
               child: GoogleMap(
                 onMapCreated: _onMapCreated,
                 initialCameraPosition: CameraPosition(
-                  target: _markers.isNotEmpty ? _markers.first.position : LatLng(-12.0464, -77.0428),
+                  target: _currentLocation ?? LatLng(-12.0464, -77.0428),
                   zoom: 12,
                 ),
                 markers: _markers,

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:padillaroutea/services/realtime_db_services/paradas_helper.dart';
 import 'package:padillaroutea/models/realtimeDB_models/parada.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:geolocator/geolocator.dart';
 
 class StopScreenRegister extends StatefulWidget {
   @override
@@ -19,11 +20,33 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
   Set<Marker> _markers = {};
   GoogleMapController? _mapController;
   late ParadasHelper paradasHelper;
+  LatLng? _currentLocation;
 
   @override
   void initState() {
     super.initState();
     paradasHelper = ParadasHelper(RealtimeDbHelper());
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    LocationPermission permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      print("Permiso de ubicación denegado");
+      return;
+    }
+
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      _currentLocation = LatLng(position.latitude, position.longitude);
+      _mapController?.moveCamera(CameraUpdate.newLatLng(_currentLocation!));
+      _markers.add(Marker(
+        markerId: MarkerId('current_location'),
+        position: _currentLocation!,
+        infoWindow: InfoWindow(title: 'Ubicación Actual'),
+      ));
+    });
+    print("Ubicación actual: $_currentLocation");
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -140,7 +163,7 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
               child: GoogleMap(
                 onMapCreated: _onMapCreated,
                 initialCameraPosition: CameraPosition(
-                  target: LatLng(-12.0464, -77.0428), // Coordenadas iniciales
+                  target: _currentLocation ?? LatLng(-12.0464, -77.0428),
                   zoom: 12,
                 ),
                 markers: _markers,
