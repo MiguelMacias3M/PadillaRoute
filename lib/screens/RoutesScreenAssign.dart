@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
-import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 
 class RoutesScreenAssign extends StatefulWidget {
+  final Ruta rutaSeleccionada;
+
+  RoutesScreenAssign({required this.rutaSeleccionada});
+
   @override
   _RoutesScreenAssignState createState() => _RoutesScreenAssignState();
 }
@@ -13,11 +17,9 @@ class RoutesScreenAssign extends StatefulWidget {
 class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
   final TextEditingController _searchController = TextEditingController();
   String? selectedUser;
-  String? selectedRoute;
+  int? selectedUserId;
   List<Usuario> users = [];
-  List<Ruta> routes = [];
   List<Usuario> filteredUsers = [];
-  List<Ruta> filteredRoutes = [];
 
   late UsuariosHelper usuariosHelper;
   late RutasHelper rutasHelper;
@@ -32,10 +34,8 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
 
   Future<void> _fetchData() async {
     users = await usuariosHelper.getAll();
-    routes = await rutasHelper.getAll();
     setState(() {
       filteredUsers = users;
-      filteredRoutes = routes;
     });
   }
 
@@ -50,9 +50,34 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
   void _selectUser(Usuario user) {
     setState(() {
       selectedUser = user.nombre;
+      selectedUserId = user.idUsuario; // Guardar el ID del usuario seleccionado
       _searchController.text = user.nombre;
-      filteredUsers = users; // Reset filtered users
+      filteredUsers = users;
     });
+  }
+
+  Future<void> _assignUserToRoute() async {
+    if (selectedUserId != null) {
+      try {
+        await rutasHelper.update(widget.rutaSeleccionada.idRuta, {
+          "idChofer": selectedUserId, // Actualizar solo el campo idChofer
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Usuario asignado correctamente')),
+        );
+
+        Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al asignar usuario')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Selecciona un usuario primero')),
+      );
+    }
   }
 
   @override
@@ -60,7 +85,7 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Asignar rutas',
+          'Asignar usuario a ruta',
           style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -82,6 +107,21 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              'Ruta seleccionada:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 5),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(widget.rutaSeleccionada.nombre),
+            ),
+            SizedBox(height: 15),
             TextField(
               controller: _searchController,
               onChanged: _filterUsers,
@@ -129,49 +169,11 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
                 ],
               ),
             ),
-            SizedBox(height: 15),
-            Text('Ruta asignada', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            SizedBox(height: 5),
-            DropdownButton<String>(
-              value: selectedRoute,
-              hint: Text('Selecciona una ruta'),
-              items: routes.map((Ruta route) {
-                return DropdownMenuItem<String>(
-                  value: route.nombre,
-                  child: Text(route.nombre),
-                );
-              }).toList(),
-              onChanged: (String? value) {
-                setState(() {
-                  selectedRoute = value;
-                });
-              },
-            ),
-            SizedBox(height: 15),
-            Text('Horario', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            SizedBox(height: 5),
-            Chip(label: Text('20:00')), // Aquí puedes personalizar el horario
             SizedBox(height: 20),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  // Aquí puedes agregar la lógica para asignar la ruta al usuario
-                  if (selectedUser != null && selectedRoute != null) {
-                    // Lógica para asignar la ruta
-                    print('Ruta asignada a $selectedUser: $selectedRoute');
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text(
-                  'Asignar ruta',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
+                onPressed: _assignUserToRoute,
+                child: Text('Asignar Usuario'),
               ),
             ),
           ],

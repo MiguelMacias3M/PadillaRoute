@@ -130,18 +130,24 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
         children: [
           Text(
             ruta.nombre,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.blue.shade900),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.blue.shade900),
           ),
           Divider(color: Colors.blue.shade300),
           SizedBox(height: 8),
-          Text('Paradas asignadas:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          Text('Paradas asignadas:',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
           SizedBox(height: 5),
           Wrap(
             spacing: 8,
             runSpacing: 5,
             children: ruta.paradas.map((stop) {
               return Chip(
-                label: Text(stop, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                label: Text(stop,
+                    style:
+                        TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                 backgroundColor: Colors.blue.shade200,
               );
             }).toList(),
@@ -155,24 +161,28 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _actionButton(context, 'Asignar usuario', Colors.blue, Icons.person_add, () {
+              _actionButton(
+                  context, 'Asignar usuario', Colors.blue, Icons.person_add,
+                  () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RoutesScreenAssign()),
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        RoutesScreenAssign(rutaSeleccionada: ruta),
+                  ),
                 );
               }),
               _actionButton(context, 'Editar', Colors.amber, Icons.edit, () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => RoutesScreenEdit(
-        routeId: ruta.idRuta, // ID de la ruta
-        ruta: ruta, // Pasar la ruta
-      ),
-    ),
-  );
-}),
-
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RoutesScreenEdit(
+                      routeId: ruta.idRuta, // ID de la ruta
+                      ruta: ruta, // Pasar la ruta
+                    ),
+                  ),
+                );
+              }),
             ],
           ),
         ],
@@ -180,11 +190,13 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
     );
   }
 
-  Widget _actionButton(BuildContext context, String text, Color color, IconData icon, VoidCallback onPressed) {
+  Widget _actionButton(BuildContext context, String text, Color color,
+      IconData icon, VoidCallback onPressed) {
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: Icon(icon, color: Colors.white),
-      label: Text(text, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      label: Text(text,
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -213,31 +225,42 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
                   CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 30,
-                    child: Icon(Icons.directions_bus, color: Colors.blue, size: 40),
+                    child: Icon(Icons.directions_bus,
+                        color: Colors.blue, size: 40),
                   ),
                   SizedBox(height: 10),
                   Text(
                     'Gestión de Rutas',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
             _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
-            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement()),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
-            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
-            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement()),
-            _drawerItem(context, Icons.location_on, 'Monitoreo', MonitoringScreenManagement()),
+            _drawerItem(
+                context, Icons.people, 'Usuarios', UserScreenManagement()),
+            _drawerItem(context, Icons.directions_car, 'Vehículos',
+                VehiclesScreenManagement()),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias',
+                IncidentsScreenAdmin()),
+            _drawerItem(context, Icons.local_parking, 'Paradas',
+                StopScreenManagement()),
+            _drawerItem(context, Icons.location_on, 'Monitoreo',
+                MonitoringScreenManagement()),
             Divider(color: Colors.white),
-            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
+            _drawerItem(
+                context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
           ],
         ),
       ),
     );
   }
 
-  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
+  Widget _drawerItem(
+      BuildContext context, IconData icon, String title, Widget? screen) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
       title: Text(
