@@ -23,6 +23,12 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
     _loadStops();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadStops();
+  }
+
   Future<void> _loadStops() async {
     try {
       List<Parada> stopList = await paradasHelper.getAll();
@@ -100,11 +106,12 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => StopScreenRegister()),
           );
+          _loadStops();
         },
         backgroundColor: Colors.blue,
         child: Icon(Icons.add, color: Colors.white),
@@ -135,11 +142,12 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
+                  onPressed: () async {
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => StopScreenEdit(parada: parada)),
                     );
+                    _loadStops();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.amber,
