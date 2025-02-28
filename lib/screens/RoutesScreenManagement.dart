@@ -61,7 +61,7 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
     for (var ruta in _routes) {
       Usuario? chofer = await _usuariosHelper.get(ruta.idChofer);
       setState(() {
-        _choferNombres[ruta.idChofer] = chofer?.nombre ?? 'Desconocido';
+        _choferNombres[ruta.idChofer] = chofer?.nombre ?? 'Sin asignar';
       });
     }
   }

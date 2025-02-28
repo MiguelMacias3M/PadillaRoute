@@ -44,7 +44,8 @@ class _MonitoringScreenManagementState extends State<MonitoringScreenManagement>
       };
 
       setState(() {
-        rutas = fetchedRutas;
+        // Filtramos solo las rutas con usuario asignado
+        rutas = fetchedRutas.where((ruta) => usuariosMapTemp.containsKey(ruta.idChofer)).toList();
         usuariosMap = usuariosMapTemp;
       });
     } catch (e) {
