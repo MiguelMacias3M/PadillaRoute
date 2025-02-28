@@ -18,7 +18,12 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
   void initState() {
     super.initState();
     incidentesHelper = IncidentesHelper(RealtimeDbHelper());
-    _loadIncidents();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadIncidents(); // Se llama cada vez que la pantalla se reconstruye
   }
 
   // Cargar incidentes desde la base de datos
