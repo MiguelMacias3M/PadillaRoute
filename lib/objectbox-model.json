@@ -76,40 +76,6 @@
         }
       ],
       "relations": []
-    },
-    {
-      "id": "2:8384932760130501549",
-      "lastPropertyId": "5:6045165561185031209",
-      "name": "ParadasRegistro",
-      "properties": [
-        {
-          "id": "1:6283357737830640096",
-          "name": "id",
-          "type": 6,
-          "flags": 1
-        },
-        {
-          "id": "2:6941642670277637253",
-          "name": "nombreParada",
-          "type": 9
-        },
-        {
-          "id": "3:2654915024769224228",
-          "name": "horaLlegada",
-          "type": 9
-        },
-        {
-          "id": "4:1211653528266574720",
-          "name": "cantidadPersonas",
-          "type": 9
-        },
-        {
-          "id": "5:6045165561185031209",
-          "name": "omitida",
-          "type": 1
-        }
-      ],
-      "relations": []
     }
   ],
   "lastEntityId": "2:8384932760130501549",
@@ -118,13 +84,20 @@
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
-  "retiredEntityUids": [],
+  "retiredEntityUids": [
+    8384932760130501549
+  ],
   "retiredIndexUids": [],
   "retiredPropertyUids": [
     6271079064170796074,
     5687386180560669851,
     2602739470370353414,
-    7193315954222367176
+    7193315954222367176,
+    6283357737830640096,
+    6941642670277637253,
+    2654915024769224228,
+    1211653528266574720,
+    6045165561185031209
   ],
   "retiredRelationUids": [],
   "version": 1
