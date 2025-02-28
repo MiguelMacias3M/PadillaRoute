@@ -14,6 +14,7 @@ import 'package:objectbox/internal.dart'
 import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
+import 'models/objectBox_models/paradas_registro.dart';
 import 'models/objectBox_models/viaje_registro.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
@@ -22,14 +23,9 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
       id: const obx_int.IdUid(1, 4728545412672262595),
       name: 'ViajeRegistro',
-      lastPropertyId: const obx_int.IdUid(12, 5307251089363573633),
+      lastPropertyId: const obx_int.IdUid(17, 5729657044769026602),
       flags: 0,
       properties: <obx_int.ModelProperty>[
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(1, 6271079064170796074),
-            name: 'idRegistro',
-            type: 6,
-            flags: 1),
         obx_int.ModelProperty(
             id: const obx_int.IdUid(2, 7834138693529659243),
             name: 'idRuta',
@@ -41,18 +37,8 @@ final _entities = <obx_int.ModelEntity>[
             type: 6,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(4, 5687386180560669851),
-            name: 'idUsuario',
-            type: 6,
-            flags: 0),
-        obx_int.ModelProperty(
             id: const obx_int.IdUid(5, 7033562502161961306),
             name: 'horaInicio',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(6, 2602739470370353414),
-            name: 'hora',
             type: 9,
             flags: 0),
         obx_int.ModelProperty(
@@ -68,22 +54,76 @@ final _entities = <obx_int.ModelEntity>[
         obx_int.ModelProperty(
             id: const obx_int.IdUid(9, 5853579235906589190),
             name: 'distanciaRecorrida',
-            type: 6,
+            type: 8,
             flags: 0),
         obx_int.ModelProperty(
             id: const obx_int.IdUid(10, 5895363509369567912),
             name: 'velocidadPromedio',
-            type: 6,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(11, 7193315954222367176),
-            name: 'litrosCombustibleConsumidoAprox',
-            type: 6,
+            type: 8,
             flags: 0),
         obx_int.ModelProperty(
             id: const obx_int.IdUid(12, 5307251089363573633),
             name: 'paradasRegistro',
             type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(13, 6602203968091989111),
+            name: 'id',
+            type: 6,
+            flags: 1),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(14, 5697329927235370456),
+            name: 'idChofer',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(15, 1046268941419125666),
+            name: 'horaFinal',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(16, 6429469094011943501),
+            name: 'combustibleConsumidoPromedio',
+            type: 8,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(17, 5729657044769026602),
+            name: 'finalizado',
+            type: 1,
+            flags: 0)
+      ],
+      relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[]),
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(2, 8384932760130501549),
+      name: 'ParadasRegistro',
+      lastPropertyId: const obx_int.IdUid(5, 6045165561185031209),
+      flags: 0,
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 6283357737830640096),
+            name: 'id',
+            type: 6,
+            flags: 1),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 6941642670277637253),
+            name: 'nombreParada',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 2654915024769224228),
+            name: 'horaLlegada',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(4, 1211653528266574720),
+            name: 'cantidadPersonas',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(5, 6045165561185031209),
+            name: 'omitida',
+            type: 1,
             flags: 0)
       ],
       relations: <obx_int.ModelRelation>[],
@@ -125,13 +165,18 @@ Future<obx.Store> openStore(
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
       entities: _entities,
-      lastEntityId: const obx_int.IdUid(1, 4728545412672262595),
+      lastEntityId: const obx_int.IdUid(2, 8384932760130501549),
       lastIndexId: const obx_int.IdUid(0, 0),
       lastRelationId: const obx_int.IdUid(0, 0),
       lastSequenceId: const obx_int.IdUid(0, 0),
       retiredEntityUids: const [],
       retiredIndexUids: const [],
-      retiredPropertyUids: const [],
+      retiredPropertyUids: const [
+        6271079064170796074,
+        5687386180560669851,
+        2602739470370353414,
+        7193315954222367176
+      ],
       retiredRelationUids: const [],
       modelVersion: 5,
       modelVersionParserMinimum: 5,
@@ -142,72 +187,122 @@ obx_int.ModelDefinition getObjectBoxModel() {
         model: _entities[0],
         toOneRelations: (ViajeRegistro object) => [],
         toManyRelations: (ViajeRegistro object) => {},
-        getId: (ViajeRegistro object) => object.idRegistro,
+        getId: (ViajeRegistro object) => object.id,
         setId: (ViajeRegistro object, int id) {
-          object.idRegistro = id;
+          object.id = id;
         },
         objectToFB: (ViajeRegistro object, fb.Builder fbb) {
           final horaInicioOffset = fbb.writeString(object.horaInicio);
-          final horaOffset = fbb.writeString(object.hora);
           final paradasRegistroOffset = fbb.writeString(object.paradasRegistro);
-          fbb.startTable(13);
-          fbb.addInt64(0, object.idRegistro);
+          final horaFinalOffset = fbb.writeString(object.horaFinal);
+          fbb.startTable(18);
           fbb.addInt64(1, object.idRuta);
           fbb.addInt64(2, object.idVehiculo);
-          fbb.addInt64(3, object.idUsuario);
           fbb.addOffset(4, horaInicioOffset);
-          fbb.addOffset(5, horaOffset);
           fbb.addInt64(6, object.tiempoTotal);
           fbb.addInt64(7, object.totalPasajeros);
-          fbb.addInt64(8, object.distanciaRecorrida);
-          fbb.addInt64(9, object.velocidadPromedio);
-          fbb.addInt64(10, object.litrosCombustibleConsumidoAprox);
+          fbb.addFloat64(8, object.distanciaRecorrida);
+          fbb.addFloat64(9, object.velocidadPromedio);
           fbb.addOffset(11, paradasRegistroOffset);
+          fbb.addInt64(12, object.id);
+          fbb.addInt64(13, object.idChofer);
+          fbb.addOffset(14, horaFinalOffset);
+          fbb.addFloat64(15, object.combustibleConsumidoPromedio);
+          fbb.addBool(16, object.finalizado);
           fbb.finish(fbb.endTable());
-          return object.idRegistro;
+          return object.id;
         },
         objectFromFB: (obx.Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-          final idRegistroParam =
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+          final idParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 28, 0);
           final idRutaParam =
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0);
           final idVehiculoParam =
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
-          final idUsuarioParam =
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0);
+          final idChoferParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 30, 0);
           final paradasRegistroParam =
               const fb.StringReader(asciiOptimization: true)
                   .vTableGet(buffer, rootOffset, 26, '');
           final horaInicioParam = const fb.StringReader(asciiOptimization: true)
               .vTableGet(buffer, rootOffset, 12, '');
-          final horaParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGet(buffer, rootOffset, 14, '');
+          final horaFinalParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 32, '');
           final tiempoTotalParam =
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0);
           final totalPasajerosParam =
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 18, 0);
           final distanciaRecorridaParam =
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 20, 0);
+              const fb.Float64Reader().vTableGet(buffer, rootOffset, 20, 0);
           final velocidadPromedioParam =
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 22, 0);
-          final litrosCombustibleConsumidoAproxParam =
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 24, 0);
+              const fb.Float64Reader().vTableGet(buffer, rootOffset, 22, 0);
+          final combustibleConsumidoPromedioParam =
+              const fb.Float64Reader().vTableGet(buffer, rootOffset, 34, 0);
+          final finalizadoParam =
+              const fb.BoolReader().vTableGet(buffer, rootOffset, 36, false);
           final object = ViajeRegistro(
-              idRegistro: idRegistroParam,
+              id: idParam,
               idRuta: idRutaParam,
               idVehiculo: idVehiculoParam,
-              idUsuario: idUsuarioParam,
+              idChofer: idChoferParam,
               paradasRegistro: paradasRegistroParam,
               horaInicio: horaInicioParam,
-              hora: horaParam,
+              horaFinal: horaFinalParam,
               tiempoTotal: tiempoTotalParam,
               totalPasajeros: totalPasajerosParam,
               distanciaRecorrida: distanciaRecorridaParam,
               velocidadPromedio: velocidadPromedioParam,
-              litrosCombustibleConsumidoAprox:
-                  litrosCombustibleConsumidoAproxParam);
+              combustibleConsumidoPromedio: combustibleConsumidoPromedioParam,
+              finalizado: finalizadoParam);
+
+          return object;
+        }),
+    ParadasRegistro: obx_int.EntityDefinition<ParadasRegistro>(
+        model: _entities[1],
+        toOneRelations: (ParadasRegistro object) => [],
+        toManyRelations: (ParadasRegistro object) => {},
+        getId: (ParadasRegistro object) => object.id,
+        setId: (ParadasRegistro object, int id) {
+          object.id = id;
+        },
+        objectToFB: (ParadasRegistro object, fb.Builder fbb) {
+          final nombreParadaOffset = fbb.writeString(object.nombreParada);
+          final horaLlegadaOffset = fbb.writeString(object.horaLlegada);
+          final cantidadPersonasOffset =
+              fbb.writeString(object.cantidadPersonas);
+          fbb.startTable(6);
+          fbb.addInt64(0, object.id);
+          fbb.addOffset(1, nombreParadaOffset);
+          fbb.addOffset(2, horaLlegadaOffset);
+          fbb.addOffset(3, cantidadPersonasOffset);
+          fbb.addBool(4, object.omitida);
+          fbb.finish(fbb.endTable());
+          return object.id;
+        },
+        objectFromFB: (obx.Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final idParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+          final omitidaParam =
+              const fb.BoolReader().vTableGet(buffer, rootOffset, 12, false);
+          final nombreParadaParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGet(buffer, rootOffset, 6, '');
+          final horaLlegadaParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGet(buffer, rootOffset, 8, '');
+          final cantidadPersonasParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGet(buffer, rootOffset, 10, '');
+          final object = ParadasRegistro(
+              id: idParam,
+              omitida: omitidaParam,
+              nombreParada: nombreParadaParam,
+              horaLlegada: horaLlegadaParam,
+              cantidadPersonas: cantidadPersonasParam);
 
           return object;
         })
@@ -218,51 +313,78 @@ obx_int.ModelDefinition getObjectBoxModel() {
 
 /// [ViajeRegistro] entity fields to define ObjectBox queries.
 class ViajeRegistro_ {
-  /// See [ViajeRegistro.idRegistro].
-  static final idRegistro =
-      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[0]);
-
   /// See [ViajeRegistro.idRuta].
   static final idRuta =
-      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[1]);
+      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[0]);
 
   /// See [ViajeRegistro.idVehiculo].
   static final idVehiculo =
-      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[2]);
-
-  /// See [ViajeRegistro.idUsuario].
-  static final idUsuario =
-      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[3]);
+      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[1]);
 
   /// See [ViajeRegistro.horaInicio].
   static final horaInicio =
-      obx.QueryStringProperty<ViajeRegistro>(_entities[0].properties[4]);
-
-  /// See [ViajeRegistro.hora].
-  static final hora =
-      obx.QueryStringProperty<ViajeRegistro>(_entities[0].properties[5]);
+      obx.QueryStringProperty<ViajeRegistro>(_entities[0].properties[2]);
 
   /// See [ViajeRegistro.tiempoTotal].
   static final tiempoTotal =
-      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[6]);
+      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[3]);
 
   /// See [ViajeRegistro.totalPasajeros].
   static final totalPasajeros =
-      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[7]);
+      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[4]);
 
   /// See [ViajeRegistro.distanciaRecorrida].
   static final distanciaRecorrida =
-      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[8]);
+      obx.QueryDoubleProperty<ViajeRegistro>(_entities[0].properties[5]);
 
   /// See [ViajeRegistro.velocidadPromedio].
   static final velocidadPromedio =
-      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[9]);
-
-  /// See [ViajeRegistro.litrosCombustibleConsumidoAprox].
-  static final litrosCombustibleConsumidoAprox =
-      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[10]);
+      obx.QueryDoubleProperty<ViajeRegistro>(_entities[0].properties[6]);
 
   /// See [ViajeRegistro.paradasRegistro].
   static final paradasRegistro =
-      obx.QueryStringProperty<ViajeRegistro>(_entities[0].properties[11]);
+      obx.QueryStringProperty<ViajeRegistro>(_entities[0].properties[7]);
+
+  /// See [ViajeRegistro.id].
+  static final id =
+      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[8]);
+
+  /// See [ViajeRegistro.idChofer].
+  static final idChofer =
+      obx.QueryIntegerProperty<ViajeRegistro>(_entities[0].properties[9]);
+
+  /// See [ViajeRegistro.horaFinal].
+  static final horaFinal =
+      obx.QueryStringProperty<ViajeRegistro>(_entities[0].properties[10]);
+
+  /// See [ViajeRegistro.combustibleConsumidoPromedio].
+  static final combustibleConsumidoPromedio =
+      obx.QueryDoubleProperty<ViajeRegistro>(_entities[0].properties[11]);
+
+  /// See [ViajeRegistro.finalizado].
+  static final finalizado =
+      obx.QueryBooleanProperty<ViajeRegistro>(_entities[0].properties[12]);
+}
+
+/// [ParadasRegistro] entity fields to define ObjectBox queries.
+class ParadasRegistro_ {
+  /// See [ParadasRegistro.id].
+  static final id =
+      obx.QueryIntegerProperty<ParadasRegistro>(_entities[1].properties[0]);
+
+  /// See [ParadasRegistro.nombreParada].
+  static final nombreParada =
+      obx.QueryStringProperty<ParadasRegistro>(_entities[1].properties[1]);
+
+  /// See [ParadasRegistro.horaLlegada].
+  static final horaLlegada =
+      obx.QueryStringProperty<ParadasRegistro>(_entities[1].properties[2]);
+
+  /// See [ParadasRegistro.cantidadPersonas].
+  static final cantidadPersonas =
+      obx.QueryStringProperty<ParadasRegistro>(_entities[1].properties[3]);
+
+  /// See [ParadasRegistro.omitida].
+  static final omitida =
+      obx.QueryBooleanProperty<ParadasRegistro>(_entities[1].properties[4]);
 }

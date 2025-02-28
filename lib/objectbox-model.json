@@ -5,15 +5,9 @@
   "entities": [
     {
       "id": "1:4728545412672262595",
-      "lastPropertyId": "12:5307251089363573633",
+      "lastPropertyId": "17:5729657044769026602",
       "name": "ViajeRegistro",
       "properties": [
-        {
-          "id": "1:6271079064170796074",
-          "name": "idRegistro",
-          "type": 6,
-          "flags": 1
-        },
         {
           "id": "2:7834138693529659243",
           "name": "idRuta",
@@ -25,18 +19,8 @@
           "type": 6
         },
         {
-          "id": "4:5687386180560669851",
-          "name": "idUsuario",
-          "type": 6
-        },
-        {
           "id": "5:7033562502161961306",
           "name": "horaInicio",
-          "type": 9
-        },
-        {
-          "id": "6:2602739470370353414",
-          "name": "hora",
           "type": 9
         },
         {
@@ -52,28 +36,83 @@
         {
           "id": "9:5853579235906589190",
           "name": "distanciaRecorrida",
-          "type": 6
+          "type": 8
         },
         {
           "id": "10:5895363509369567912",
           "name": "velocidadPromedio",
-          "type": 6
-        },
-        {
-          "id": "11:7193315954222367176",
-          "name": "litrosCombustibleConsumidoAprox",
-          "type": 6
+          "type": 8
         },
         {
           "id": "12:5307251089363573633",
           "name": "paradasRegistro",
           "type": 9
+        },
+        {
+          "id": "13:6602203968091989111",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "14:5697329927235370456",
+          "name": "idChofer",
+          "type": 6
+        },
+        {
+          "id": "15:1046268941419125666",
+          "name": "horaFinal",
+          "type": 9
+        },
+        {
+          "id": "16:6429469094011943501",
+          "name": "combustibleConsumidoPromedio",
+          "type": 8
+        },
+        {
+          "id": "17:5729657044769026602",
+          "name": "finalizado",
+          "type": 1
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:8384932760130501549",
+      "lastPropertyId": "5:6045165561185031209",
+      "name": "ParadasRegistro",
+      "properties": [
+        {
+          "id": "1:6283357737830640096",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:6941642670277637253",
+          "name": "nombreParada",
+          "type": 9
+        },
+        {
+          "id": "3:2654915024769224228",
+          "name": "horaLlegada",
+          "type": 9
+        },
+        {
+          "id": "4:1211653528266574720",
+          "name": "cantidadPersonas",
+          "type": 9
+        },
+        {
+          "id": "5:6045165561185031209",
+          "name": "omitida",
+          "type": 1
         }
       ],
       "relations": []
     }
   ],
-  "lastEntityId": "1:4728545412672262595",
+  "lastEntityId": "2:8384932760130501549",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
@@ -81,7 +120,12 @@
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
   "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredPropertyUids": [
+    6271079064170796074,
+    5687386180560669851,
+    2602739470370353414,
+    7193315954222367176
+  ],
   "retiredRelationUids": [],
   "version": 1
 }
