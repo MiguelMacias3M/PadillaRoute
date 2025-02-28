@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/screens/user/RouteScreenU.dart';
@@ -6,8 +6,8 @@ import 'package:padillaroutea/screens/user/SupportScreenUser.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/screens/loginscreen.dart';
-import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart'; // Importamos el helper de vehículos
-import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart'; // Importamos el modelo de Vehiculo
+import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
+import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart';
 
 class RouteScreenManagementU extends StatefulWidget {
   final Usuario chofer;
@@ -20,7 +20,7 @@ class RouteScreenManagementU extends StatefulWidget {
 
 class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   final RutasHelper rutasHelper = RutasHelper(RealtimeDbHelper());
-  final VehiculosHelper vehiculosHelper = VehiculosHelper(RealtimeDbHelper()); // Instanciamos el helper de vehículos
+  final VehiculosHelper vehiculosHelper = VehiculosHelper(RealtimeDbHelper());
   List<Ruta> rutas = [];
   bool isLoading = true;
   Vehiculo? vehiculoAsignado;
@@ -29,7 +29,7 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   void initState() {
     super.initState();
     _loadRutas();
-    _loadVehiculo(); // Cargamos el vehículo asignado
+    _loadVehiculo();
   }
 
   Future<void> _loadRutas() async {
@@ -54,7 +54,8 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   Future<void> _loadVehiculo() async {
     if (widget.chofer.idVehiculo != null) {
       try {
-        Vehiculo? vehiculo = await vehiculosHelper.get(widget.chofer.idVehiculo!);
+        Vehiculo? vehiculo =
+            await vehiculosHelper.get(widget.chofer.idVehiculo!);
         setState(() {
           vehiculoAsignado = vehiculo;
         });
@@ -77,41 +78,76 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
         iconTheme: IconThemeData(color: Colors.white),
       ),
       drawer: _buildDrawer(context),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: isLoading
-            ? Center(child: CircularProgressIndicator())
-            : rutas.isEmpty
-                ? Center(
-                    child: Text(
-                      'No tienes rutas asignadas',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: rutas.length,
-                    itemBuilder: (context, index) {
-                      return _routeCard(context, rutas[index]);
-                    },
-                  ),
+      body: Stack(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16.0),
+            child: isLoading
+                ? Center(child: CircularProgressIndicator())
+                : rutas.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No tienes rutas asignadas',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: rutas.length,
+                        itemBuilder: (context, index) {
+                          return _routeCard(context, rutas[index]);
+                        },
+                      ),
+          ),
+          if (vehiculoAsignado != null) _floatingVehicleInfo(),
+        ],
       ),
-      bottomNavigationBar: vehiculoAsignado != null
-          ? BottomAppBar(
-              color: Colors.blue.shade800,
-              child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Vehículo Asignado: ${vehiculoAsignado!.marca} - ${vehiculoAsignado!.modelo} - ${vehiculoAsignado!.placa}',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ],
+    );
+  }
+
+  Widget _floatingVehicleInfo() {
+    return Positioned(
+      bottom: 20,
+      left: 20,
+      right: 20,
+      child: Container(
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.blue.shade800,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'El vehículo que te fue asignado es:',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 5),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.directions_bus, color: Colors.white),
+                SizedBox(width: 10),
+                Text(
+                  '${vehiculoAsignado!.marca} - ${vehiculoAsignado!.modelo} - ${vehiculoAsignado!.placa}',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
                 ),
-              ),
-            )
-          : null, // Muestra la barra si hay un vehículo asignado
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -136,7 +172,10 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
             children: [
               Text(
                 ruta.nombre,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.white),
               ),
               SizedBox(height: 5),
               Wrap(
@@ -161,10 +200,12 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => RouteScreenU(routeName: ruta.nombre)),
+                          builder: (context) =>
+                              RouteScreenU(routeName: ruta.nombre)),
                     );
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.white),
                   child: Text(
                     'Hacer ruta',
                     style: TextStyle(color: Colors.blue.shade800),
@@ -194,7 +235,8 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
               decoration: BoxDecoration(
                 color: Colors.blue.shade700,
                 borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -208,26 +250,34 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
                   SizedBox(height: 10),
                   Text(
                     widget.chofer.nombre,
-                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
-            _drawerItem(context, Icons.home, 'Inicio', RouteScreenManagementU(chofer: widget.chofer)),
-            _drawerItem(context, Icons.support_agent, 'Soporte', SupportScreenUser()),
+            _drawerItem(context, Icons.home, 'Inicio',
+                RouteScreenManagementU(chofer: widget.chofer)),
+            _drawerItem(
+                context, Icons.support_agent, 'Soporte', SupportScreenUser()),
             Spacer(),
-            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
+            _drawerItem(
+                context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
           ],
         ),
       ),
     );
   }
 
-  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget screen) {
+  Widget _drawerItem(
+      BuildContext context, IconData icon, String title, Widget screen) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
       title: Text(title, style: TextStyle(fontSize: 16, color: Colors.white)),
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => screen)),
+      onTap: () => Navigator.push(
+          context, MaterialPageRoute(builder: (context) => screen)),
     );
   }
 }
