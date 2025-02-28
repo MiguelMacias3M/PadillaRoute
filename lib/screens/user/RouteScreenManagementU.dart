@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/screens/user/RouteScreenU.dart';
@@ -6,6 +6,8 @@ import 'package:padillaroutea/screens/user/SupportScreenUser.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/screens/loginscreen.dart';
+import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart'; // Importamos el helper de vehículos
+import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart'; // Importamos el modelo de Vehiculo
 
 class RouteScreenManagementU extends StatefulWidget {
   final Usuario chofer;
@@ -18,13 +20,16 @@ class RouteScreenManagementU extends StatefulWidget {
 
 class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   final RutasHelper rutasHelper = RutasHelper(RealtimeDbHelper());
+  final VehiculosHelper vehiculosHelper = VehiculosHelper(RealtimeDbHelper()); // Instanciamos el helper de vehículos
   List<Ruta> rutas = [];
   bool isLoading = true;
+  Vehiculo? vehiculoAsignado;
 
   @override
   void initState() {
     super.initState();
     _loadRutas();
+    _loadVehiculo(); // Cargamos el vehículo asignado
   }
 
   Future<void> _loadRutas() async {
@@ -43,6 +48,19 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
       setState(() {
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> _loadVehiculo() async {
+    if (widget.chofer.idVehiculo != null) {
+      try {
+        Vehiculo? vehiculo = await vehiculosHelper.get(widget.chofer.idVehiculo!);
+        setState(() {
+          vehiculoAsignado = vehiculo;
+        });
+      } catch (e) {
+        print("Error cargando vehículo: $e");
+      }
     }
   }
 
@@ -77,6 +95,23 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
                     },
                   ),
       ),
+      bottomNavigationBar: vehiculoAsignado != null
+          ? BottomAppBar(
+              color: Colors.blue.shade800,
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Vehículo Asignado: ${vehiculoAsignado!.marca} - ${vehiculoAsignado!.modelo} - ${vehiculoAsignado!.placa}',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : null, // Muestra la barra si hay un vehículo asignado
     );
   }
 
