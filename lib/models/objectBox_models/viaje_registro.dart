@@ -1,39 +1,63 @@
 import 'dart:convert';
-
 import 'package:objectbox/objectbox.dart';
 
 @Entity()
 class ViajeRegistro {
   @Id()
-  int idRegistro = 0;
+  int id = 0;
+
   int idRuta;
   int idVehiculo;
-  int idUsuario;
-  String paradasRegistro;
+  int idChofer;
+
+  String paradasRegistro; // Store paradasRegistro as JSON
+
   String horaInicio;
-  String hora;
+  String horaFinal;
+
   int tiempoTotal;
   int totalPasajeros;
-  int distanciaRecorrida;
-  int velocidadPromedio;
-  int litrosCombustibleConsumidoAprox;
+
+  double distanciaRecorrida;
+  double velocidadPromedio;
+  double combustibleConsumidoPromedio;
+
+  bool finalizado;
 
   ViajeRegistro({
-    required this.idRegistro,
+    this.id = 0,
     required this.idRuta,
     required this.idVehiculo,
-    required this.idUsuario,
+    required this.idChofer,
     required this.paradasRegistro,
     required this.horaInicio,
-    required this.hora,
+    required this.horaFinal,
     required this.tiempoTotal,
     required this.totalPasajeros,
     required this.distanciaRecorrida,
     required this.velocidadPromedio,
-    required this.litrosCombustibleConsumidoAprox
+    required this.combustibleConsumidoPromedio,
+    required this.finalizado,
   });
 
+  // Getter & Setter for paradasRegistro Map
   Map<String, dynamic> get paradasMap => jsonDecode(paradasRegistro);
   set paradasMap(Map<String, dynamic> map) => paradasRegistro = jsonEncode(map);
 
+   /// Convert ObjectBox entity to a JSON-like Map
+  Map<String, dynamic> toJson() {
+    return {
+      "id_registro": id,
+      "id_ruta": idRuta,
+      "id_vehiculo": idVehiculo,
+      "id_usuario": idChofer,
+      "paradas_registro": jsonDecode(paradasRegistro), // Decode stored JSON
+      "hora_inicio": horaInicio,
+      "tiempo_total": tiempoTotal,
+      "total_personas": totalPasajeros,
+      "distancia_recorrida": distanciaRecorrida,
+      "velocidad_promedio": velocidadPromedio,
+      "combustible_consumido_promedio": combustibleConsumidoPromedio
+    };
+  }
 }
