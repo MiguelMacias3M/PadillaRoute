@@ -121,6 +121,7 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
         contrasena: password,
         rol: rolEnum,
         activo: true,
+        idVehiculo: 1,
       );
 
       await _usuariosHelper.setNew(usuario);

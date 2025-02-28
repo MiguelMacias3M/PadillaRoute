@@ -74,7 +74,10 @@ class _VehiclesScreenManagementState extends State<VehiclesScreenManagement> {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/vehicles_register');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => VehiclesScreen()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
