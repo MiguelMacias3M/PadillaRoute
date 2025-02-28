@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
+import 'package:padillaroutea/screens/RoutesScreenManagement.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
@@ -72,12 +73,12 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
             content: Text('Ruta registrada con éxito!'),
             backgroundColor: Colors.green,
           ));
-          // Reiniciar el formulario
-          _routeNameController.clear();
-          setState(() {
-            selectedStops.clear(); // Reiniciar paradas
-            _initializeDefaultStop(); // Inicializa parada por defecto nuevamente
-          });
+
+          // Redirigir a la pantalla de gestión de rutas después del registro
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => RoutesScreenManagement()),
+          );
         } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Error al registrar la ruta: $e'),
@@ -85,7 +86,6 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
           ));
         }
       } else {
-        // Manejar el caso de que no haya paradas válidas
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Por favor, selecciona al menos una parada.'),
           backgroundColor: Colors.orange,
