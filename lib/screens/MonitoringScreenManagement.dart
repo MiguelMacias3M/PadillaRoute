@@ -7,50 +7,57 @@ import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
 import 'package:padillaroutea/screens/StopScreenManagement.dart';
 import 'package:padillaroutea/services/firebase_auth/firebase_auth_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
+import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
+import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 
-class MonitoringScreenManagement extends StatelessWidget {
+class MonitoringScreenManagement extends StatefulWidget {
+  @override
+  _MonitoringScreenManagementState createState() =>
+      _MonitoringScreenManagementState();
+}
+
+class _MonitoringScreenManagementState extends State<MonitoringScreenManagement> {
   FirebaseAuthHelper authHelper = FirebaseAuthHelper();
-  final List<Map<String, dynamic>> routes = [
-    {
-      'name': 'Ruta Rincón',
-      'stops': ['Rincón', 'Saltitrillo', 'Concha'],
-      'user': 'Jorge'
-    },
-    {
-      'name': 'Ruta Rincón noche',
-      'stops': ['Chayote', 'Alamitos', 'El barranco'],
-      'user': 'Bruno'
-    },
-    {
-      'name': 'Ruta Cosio',
-      'stops': ['Cosio', 'Bajio', 'Saucillo'],
-      'user': 'Jose'
+  RutasHelper rutasHelper = RutasHelper(RealtimeDbHelper());
+  UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+
+  List<Ruta> rutas = [];
+  Map<int, String> usuariosMap = {}; // idUsuario -> Nombre del usuario
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      List<Ruta> fetchedRutas = await rutasHelper.getAll();
+      List<Usuario> fetchedUsuarios = await usuariosHelper.getAll();
+
+      // Mapeamos los usuarios para acceder rápido a su nombre por ID
+      Map<int, String> usuariosMapTemp = {
+        for (var usuario in fetchedUsuarios) usuario.idUsuario: usuario.nombre
+      };
+
+      setState(() {
+        rutas = fetchedRutas;
+        usuariosMap = usuariosMapTemp;
+      });
+    } catch (e) {
+      print("Error cargando datos: $e");
     }
-  ];
+  }
 
   void _handleLogout(BuildContext context) async {
     await authHelper.logOut();
     Navigator.pushAndRemoveUntil(
-        context, 
-        MaterialPageRoute(builder: (contex) => LoginScreen()),
-        (Route<dynamic> route) => false
-      );
-  }
-
-  Widget _drawerItem(BuildContext context, IconData icon, String text, VoidCallback onTap, Widget? screen) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white),
-      title: Text(
-        text,
-        style: TextStyle(fontSize: 16, color: Colors.white),
-      ),
-      onTap: () {
-        if (screen != null) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
-        }
-      },
-      tileColor: Colors.blue.shade800,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+      (Route<dynamic> route) => false,
     );
   }
 
@@ -79,12 +86,14 @@ class MonitoringScreenManagement extends StatelessWidget {
             ),
             SizedBox(height: 20),
             Expanded(
-              child: ListView.builder(
-                itemCount: routes.length,
-                itemBuilder: (context, index) {
-                  return _routeCard(context, routes[index]);
-                },
-              ),
+              child: rutas.isEmpty
+                  ? Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      itemCount: rutas.length,
+                      itemBuilder: (context, index) {
+                        return _routeCard(context, rutas[index]);
+                      },
+                    ),
             ),
             SizedBox(height: 10),
             Center(
@@ -92,8 +101,7 @@ class MonitoringScreenManagement extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => MonitoringRouteScreen()),
+                    MaterialPageRoute(builder: (context) => MonitoringRouteScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -112,7 +120,9 @@ class MonitoringScreenManagement extends StatelessWidget {
     );
   }
 
-  Widget _routeCard(BuildContext context, Map<String, dynamic> route) {
+  Widget _routeCard(BuildContext context, Ruta ruta) {
+    String usuarioNombre = usuariosMap[ruta.idChofer] ?? "Desconocido";
+
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 5,
@@ -123,7 +133,7 @@ class MonitoringScreenManagement extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              route['name'],
+              ruta.nombre,
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -131,7 +141,7 @@ class MonitoringScreenManagement extends StatelessWidget {
             ),
             SizedBox(height: 5),
             Wrap(
-              children: route['stops']
+              children: ruta.paradas
                   .map<Widget>((stop) => Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: Text(
@@ -145,7 +155,7 @@ class MonitoringScreenManagement extends StatelessWidget {
             ),
             SizedBox(height: 5),
             Text(
-              'Usuario a cargo: ${route['user']}',
+              'Usuario a cargo: $usuarioNombre',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
@@ -155,8 +165,7 @@ class MonitoringScreenManagement extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => MonitoringRouteScreen()),
+                    MaterialPageRoute(builder: (context) => MonitoringRouteScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -194,8 +203,7 @@ class MonitoringScreenManagement extends StatelessWidget {
                   CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 30,
-                    child:
-                        Icon(Icons.location_on, color: Colors.blue, size: 40),
+                    child: Icon(Icons.location_on, color: Colors.blue, size: 40),
                   ),
                   SizedBox(height: 10),
                   Text(
@@ -208,44 +216,44 @@ class MonitoringScreenManagement extends StatelessWidget {
                 ],
               ),
             ),
-            _drawerItem(context, Icons.home, 'Inicio', () {}, MenuScreenAdmin()),
-            _drawerItem(
-                context, Icons.people, 'Usuarios', () {}, UserScreenManagement()),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', () {}, 
-                VehiclesScreenManagement()),
-            _drawerItem(context, Icons.warning_amber, 'Incidencias', () {}, 
-                IncidentsScreenAdmin()),
-            _drawerItem(context, Icons.local_parking, 'Paradas', () {}, 
-                StopScreenManagement()),
-            _drawerItem(context, Icons.location_on, 'Monioreo', () {},
-                MonitoringScreenManagement()),
+            _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
+            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement()),
+            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
+            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement()),
+            _drawerItem(context, Icons.location_on, 'Monitoreo', MonitoringScreenManagement()),
             const Divider(color: Colors.white),
-            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', () => _handleLogout(context), null),
-            
+            ListTile(
+              leading: Icon(Icons.exit_to_app, color: Colors.white),
+              title: Text(
+                'Cerrar sesión',
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
+              onTap: () => _handleLogout(context),
+              tileColor: Colors.blue.shade800,
+              contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+            ),
           ],
         ),
       ),
     );
   }
-}
 
-Widget _drawerItem(
-    BuildContext context, IconData icon, String title, Widget? screen) {
-  return ListTile(
-    leading: Icon(icon, color: Colors.white),
-    title: Text(
-      title,
-      style: TextStyle(fontSize: 16, color: Colors.white),
-    ),
-    onTap: () {
-      if (screen != null) {
+  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget screen) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(
+        title,
+        style: TextStyle(fontSize: 16, color: Colors.white),
+      ),
+      onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => screen),
         );
-      }
-    },
-    tileColor: Colors.blue.shade800,
-    contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-  );
+      },
+      tileColor: Colors.blue.shade800,
+      contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+    );
+  }
 }
