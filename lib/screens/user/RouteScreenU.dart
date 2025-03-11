@@ -172,8 +172,8 @@ class _RouteScreenUState extends State<RouteScreenU> {
             children: [
               Text("🕒 Inicio: $_startTime"),
               Text("⏹ Paradas Fijas: ${_fixedStops.length}"),
-              Text("🟢 Paradas Adicionales: ${_stopRecords.length}"),
-              ..._stopRecords.map((stop) => Text("⏸ ${stop['time']} - ${stop['location']}")),
+              Text("🟢 Paradas ehcas en la ruta: ${_stopRecords.length}"),
+              ..._stopRecords.map((stop) => Text("⏸ ${stop['time']}")),
               Text("🏁 Fin: $_endTime"),
             ],
           ),
