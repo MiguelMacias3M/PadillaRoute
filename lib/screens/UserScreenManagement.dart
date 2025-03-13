@@ -159,28 +159,28 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
                   });
                 },
               ),
-              if (usuario.rol == Rol.chofer) 
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    ),
-                    onPressed: () {
-                      // Redirigir a la pantalla de asignación de vehículo solo si el rol es chofer
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => VehiclesScreenAssign(usuarioSeleccionado: usuario),
-                        ),
-                      ).then((_) {
-                        // Recargar los usuarios después de asignar un vehículo
-                        _loadUsers();
-                      });
-                    },
-                    child: Text("Asignar vehículo"),
-                  ),
-                ),
+              // if (usuario.rol == Rol.chofer) 
+              //   Padding(
+              //     padding: const EdgeInsets.all(10.0),
+              //     child: ElevatedButton(
+              //       style: ElevatedButton.styleFrom(
+              //         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              //       ),
+              //       onPressed: () {
+              //         // Redirigir a la pantalla de asignación de vehículo solo si el rol es chofer
+              //         Navigator.push(
+              //           context,
+              //           MaterialPageRoute(
+              //             builder: (context) => VehiclesScreenAssign(rutaSeleccionada: usuario),
+              //           ),
+              //         ).then((_) {
+              //           // Recargar los usuarios después de asignar un vehículo
+              //           _loadUsers();
+              //         });
+              //       },
+              //       child: Text("Asignar vehículo"),
+              //     ),
+              //   ),
             ],
           ),
         );
