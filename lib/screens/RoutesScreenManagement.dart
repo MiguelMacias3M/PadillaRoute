@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
-import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
 import 'package:padillaroutea/screens/RoutesScreenEdit.dart';
 import 'package:padillaroutea/screens/RoutesScreenRegister.dart';
 import 'package:padillaroutea/screens/RoutesScreenAssign.dart';
-import 'package:padillaroutea/screens/StopScreenManagement.dart';
-import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
-import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
-import 'package:padillaroutea/screens/UserScreenManagement.dart';
+import 'package:padillaroutea/screens/VehiclesScreenAssign.dart';
 import 'package:padillaroutea/screens/loginscreen.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
@@ -81,10 +77,10 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.blue),
+        iconTheme: const IconThemeData(color: Colors.blue),
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 15),
+            padding: const EdgeInsets.only(right: 15),
             child: Image.asset(
               'assets/logo.png',
               height: 40,
@@ -94,17 +90,17 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
       ),
       drawer: _buildDrawer(context),
       body: _loading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Gestiona todas tus rutas y asigna paradas fácilmente.',
                     style: TextStyle(fontSize: 16, color: Colors.black87),
                   ),
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
                   Expanded(
                     child: ListView.builder(
                       itemCount: _routes.length,
@@ -125,7 +121,7 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
           ).then((_) => _loadRoutes()); // Recargar al regresar
         },
         backgroundColor: Colors.blue.shade900,
-        child: Icon(Icons.add, color: Colors.white, size: 30),
+        child: const Icon(Icons.add, color: Colors.white, size: 30),
       ),
     );
   }
@@ -134,8 +130,8 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
     String choferNombre = _choferNombres[ruta.idChofer] ?? 'Cargando...';
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 12),
-      padding: EdgeInsets.all(15),
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         gradient: LinearGradient(
@@ -143,7 +139,7 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black12,
             blurRadius: 6,
@@ -163,54 +159,65 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
                 color: Colors.blue.shade900),
           ),
           Divider(color: Colors.blue.shade300),
-          SizedBox(height: 8),
-          Text('Paradas asignadas:',
+          const SizedBox(height: 8),
+          const Text('Paradas asignadas:',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Wrap(
             spacing: 8,
             runSpacing: 5,
             children: ruta.paradas.map((stop) {
               return Chip(
                 label: Text(stop,
-                    style:
-                        TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.bold)),
                 backgroundColor: Colors.blue.shade200,
               );
             }).toList(),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Usuario a cargo: $choferNombre',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           ),
-          SizedBox(height: 15),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _actionButton(
-                  context, 'Asignar usuario', Colors.blue, Icons.person_add,
-                  () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        RoutesScreenAssign(rutaSeleccionada: ruta),
-                  ),
-                ).then((_) => _loadRoutes()); // Recargar al regresar
-              }),
-              _actionButton(context, 'Editar', Colors.amber, Icons.edit, () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RoutesScreenEdit(
-                      routeId: ruta.idRuta,
-                      ruta: ruta,
+          const SizedBox(height: 15),
+          SizedBox(
+            height: 50,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _actionButton(
+                    context, 'Asignar usuario', Colors.blue, Icons.person_add,
+                    () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          RoutesScreenAssign(rutaSeleccionada: ruta),
                     ),
-                  ),
-                ).then((_) => _loadRoutes()); // Recargar al regresar
-              }),
-            ],
+                  ).then((_) => _loadRoutes()); // Recargar al regresar
+                }),
+                const SizedBox(width: 10),
+                _actionButton(context, 'Asignar vehiculo', Colors.green, Icons.car_crash, () {
+                  Navigator.push(context, 
+                  MaterialPageRoute(
+                    builder: (context) => VehiclesScreenAssign(rutaSeleccionada: ruta)
+                  ));
+                }),
+                const SizedBox(width: 10),
+                _actionButton(context, 'Editar', Colors.amber, Icons.edit, () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RoutesScreenEdit(
+                        routeId: ruta.idRuta,
+                        ruta: ruta,
+                      ),
+                    ),
+                  ).then((_) => _loadRoutes()); // Recargar al regresar
+                }),
+              ],
+            ),
           ),
         ],
       ),
@@ -223,10 +230,11 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
       onPressed: onPressed,
       icon: Icon(icon, color: Colors.white),
       label: Text(text,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          style: const TextStyle(
+              color: Colors.white, fontWeight: FontWeight.bold)),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
@@ -236,7 +244,7 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
     return Drawer(
       child: ListView(
         children: [
-          DrawerHeader(
+          const DrawerHeader(
             child: Text('Gestión de Rutas', style: TextStyle(fontSize: 20)),
           ),
           _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),

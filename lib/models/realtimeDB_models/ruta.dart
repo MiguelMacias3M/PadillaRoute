@@ -6,6 +6,7 @@ part 'ruta.g.dart';
 class Ruta {
   final int idRuta;
   final int idChofer;
+  final int idVehiculo;
   final String nombre;
   final String origen;
   final String destino;
@@ -14,6 +15,7 @@ class Ruta {
   Ruta({
     required this.idRuta,
     required this.idChofer,
+    required this.idVehiculo,
     required this.nombre,
     required this.origen,
     required this.destino,
