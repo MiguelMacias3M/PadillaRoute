@@ -60,6 +60,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
         Ruta nuevaRuta = Ruta(
           idRuta: DateTime.now().millisecondsSinceEpoch,
           idChofer: 1,
+          idVehiculo: 1,
           nombre: _routeNameController.text,
           origen: validStops.first!.nombre,
           destino: validStops.last!.nombre,
@@ -69,7 +70,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
         try {
           // Guardar la ruta en la base de datos
           await _rutasHelper.setNew(nuevaRuta);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Ruta registrada con éxito!'),
             backgroundColor: Colors.green,
           ));
@@ -86,13 +87,13 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
           ));
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Por favor, selecciona al menos una parada.'),
           backgroundColor: Colors.orange,
         ));
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Por favor, completa todos los campos.'),
         backgroundColor: Colors.orange,
       ));
@@ -103,17 +104,17 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Crear rutas',
           style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
         elevation: 2,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.blue),
+        iconTheme: const IconThemeData(color: Colors.blue),
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 15),
+            padding: const EdgeInsets.only(right: 15),
             child: Image.asset(
               'assets/logo.png',
               height: 40,
@@ -123,7 +124,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
       ),
       drawer: _buildDrawer(context),
       body: Padding(
-        padding: EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -136,15 +137,15 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
                 ),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             GestureDetector(
               onTap: () {},
-              child: Text(
+              child: const Text(
                 'Asignar paradas',
                 style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 17),
               ),
             ),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
             Expanded(
               child: ListView.builder(
                 itemCount: selectedStops.length,
@@ -168,7 +169,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
                         },
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
+                        icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () => _removeStop(index),
                       ),
                     ],
@@ -176,31 +177,31 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
                 },
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton(
                 onPressed: _addStop,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 255, 234, 0),
-                  shape: CircleBorder(),
-                  padding: EdgeInsets.all(15),
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(15),
                 ),
-                child: Icon(Icons.add, color: const Color.fromARGB(255, 0, 0, 0)),
+                child: const Icon(Icons.add, color: Color.fromARGB(255, 0, 0, 0)),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Center(
               child: ElevatedButton(
                 onPressed: _registerRoute,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Registrar ruta',
                   style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
@@ -225,7 +226,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
+            const DrawerHeader(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -243,7 +244,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
               ),
             ),
             _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
-            Divider(color: Colors.white),
+            const Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
           ],
         ),
@@ -256,7 +257,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
       leading: Icon(icon, color: Colors.white),
       title: Text(
         title,
-        style: TextStyle(fontSize: 16, color: Colors.white),
+        style: const TextStyle(fontSize: 16, color: Colors.white),
       ),
       onTap: () {
         if (screen != null) {
@@ -267,7 +268,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
         }
       },
       tileColor: Colors.blue.shade800,
-      contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
     );
   }
 }

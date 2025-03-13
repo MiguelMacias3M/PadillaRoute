@@ -10,7 +10,7 @@ class RoutesScreenEdit extends StatefulWidget {
   final int routeId; // Cambiado para recibir el ID de la ruta
   final Ruta ruta; // Recibe la ruta a editar
 
-  RoutesScreenEdit({required this.routeId, required this.ruta});
+  const RoutesScreenEdit({required this.routeId, required this.ruta});
 
   @override
   _RoutesScreenEditState createState() => _RoutesScreenEditState();
@@ -95,6 +95,7 @@ void _initializeSelectedStops() {
         Ruta updatedRuta = Ruta(
           idRuta: widget.ruta.idRuta,
           idChofer: widget.ruta.idChofer,
+          idVehiculo: 1,
           nombre: _routeNameController.text,
           origen: validStops.first.nombre,
           destino: validStops.last.nombre,
@@ -103,7 +104,7 @@ void _initializeSelectedStops() {
 
         try {
           await _rutasHelper.update(updatedRuta.idRuta, updatedRuta.toJson());
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Ruta actualizada con éxito!'),
             backgroundColor: Colors.green,
           ));
@@ -115,13 +116,13 @@ void _initializeSelectedStops() {
           ));
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Por favor, selecciona al menos una parada.'),
           backgroundColor: Colors.orange,
         ));
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Por favor, completa todos los campos.'),
         backgroundColor: Colors.orange,
       ));
@@ -132,17 +133,17 @@ void _initializeSelectedStops() {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Editar ruta',
           style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
         elevation: 2,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.blue),
+        iconTheme: const IconThemeData(color: Colors.blue),
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 15),
+            padding: const EdgeInsets.only(right: 15),
             child: Image.asset(
               'assets/logo.png',
               height: 40,
@@ -152,7 +153,7 @@ void _initializeSelectedStops() {
       ),
       drawer: _buildDrawer(context),
       body: Padding(
-        padding: EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -165,12 +166,12 @@ void _initializeSelectedStops() {
                 ),
               ),
             ),
-            SizedBox(height: 10),
-            Text(
+            const SizedBox(height: 10),
+            const Text(
               'Asignar paradas',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
                 itemCount: selectedStops.length,
@@ -201,7 +202,7 @@ void _initializeSelectedStops() {
                         },
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
+                        icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () => _removeStop(index),
                       ),
                     ],
@@ -209,31 +210,31 @@ void _initializeSelectedStops() {
                 },
               ),
             ),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton(
                 onPressed: _addStop,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  shape: CircleBorder(),
-                  padding: EdgeInsets.all(15),
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(15),
                 ),
-                child: Icon(Icons.add, color: Colors.white),
+                child: const Icon(Icons.add, color: Colors.white),
               ),
             ),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
             Center(
               child: ElevatedButton(
                 onPressed: _updateRoute,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Actualizar ruta',
                   style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
                 ),
@@ -258,7 +259,7 @@ void _initializeSelectedStops() {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
+            const DrawerHeader(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -276,7 +277,7 @@ void _initializeSelectedStops() {
               ),
             ),
             _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
-            Divider(color: Colors.white),
+            const Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
           ],
         ),
@@ -289,7 +290,7 @@ void _initializeSelectedStops() {
       leading: Icon(icon, color: Colors.white),
       title: Text(
         title,
-        style: TextStyle(fontSize: 16, color: Colors.white),
+        style: const TextStyle(fontSize: 16, color: Colors.white),
       ),
       onTap: () {
         if (screen != null) {
@@ -300,7 +301,7 @@ void _initializeSelectedStops() {
         }
       },
       tileColor: Colors.blue.shade800,
-      contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
     );
   }
 }
