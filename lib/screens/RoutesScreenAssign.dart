@@ -4,6 +4,7 @@ import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
 
 class RoutesScreenAssign extends StatefulWidget {
   final Ruta rutaSeleccionada;
@@ -23,6 +24,7 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
 
   late UsuariosHelper usuariosHelper;
   late RutasHelper rutasHelper;
+  late VehiculosHelper vehiculosHelper;
 
   @override
   void initState() {
@@ -76,6 +78,30 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Selecciona un usuario primero')),
+      );
+    }
+  }
+
+    Future<void> _assignVehicleToRoute() async {
+    if (selectedUserId != null) {
+      try {
+        await rutasHelper.update(widget.rutaSeleccionada.idRuta, {
+          "idChofer": selectedUserId, // Actualizar solo el campo idChofer
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Vehículo asignada correctamente')),
+        );
+
+        Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al asignar vehículo')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Selecciona un vehículo primero')),
       );
     }
   }
