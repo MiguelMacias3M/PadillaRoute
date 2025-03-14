@@ -17,17 +17,15 @@ class _RouteScreenUState extends State<RouteScreenU> {
   Completer<GoogleMapController> _controller = Completer();
   LatLng? _currentPosition;
   
-  // 🔥 Lista de 3 paradas fijas
   final List<LatLng> _fixedStops = [
-    LatLng(22.324847, -102.292803), // Parada 1
-    LatLng(22.324216, -102.293004), // Parada 2
-    LatLng(22.321520, -102.293886), // Parada 3
+    LatLng(22.324847, -102.292803),
+    LatLng(22.324216, -102.293004),
+    LatLng(22.321520, -102.293886),
   ];
 
-  List<LatLng> _userStops = []; // 🔥 Paradas agregadas por el usuario
-  Set<Marker> _markers = {}; // 🔥 Marcadores en el mapa
-  DateTime? _startTime;
   List<Map<String, dynamic>> _stopRecords = [];
+  Set<Marker> _markers = {};
+  DateTime? _startTime;
   DateTime? _endTime;
 
   @override
@@ -65,7 +63,6 @@ class _RouteScreenUState extends State<RouteScreenU> {
       final GoogleMapController controller = await _controller.future;
       controller.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition!, 15));
 
-      // 🔥 Agregar marcadores de las 3 paradas fijas al mapa
       _fixedStops.asMap().forEach((index, stop) {
         _markers.add(
           Marker(
@@ -78,13 +75,12 @@ class _RouteScreenUState extends State<RouteScreenU> {
       });
 
       print("📍 Ubicación obtenida: $_currentPosition");
-      setState(() {}); // 🔥 Para actualizar los marcadores en el mapa
+      setState(() {});
     } catch (e) {
       print("❌ Error obteniendo la ubicación: $e");
     }
   }
 
-  /// **Iniciar Ruta con las 3 Paradas Fijas**
   Future<void> _startNavigation() async {
     if (_currentPosition == null) {
       print("⚠️ No se puede iniciar la ruta sin ubicación.");
@@ -99,7 +95,6 @@ class _RouteScreenUState extends State<RouteScreenU> {
 
     print("🚀 Ruta iniciada a las $_startTime");
 
-    // 🔥 Generar URL con paradas fijas como waypoints
     String origin = "${_currentPosition!.latitude},${_currentPosition!.longitude}";
     String destination = "${_fixedStops.last.latitude},${_fixedStops.last.longitude}";
     String waypoints = _fixedStops.map((stop) => "${stop.latitude},${stop.longitude}").join("|");
@@ -109,43 +104,78 @@ class _RouteScreenUState extends State<RouteScreenU> {
         "&waypoints=$waypoints&travelmode=driving";
 
     final uri = Uri.parse(googleMapsUrl);
-    if (await canLaunch(uri.toString())) {
-      await launch(uri.toString());
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       print("❌ No se pudo abrir Google Maps.");
     }
   }
 
-  /// **Registrar Parada Adicional**
   Future<void> _registerStop() async {
     if (_currentPosition == null) {
       print("⚠️ No se puede registrar una parada sin ubicación.");
       return;
     }
 
-    setState(() {
-      LatLng stop = _currentPosition!;
-      _userStops.add(stop);
-      _stopRecords.add({
-        "time": DateTime.now(),
-        "location": stop,
-      });
+    DateTime arrivalTime = DateTime.now();
+    TextEditingController passengersController = TextEditingController();
 
-      // 🔥 Agregar marcador de parada adicional al mapa
-      _markers.add(
-        Marker(
-          markerId: MarkerId("User_Stop_${_userStops.length}"),
-          position: stop,
-          infoWindow: InfoWindow(title: "Parada Extra ${_userStops.length}"),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        ),
-      );
-    });
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Registrar Parada"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("📍 Parada en ${_currentPosition!}"),
+              TextField(
+                controller: passengersController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: "Cantidad de pasajeros"),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () {
+                int passengers = int.tryParse(passengersController.text) ?? 0;
+                setState(() {
+                  _stopRecords.add({
+                    "arrivalTime": arrivalTime,
+                    "departureTime": DateTime.now(),
+                    "location": _currentPosition,
+                    "passengers": passengers,
+                  });
 
-    print("⏸ Parada registrada: ${_stopRecords.last}");
+                  _markers.add(
+                    Marker(
+                      markerId: MarkerId("User_Stop_${_stopRecords.length}"),
+                      position: _currentPosition!,
+                      infoWindow: InfoWindow(
+                          title: "Parada Extra ${_stopRecords.length}",
+                          snippet: "Pasajeros: $passengers"),
+                      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+                    ),
+                  );
+                });
+
+                Navigator.pop(context);
+              },
+              child: Text("Guardar"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  /// **Finalizar Ruta**
   Future<void> _endNavigation() async {
     if (_startTime == null) {
       print("⚠️ No puedes finalizar una ruta que no ha comenzado.");
@@ -160,21 +190,24 @@ class _RouteScreenUState extends State<RouteScreenU> {
     _showSummary();
   }
 
-  /// **Mostrar Resumen de la Ruta**
   void _showSummary() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        Duration totalTime = _endTime!.difference(_startTime!);
+
         return AlertDialog(
-          title: Text("Resumen de la Ruta"),
+          title: Text("Felicidades, has terminado el viaje 🎉"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text("🕒 Inicio: $_startTime"),
               Text("⏹ Paradas Fijas: ${_fixedStops.length}"),
-              Text("🟢 Paradas ehcas en la ruta: ${_stopRecords.length}"),
-              ..._stopRecords.map((stop) => Text("⏸ ${stop['time']}")),
+              Text("🟢 Paradas en la ruta: ${_stopRecords.length}"),
+              ..._stopRecords.map((stop) => Text(
+                  "📍 ${stop['location']} - 🕓 Llegada: ${stop['arrivalTime']} - 🚀 Salida: ${stop['departureTime']} - 👥 Pasajeros: ${stop['passengers']}")),
               Text("🏁 Fin: $_endTime"),
+              Text("⏳ Tiempo total: ${totalTime.inMinutes} min"),
             ],
           ),
           actions: [
@@ -207,7 +240,7 @@ class _RouteScreenUState extends State<RouteScreenU> {
                       _controller.complete(controller);
                       setState(() {});
                     },
-                    markers: _markers, // 🔥 Mostrar todas las paradas en el mapa
+                    markers: _markers,
                   ),
           ),
           _buildNavigationButtons(),
@@ -216,31 +249,15 @@ class _RouteScreenUState extends State<RouteScreenU> {
     );
   }
 
-  /// **Botones de Control**
   Widget _buildNavigationButtons() {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          ElevatedButton.icon(
-            onPressed: _startNavigation,
-            icon: Icon(Icons.navigation),
-            label: Text("Iniciar Ruta"),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-          ),
-          ElevatedButton.icon(
-            onPressed: _registerStop,
-            icon: Icon(Icons.add_location),
-            label: Text("Agregar Parada"),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-          ),
-          ElevatedButton.icon(
-            onPressed: _endNavigation,
-            icon: Icon(Icons.stop),
-            label: Text("Finalizar Ruta"),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-          ),
+          ElevatedButton.icon(onPressed: _startNavigation, icon: Icon(Icons.navigation), label: Text("Iniciar Ruta")),
+          ElevatedButton.icon(onPressed: _registerStop, icon: Icon(Icons.add_location), label: Text("Registrar Parada")),
+          ElevatedButton.icon(onPressed: _endNavigation, icon: Icon(Icons.stop), label: Text("Finalizar Ruta")),
         ],
       ),
     );
