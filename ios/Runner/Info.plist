@@ -49,6 +49,18 @@
 	<key>GMSApiKey</key>
 	<string>AIzaSyAKAfaEcXLH-reGFbTDPJ2e2zseCAzh2-I</string>
 
+	<key>FirebaseAppDelegateProxyEnabled</key>
+		<false/>
+		<key>NSAppTransportSecurity</key>
+	<dict>
+    	<key>NSAllowsArbitraryLoads</key>
+    	<true/>
+	</dict>
+
+	<key>NSUserNotificationUsageDescription</key>
+	<string>Esta aplicación necesita notificaciones push para funcionar correctamente.</string>
+
+
 	<key>NSLocationWhenInUseUsageDescription</key>
 <string>Necesitamos acceder a tu ubicación para mostrar el mapa</string>
 <key>NSLocationAlwaysUsageDescription</key>
