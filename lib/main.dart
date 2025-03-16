@@ -5,6 +5,7 @@ import 'package:padillaroutea/objectbox.g.dart';
 import 'package:padillaroutea/services/connectors/objectbox_connector.dart';
 import '../screens/loginscreen.dart'; // Importamos la pantalla de inicio de sesión
 
+
 late ObjectBox objectBox;
   void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,8 +25,30 @@ late ObjectBox objectBox;
   }   
 
   runApp(const MyApp());
+  // WidgetsBinding.instance.addPostFrameCallback((_) => showSuccessDialog());
 }
 
+void showSuccessDialog() {
+  showDialog(
+    context: navigatorKey.currentContext!,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('¡Exito!'),
+        content: const Text('Conexión con la base de datos estableceida correctamente.'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -38,6 +61,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: LoginScreen(),
+      navigatorKey: navigatorKey,
     );
   }
 }
