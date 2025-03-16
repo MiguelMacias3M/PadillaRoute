@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:padillaroutea/services/fcm_service.dart'; // Importar FCM service
 
 class RouteScreenU extends StatefulWidget {
   final String routeName;
@@ -16,7 +17,7 @@ class RouteScreenU extends StatefulWidget {
 class _RouteScreenUState extends State<RouteScreenU> {
   Completer<GoogleMapController> _controller = Completer();
   LatLng? _currentPosition;
-  
+
   final List<LatLng> _fixedStops = [
     LatLng(22.324847, -102.292803),
     LatLng(22.324216, -102.293004),
@@ -61,7 +62,8 @@ class _RouteScreenUState extends State<RouteScreenU> {
       });
 
       final GoogleMapController controller = await _controller.future;
-      controller.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition!, 15));
+      controller
+          .animateCamera(CameraUpdate.newLatLngZoom(_currentPosition!, 15));
 
       _fixedStops.asMap().forEach((index, stop) {
         _markers.add(
@@ -69,7 +71,8 @@ class _RouteScreenUState extends State<RouteScreenU> {
             markerId: MarkerId("Fixed_Stop_${index + 1}"),
             position: stop,
             infoWindow: InfoWindow(title: "Parada ${index + 1}"),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            icon:
+                BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
           ),
         );
       });
@@ -94,10 +97,16 @@ class _RouteScreenUState extends State<RouteScreenU> {
     });
 
     print("🚀 Ruta iniciada a las $_startTime");
+    // Enviar notificación a los usuarios con roles 'gerente' y 'administrativo' al iniciar la ruta
+    _sendNotification("La ruta ${widget.routeName} ha comenzado.");
 
-    String origin = "${_currentPosition!.latitude},${_currentPosition!.longitude}";
-    String destination = "${_fixedStops.last.latitude},${_fixedStops.last.longitude}";
-    String waypoints = _fixedStops.map((stop) => "${stop.latitude},${stop.longitude}").join("|");
+    String origin =
+        "${_currentPosition!.latitude},${_currentPosition!.longitude}";
+    String destination =
+        "${_fixedStops.last.latitude},${_fixedStops.last.longitude}";
+    String waypoints = _fixedStops
+        .map((stop) => "${stop.latitude},${stop.longitude}")
+        .join("|");
 
     String googleMapsUrl =
         "https://www.google.com/maps/dir/?api=1&origin=$origin&destination=$destination"
@@ -161,7 +170,8 @@ class _RouteScreenUState extends State<RouteScreenU> {
                       infoWindow: InfoWindow(
                           title: "Parada Extra ${_stopRecords.length}",
                           snippet: "Pasajeros: $passengers"),
-                      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+                      icon: BitmapDescriptor.defaultMarkerWithHue(
+                          BitmapDescriptor.hueGreen),
                     ),
                   );
                 });
@@ -185,7 +195,8 @@ class _RouteScreenUState extends State<RouteScreenU> {
     setState(() {
       _endTime = DateTime.now();
     });
-
+    // Enviar notificación a los usuarios con roles 'gerente' y 'administrativo' al finalizar la ruta
+    _sendNotification("La ruta ${widget.routeName} ha finalizado.");
     print("🏁 Ruta finalizada a las $_endTime");
     _showSummary();
   }
@@ -221,6 +232,17 @@ class _RouteScreenUState extends State<RouteScreenU> {
     );
   }
 
+  Future<void> _sendNotification(String message) async {
+    // Enviar notificación FCM a los usuarios con roles 'gerente' y 'administrativo'
+    try {
+      await sendFCMMessage(
+          "Actualización de Ruta", message, "administrativos_y_gerentes");
+      print("Notificación enviada: $message");
+    } catch (e) {
+      print("Error al enviar la notificación: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -234,7 +256,8 @@ class _RouteScreenUState extends State<RouteScreenU> {
             child: _currentPosition == null
                 ? Center(child: CircularProgressIndicator())
                 : GoogleMap(
-                    initialCameraPosition: CameraPosition(target: _currentPosition!, zoom: 15),
+                    initialCameraPosition:
+                        CameraPosition(target: _currentPosition!, zoom: 15),
                     myLocationEnabled: true,
                     onMapCreated: (GoogleMapController controller) {
                       _controller.complete(controller);
@@ -255,9 +278,18 @@ class _RouteScreenUState extends State<RouteScreenU> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          ElevatedButton.icon(onPressed: _startNavigation, icon: Icon(Icons.navigation), label: Text("Iniciar Ruta")),
-          ElevatedButton.icon(onPressed: _registerStop, icon: Icon(Icons.add_location), label: Text("Registrar Parada")),
-          ElevatedButton.icon(onPressed: _endNavigation, icon: Icon(Icons.stop), label: Text("Finalizar Ruta")),
+          ElevatedButton.icon(
+              onPressed: _startNavigation,
+              icon: Icon(Icons.navigation),
+              label: Text("Iniciar Ruta")),
+          ElevatedButton.icon(
+              onPressed: _registerStop,
+              icon: Icon(Icons.add_location),
+              label: Text("Registrar Parada")),
+          ElevatedButton.icon(
+              onPressed: _endNavigation,
+              icon: Icon(Icons.stop),
+              label: Text("Finalizar Ruta")),
         ],
       ),
     );

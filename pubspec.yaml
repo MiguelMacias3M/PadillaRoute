@@ -31,6 +31,8 @@ dependencies:
   firebase_messaging: ^15.2.1
   flutter_local_notifications: ^17.2.2
   permission_handler: ^11.3.1
+  dart_jsonwebtoken: ^2.16.0
+  cryptography: ^2.0.5
 
 dev_dependencies:
   flutter_test:

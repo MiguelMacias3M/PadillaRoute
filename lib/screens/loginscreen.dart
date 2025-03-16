@@ -8,6 +8,7 @@ import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/screens/user/RouteScreenManagementU.dart';
 import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -47,9 +48,11 @@ class _LoginScreenState extends State<LoginScreen> {
             break;
           case Rol.administrativo:
             nextScreen = MonitoringScreenManagement();
+            _subscribeToTopic('administrativos_y_gerentes');
             break;
           case Rol.gerente:
             nextScreen = MenuScreenAdmin();
+            _subscribeToTopic('administrativos_y_gerentes');
             break;
           default:
             ScaffoldMessenger.of(context).showSnackBar(
@@ -66,8 +69,18 @@ class _LoginScreenState extends State<LoginScreen> {
             const SnackBar(content: Text("Usuario no encontrado")));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+
+  // Mover la función fuera de _handleLogin
+  Future<void> _subscribeToTopic(String topic) async {
+    try {
+      await FirebaseMessaging.instance.subscribeToTopic(topic);
+      _logger.i('Usuario suscrito al tema: $topic');
+    } catch (e) {
+      _logger.e('Error al suscribir al tema: $e');
     }
   }
 
@@ -102,8 +115,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  prefixIcon:
-                      const Icon(Icons.email, color: Color.fromARGB(255, 0, 0, 0)),
+                  prefixIcon: const Icon(Icons.email,
+                      color: Color.fromARGB(255, 0, 0, 0)),
                 ),
                 keyboardType: TextInputType.emailAddress,
               ),
@@ -116,11 +129,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  prefixIcon:
-                      const Icon(Icons.lock, color: Color.fromARGB(255, 0, 0, 0)),
+                  prefixIcon: const Icon(Icons.lock,
+                      color: Color.fromARGB(255, 0, 0, 0)),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                      _isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
                       color: const Color.fromARGB(255, 0, 0, 0),
                     ),
                     onPressed: () {
@@ -137,7 +152,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => ForgotPasswordScreen()),
                     );
                   },
                   child: const Text(
