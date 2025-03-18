@@ -6,6 +6,7 @@ import 'package:padillaroutea/services/connectors/objectbox_connector.dart';
 import 'package:padillaroutea/screens/loginscreen.dart'; // Importamos la pantalla de inicio de sesión
 import 'package:padillaroutea/screens/user/IncidentsScreenRegister.dart'; // ✅ Importamos la pantalla de incidencias
 
+
 late ObjectBox objectBox;
 
 void main() async {
@@ -26,8 +27,30 @@ void main() async {
   }   
 
   runApp(const MyApp());
+  // WidgetsBinding.instance.addPostFrameCallback((_) => showSuccessDialog());
 }
 
+void showSuccessDialog() {
+  showDialog(
+    context: navigatorKey.currentContext!,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('¡Exito!'),
+        content: const Text('Conexión con la base de datos estableceida correctamente.'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -39,11 +62,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+<<<<<<< HEAD
       initialRoute: '/', // ✅ Definimos una ruta inicial
       routes: {
         '/': (context) => LoginScreen(), // ✅ Ruta principal
         '/incidentsScreenRegister': (context) => IncidentsScreenRegister(), // ✅ Agregamos la ruta de incidencias
       },
+=======
+      home: LoginScreen(),
+      navigatorKey: navigatorKey,
+>>>>>>> 34e2962de2b5fc9bb957506848b0fdf2554721e6
     );
   }
 }
