@@ -33,6 +33,7 @@ dependencies:
   permission_handler: ^11.3.1
   dart_jsonwebtoken: ^2.16.0
   cryptography: ^2.0.5
+  jose: ^0.3.4
 
 dev_dependencies:
   flutter_test:

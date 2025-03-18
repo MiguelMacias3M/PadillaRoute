@@ -233,15 +233,16 @@ class _RouteScreenUState extends State<RouteScreenU> {
   }
 
   Future<void> _sendNotification(String message) async {
-    // Enviar notificación FCM a los usuarios con roles 'gerente' y 'administrativo'
-    try {
-      await sendFCMMessage(
-          "Actualización de Ruta", message, "administrativos_y_gerentes");
-      print("Notificación enviada: $message");
-    } catch (e) {
-      print("Error al enviar la notificación: $e");
-    }
+  try {
+    // Obtener el accessToken usando la función pública
+    final accessToken = await getAccessToken();
+    await sendFCMMessage("Actualización de Ruta", message, "administrativos_y_gerentes", accessToken);
+    print("Notificación enviada: $message");
+  } catch (e) {
+    print("Error al enviar la notificación: $e");
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
