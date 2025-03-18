@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
-import 'package:padillaroutea/screens/forgotPasswordScreen.dart'; // Pantalla de recuperación de contraseña
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/screens/forgotPasswordScreen.dart';
 import 'package:padillaroutea/screens/menuScreenAdmin.dart';
 import 'package:padillaroutea/services/firebase_auth/firebase_auth_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/user/RouteScreenManagementU.dart';
 import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -20,9 +22,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   final Logger _logger = Logger();
-  FirebaseAuthHelper authHelper = FirebaseAuthHelper();
-
+  final FirebaseAuthHelper authHelper = FirebaseAuthHelper();
   final UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
 
   Future<void> _handleLogin() async {
     final userEmail = _emailController.text;
@@ -31,17 +33,18 @@ class _LoginScreenState extends State<LoginScreen> {
     if (userEmail.isEmpty || userPass.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Some values are missing!!!")));
+      _logAction(userEmail, Tipo.baja, "Intento de inicio de sesión fallido (campos vacíos)");
       return;
     }
 
     try {
       await authHelper.logIn(userEmail, userPass);
-      Usuario? usuario = await usuariosHelper.getByEmail(_emailController.text);
+      Usuario? usuario = await usuariosHelper.getByEmail(userEmail);
 
       if (usuario != null) {
         final rolUsuario = usuario.rol;
-
         Widget nextScreen;
+
         switch (rolUsuario) {
           case Rol.chofer:
             nextScreen = RouteScreenManagementU(chofer: usuario);
@@ -57,9 +60,11 @@ class _LoginScreenState extends State<LoginScreen> {
           default:
             ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Rol no reconocido")));
+            _logAction(userEmail, Tipo.baja, "Inicio de sesión fallido (rol no reconocido)");
             return;
         }
 
+        _logAction(userEmail, Tipo.alta, "Inicio de sesión exitoso - Rol: ${rolUsuario.name}");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => nextScreen),
@@ -67,20 +72,41 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Usuario no encontrado")));
+        _logAction(userEmail, Tipo.baja, "Inicio de sesión fallido (usuario no encontrado)");
       }
     } catch (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.toString())));
+      _logger.e("Error en inicio de sesión: $e");
+      _logAction(userEmail, Tipo.baja, "Error en inicio de sesión: $e");
     }
   }
 
-  // Mover la función fuera de _handleLogin
   Future<void> _subscribeToTopic(String topic) async {
     try {
       await FirebaseMessaging.instance.subscribeToTopic(topic);
       _logger.i('Usuario suscrito al tema: $topic');
+      _logAction(_emailController.text, Tipo.modifiacion, "Suscripción a tema FCM: $topic");
     } catch (e) {
       _logger.e('Error al suscribir al tema: $e');
+      _logAction(_emailController.text, Tipo.baja, "Error al suscribir a tema: $e");
+    }
+  }
+
+  Future<void> _logAction(String email, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: email,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
     }
   }
 
