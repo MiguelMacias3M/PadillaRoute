@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:padillaroutea/screens/user/IncidentsScreenRegister.dart';
 
 class RouteScreenU extends StatefulWidget {
   final String routeName;
@@ -16,7 +17,7 @@ class RouteScreenU extends StatefulWidget {
 class _RouteScreenUState extends State<RouteScreenU> {
   Completer<GoogleMapController> _controller = Completer();
   LatLng? _currentPosition;
-  
+
   final List<LatLng> _fixedStops = [
     LatLng(22.324847, -102.292803),
     LatLng(22.324216, -102.293004),
@@ -170,6 +171,16 @@ class _RouteScreenUState extends State<RouteScreenU> {
               },
               child: Text("Guardar"),
             ),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => IncidentsScreenRegister()),
+                );
+              },
+              style: TextButton.styleFrom(backgroundColor: Colors.red),
+              child: Text("Incidencia", style: TextStyle(color: Colors.white)),
+            ),
           ],
         );
       },
@@ -204,8 +215,6 @@ class _RouteScreenUState extends State<RouteScreenU> {
               Text("🕒 Inicio: $_startTime"),
               Text("⏹ Paradas Fijas: ${_fixedStops.length}"),
               Text("🟢 Paradas en la ruta: ${_stopRecords.length}"),
-              ..._stopRecords.map((stop) => Text(
-                  "📍 ${stop['location']} - 🕓 Llegada: ${stop['arrivalTime']} - 🚀 Salida: ${stop['departureTime']} - 👥 Pasajeros: ${stop['passengers']}")),
               Text("🏁 Fin: $_endTime"),
               Text("⏳ Tiempo total: ${totalTime.inMinutes} min"),
             ],
@@ -221,34 +230,6 @@ class _RouteScreenUState extends State<RouteScreenU> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.routeName),
-        backgroundColor: Colors.blueAccent,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _currentPosition == null
-                ? Center(child: CircularProgressIndicator())
-                : GoogleMap(
-                    initialCameraPosition: CameraPosition(target: _currentPosition!, zoom: 15),
-                    myLocationEnabled: true,
-                    onMapCreated: (GoogleMapController controller) {
-                      _controller.complete(controller);
-                      setState(() {});
-                    },
-                    markers: _markers,
-                  ),
-          ),
-          _buildNavigationButtons(),
-        ],
-      ),
-    );
-  }
-
   Widget _buildNavigationButtons() {
     return Padding(
       padding: const EdgeInsets.all(10.0),
@@ -258,6 +239,23 @@ class _RouteScreenUState extends State<RouteScreenU> {
           ElevatedButton.icon(onPressed: _startNavigation, icon: Icon(Icons.navigation), label: Text("Iniciar Ruta")),
           ElevatedButton.icon(onPressed: _registerStop, icon: Icon(Icons.add_location), label: Text("Registrar Parada")),
           ElevatedButton.icon(onPressed: _endNavigation, icon: Icon(Icons.stop), label: Text("Finalizar Ruta")),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.routeName), backgroundColor: Colors.blueAccent),
+      body: Column(
+        children: [
+          Expanded(
+            child: _currentPosition == null
+                ? Center(child: CircularProgressIndicator())
+                : GoogleMap(initialCameraPosition: CameraPosition(target: _currentPosition!, zoom: 15), markers: _markers),
+          ),
+          _buildNavigationButtons(),
         ],
       ),
     );
