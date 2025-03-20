@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
+import 'package:padillaroutea/screens/menuScreenAdmin.dart';
 import 'package:padillaroutea/screens/RoutesScreenManagement.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
@@ -31,6 +31,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
   @override
   void initState() {
     super.initState();
+    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a registro de rutas");
     _loadStops(); // Cargar las paradas al iniciar
     _initializeDefaultStop(); // Inicializar parada por defecto
   }
@@ -269,7 +270,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
                 ],
               ),
             ),
-            //_drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin(usuario: usuario)),
+            _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin(usuario: widget.usuario)),
             const Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
           ],

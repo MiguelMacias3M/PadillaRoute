@@ -38,6 +38,7 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
     super.initState();
     usuariosHelper = UsuariosHelper(RealtimeDbHelper());
     rutasHelper = RutasHelper(RealtimeDbHelper());
+    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a asignar rutas");
     _fetchData();
   }
 
@@ -72,12 +73,24 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
           "idChofer": selectedUserId, // Actualizar solo el campo idChofer
         });
 
+        await _logAction(
+          widget.usuario.correo,
+          Tipo.modifiacion,
+          "Asignó usuario $selectedUser a la ruta ${widget.rutaSeleccionada.nombre}",
+        );
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Usuario asignado correctamente')),
         );
 
         Navigator.pop(context);
       } catch (e) {
+      _logger.e("Error al asignar usuario: $e");
+        await _logAction(
+          widget.usuario.correo,
+          Tipo.modifiacion,
+          "Error al asignar usuario a ruta ${widget.rutaSeleccionada.nombre}: $e",
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al asignar usuario')),
         );
@@ -95,6 +108,12 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
         await rutasHelper.update(widget.rutaSeleccionada.idRuta, {
           "idChofer": selectedUserId, // Actualizar solo el campo idChofer
         });
+
+        await _logAction(
+          widget.usuario.correo,
+          Tipo.modifiacion,
+          "Asignó un vehículo a la ruta ${widget.rutaSeleccionada.nombre}",
+        );
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Vehículo asignada correctamente')),

@@ -35,6 +35,7 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
   @override
   void initState() {
     super.initState();
+    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a consulta de rutas");
     _loadRoutes();
   }
 
@@ -52,9 +53,12 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
     try {
       _routes = await _rutasHelper.getAll();
       await _loadChoferes();
-    } catch (e) {
+    await _logAction(widget.usuario.correo, Tipo.modifiacion, "Cargó la lista de rutas");
+    }  catch (e) {
       print('Error al cargar rutas: $e');
-    } finally {
+    _logger.e('Error al cargar rutas: $e');
+      await _logAction(widget.usuario.correo, Tipo.modifiacion, "Error al cargar rutas");
+    }  finally {
       setState(() {
         _loading = false;
       });
@@ -64,10 +68,14 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
   Future<void> _loadChoferes() async {
     _choferNombres.clear();
     for (var ruta in _routes) {
-      Usuario? chofer = await _usuariosHelper.get(ruta.idChofer);
-      setState(() {
-        _choferNombres[ruta.idChofer] = chofer?.nombre ?? 'Sin asignar';
-      });
+      try {
+        Usuario? chofer = await _usuariosHelper.get(ruta.idChofer);
+        setState(() {
+          _choferNombres[ruta.idChofer] = chofer?.nombre ?? 'Sin asignar';
+        });
+      } catch (e) {
+        _logger.e("Error al cargar chofer: $e");
+      }
     }
   }
 
@@ -140,7 +148,8 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
               ),
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
+          await _logAction(widget.usuario.correo, Tipo.alta, "Entró a la pantalla de registro de ruta");
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => RoutesScreenRegister(usuario: widget.usuario)),
@@ -241,6 +250,7 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
                       builder: (context) => RoutesScreenEdit(
                         routeId: ruta.idRuta,
                         ruta: ruta,
+                        usuario: widget.usuario,
                       ),
                     ),
                   ).then((_) => _loadRoutes()); // Recargar al regresar
@@ -292,12 +302,10 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
-      onTap: () {
+      onTap: () async {
+        await _logAction(widget.usuario.correo, Tipo.modifiacion, "Navegó a $title");
         if (screen != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => screen),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
         }
       },
     );

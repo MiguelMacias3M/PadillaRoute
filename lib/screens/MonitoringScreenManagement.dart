@@ -256,7 +256,7 @@ class _MonitoringScreenManagementState
             ),
             _drawerItem(context, Icons.home, 'Inicio',
                 MenuScreenAdmin(usuario: widget.usuario)),
-            //_drawerItem( context, Icons.people, 'Usuarios', UserScreenManagement()),
+            _drawerItem( context, Icons.people, 'Usuarios', UserScreenManagement(usuario: widget.usuario)),
             _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement(usuario: widget.usuario)),
             _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin(usuario: widget.usuario)),
             _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement(usuario: widget.usuario)),
