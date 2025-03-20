@@ -10,6 +10,7 @@ import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.d
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/user/RouteScreenManagementU.dart';
 import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
+import 'package:padillaroutea/services/wifi_connection/wifi_controller.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -20,11 +21,45 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
   bool _isPasswordVisible = false;
+
   final Logger _logger = Logger();
   final FirebaseAuthHelper authHelper = FirebaseAuthHelper();
   final UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
   final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+
+  final WifiController _wifiController = WifiController();
+  bool _isConnected = false;
+  bool _isDialogOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _wifiController.connectionStream.listen((bool isConnected) {
+      setState(() {
+        _isConnected = isConnected;
+      });
+
+      if (!isConnected && !_isDialogOpen) {
+        _showConnectionLostDialog();
+      } else if (isConnected && _isDialogOpen) {
+        Navigator.of(context).pop();
+        _isDialogOpen = false;
+      }
+    });
+    _wifiController.checkConnection().then((bool isConnected) {
+      setState(() {
+        _isConnected = isConnected;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _wifiController.dispose();
+    super.dispose();
+  }
 
   Future<void> _handleLogin() async {
     final userEmail = _emailController.text;
@@ -115,6 +150,29 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       _logger.e("Error al registrar log: $e");
     }
+  }
+
+  void _showConnectionLostDialog() {
+    _isDialogOpen = true;
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Conexión a internet perdida"),
+            content: const Text(
+                'Revisa tu conexion a internet y vuelve a intentarlo'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  _isDialogOpen = false;
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        });
   }
 
   @override

@@ -10,8 +10,11 @@ import '../screens/loginscreen.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+
 late ObjectBox objectBox;
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Mensaje en segundo plano: ${message.notification?.title}");
@@ -58,6 +61,8 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const MyApp());
+// Muestra el cuadro de diálogo de éxito después de la inicialización
+  WidgetsBinding.instance.addPostFrameCallback((_) => showSuccessDialog());
 }
 
 // Inicializa las notificaciones locales
@@ -94,6 +99,27 @@ void obtenerTokenFCM() async {
   print("Token FCM: $token");
 }
 
+// Muestra un diálogo indicando que la conexión con la base de datos se realizó con éxito
+void showSuccessDialog() {
+  showDialog(
+    context: navigatorKey.currentContext!,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('¡Éxito!'),
+        content: const Text('Conexión con la base de datos establecida correctamente.'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -106,6 +132,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: LoginScreen(),
+      navigatorKey: navigatorKey,
     );
   }
 }
