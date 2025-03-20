@@ -17,103 +17,54 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  bool _isPasswordVisible = false;
+  bool _isLoading = false; // 🔥 Variable para controlar la carga
   String? _selectedRole;
   final FirebaseAuthHelper _authHelper = FirebaseAuthHelper();
   final UsuariosHelper _usuariosHelper = UsuariosHelper(RealtimeDbHelper());
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Usuarios'),
-        backgroundColor: Colors.blue,
-        elevation: 2,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.white),
-        titleTextStyle: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 15),
-            child: Image.asset(
-              'assets/logo.png',
-              height: 40,
-            ),
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Ingrese los datos del usuario:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 15),
-            _labelText('Nombre'),
-            _inputField('Nombre', _nameController),
-            SizedBox(height: 10),
-            _labelText('Apellidos'),
-            _inputField('Apellidos', _lastNameController),
-            SizedBox(height: 10),
-            _labelText('Teléfono'),
-            _inputField('Teléfono', _phoneController, inputType: TextInputType.phone),
-            SizedBox(height: 10),
-            _labelText('Correo'),
-            _inputField('Correo', _emailController, inputType: TextInputType.emailAddress),
-            SizedBox(height: 10),
-            _labelText('Contraseña'),
-            _inputField('Contraseña', _passwordController, isPassword: true),
-            SizedBox(height: 10),
-            _labelText('Rol'),
-            _roleDropdown(),
-            SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                onPressed: _registerUser,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text(
-                  'Registrar usuario',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
-            ),
-          ],
-        ),
+  void _showSnackbar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
 
   Future<void> _registerUser() async {
-    try {
-      final email = _emailController.text;
-      final password = _passwordController.text.trim();
-      final nombre = _nameController.text.trim();
-      final apellidos = _lastNameController.text.trim();
-      final telefono = int.parse(_phoneController.text.trim());
-      final rol = _selectedRole ?? 'Chofer'; // Valor por defecto en caso de que no se seleccione rol
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final nombre = _nameController.text.trim();
+    final apellidos = _lastNameController.text.trim();
+    final telefonoText = _phoneController.text.trim();
 
+    if (email.isEmpty || password.isEmpty || nombre.isEmpty || apellidos.isEmpty || telefonoText.isEmpty) {
+      _showSnackbar("⚠️ Todos los campos son obligatorios.", Colors.amber);
+      return;
+    }
+
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+      _showSnackbar("⚠️ Correo electrónico inválido.", Colors.amber);
+      return;
+    }
+
+    setState(() {
+      _isLoading = true; // 🔥 Mostrar la barra de carga
+    });
+
+    try {
+      final telefono = int.parse(telefonoText);
       final uid = await _authHelper.createUser(email, password);
 
-      // Validamos el rol seleccionado antes de usarlo, haciendo la comparación en minúsculas
       final rolEnum = Rol.values.firstWhere(
-        (r) => r.toString().split('.').last.toLowerCase() == rol.toLowerCase(),
-        orElse: () => Rol.chofer, // Valor por defecto en caso de que el rol no sea válido
+        (r) => r.toString().split('.').last.toLowerCase() == (_selectedRole ?? 'chofer').toLowerCase(),
+        orElse: () => Rol.chofer,
       );
 
-      // Crear el objeto usuario utilizando el UID de Firebase sin convertirlo a int
       final usuario = Usuario(
-        idUsuario: DateTime.now().millisecondsSinceEpoch, // Usar un ID numérico basado en el tiempo
+        idUsuario: DateTime.now().millisecondsSinceEpoch,
         nombre: nombre,
         apellidos: apellidos,
         telefono: telefono,
@@ -126,40 +77,59 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
 
       await _usuariosHelper.setNew(usuario);
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Usuario registrado exitosamente')));
+      _showSnackbar("✅ Usuario registrado exitosamente.", Colors.green);
+
+      // 🔥 Limpiar campos después de registro exitoso
+      _nameController.clear();
+      _lastNameController.clear();
+      _phoneController.clear();
+      _emailController.clear();
+      _passwordController.clear();
+      setState(() {
+        _selectedRole = null;
+      });
+
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      _showSnackbar("❌ Error al registrar usuario: $e", Colors.red);
     }
+
+    setState(() {
+      _isLoading = false; // 🔥 Ocultar la barra de carga
+    });
   }
 
-  // Widget para los textos de etiquetas
-  Widget _labelText(String text) {
-    return Text(
-      text,
-      style: TextStyle(fontWeight: FontWeight.bold),
-    );
-  }
-
-  // Widget para los campos de texto
-  Widget _inputField(String label, TextEditingController controller, {bool isPassword = false, TextInputType inputType = TextInputType.text}) {
+  Widget _inputField(String label, TextEditingController controller,
+      {bool isPassword = false, TextInputType inputType = TextInputType.text}) {
     return TextField(
       controller: controller,
-      obscureText: isPassword,
+      obscureText: isPassword ? !_isPasswordVisible : false,
       keyboardType: inputType,
       decoration: InputDecoration(
         labelText: label,
-        border: OutlineInputBorder(),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                  color: Colors.grey,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isPasswordVisible = !_isPasswordVisible;
+                  });
+                },
+              )
+            : null,
       ),
     );
   }
 
-  // Widget para el selector de roles
   Widget _roleDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedRole,
       decoration: InputDecoration(
         labelText: 'Rol',
-        border: OutlineInputBorder(),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
       items: ['Chofer', 'Administrativo', 'Gerente'].map((role) {
         return DropdownMenuItem(
@@ -172,6 +142,82 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
           _selectedRole = value;
         });
       },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Registrar Usuario'),
+        backgroundColor: Colors.blue,
+        elevation: 2,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.white),
+        titleTextStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Ingrese los datos del usuario:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 15),
+            _inputField('Nombre', _nameController),
+            SizedBox(height: 10),
+            _inputField('Apellidos', _lastNameController),
+            SizedBox(height: 10),
+            _inputField('Teléfono', _phoneController, inputType: TextInputType.phone),
+            SizedBox(height: 10),
+            _inputField('Correo', _emailController, inputType: TextInputType.emailAddress),
+            SizedBox(height: 10),
+            _inputField('Contraseña', _passwordController, isPassword: true),
+            SizedBox(height: 10),
+            _roleDropdown(),
+            SizedBox(height: 20),
+
+            // 🔥 Indicador de carga
+            if (_isLoading)
+              Center(
+                child: Column(
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 10),
+                    Text(
+                      "Registrando usuario...",
+                      style: TextStyle(fontSize: 16, color: Colors.blue),
+                    ),
+                  ],
+                ),
+              ),
+
+            // 🔥 Botón deshabilitado mientras se registra el usuario
+            Center(
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _registerUser,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isLoading ? Colors.grey : Colors.blue,
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text(
+                  _isLoading ? 'Registrando...' : 'Registrar usuario',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/menuScreenAdmin.dart';
 import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
+<<<<<<< HEAD
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
+=======
+import 'package:padillaroutea/screens/RoutesScreenManagement.dart';
+>>>>>>> main
 import 'package:padillaroutea/screens/StopScreenManagement.dart';
 import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/UserScreenRegister.dart';
@@ -161,6 +165,7 @@ class _UserScreenSelect
                 ],
               ),
             ),
+<<<<<<< HEAD
             _drawerItem(context, Icons.home, 'Inicio',
                 MenuScreenAdmin(usuario: widget.usuario)),
             _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement(usuario: widget.usuario)),
@@ -168,6 +173,15 @@ class _UserScreenSelect
             _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin(usuario: widget.usuario)),
             _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement(usuario: widget.usuario)),
             _drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement(usuario: widget.usuario)),
+=======
+             _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
+            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement()),
+            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
+            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement()),
+            _drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement()),
+            _drawerItem(context, Icons.directions_car, 'Rutas', RoutesScreenManagement()),
+>>>>>>> main
             Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
           ],
