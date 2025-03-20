@@ -5,7 +5,6 @@ import 'package:padillaroutea/firebase_options.dart';
 import 'package:padillaroutea/objectbox.g.dart';
 import 'package:padillaroutea/services/connectors/objectbox_connector.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:padillaroutea/services/fcm_service.dart'; // Importa el servicio de notificaciones
 import '../screens/loginscreen.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';

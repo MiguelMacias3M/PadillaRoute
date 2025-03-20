@@ -37,28 +37,36 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
   }
 
   Future<void> _loadStops() async {
-    List<Parada> allStops = await _paradasHelper.getAll();
-    setState(() {
-      stops = allStops;
-    });
+    try {
+      List<Parada> allStops = await _paradasHelper.getAll();
+      setState(() {
+        stops = allStops;
+      });
+      _logAction(widget.usuario.correo, Tipo.alta, "Cargó las paradas disponibles");
+    } catch (e) {
+      _logAction(widget.usuario.correo, Tipo.alta, "Error al cargar paradas: $e");
+    }
   }
 
   void _initializeDefaultStop() {
     setState(() {
       selectedStops = [null]; // Inicializa con una parada vacía
     });
+  _logAction(widget.usuario.correo, Tipo.alta, "Inicializó la selección de paradas");
   }
 
   void _addStop() {
     setState(() {
       selectedStops.add(null); // Añadir un nuevo campo vacío
     });
+  _logAction(widget.usuario.correo, Tipo.alta, "Agregó un nuevo campo de parada");
   }
 
   void _removeStop(int index) {
     setState(() {
       selectedStops.removeAt(index);
     });
+  _logAction(widget.usuario.correo, Tipo.baja, "Eliminó la parada en el índice $index");
   }
 
   Future<void> _registerRoute() async {
@@ -80,6 +88,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
         try {
           // Guardar la ruta en la base de datos
           await _rutasHelper.setNew(nuevaRuta);
+          _logAction(widget.usuario.correo, Tipo.alta, "Registró una nueva ruta: ${nuevaRuta.nombre}");
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Ruta registrada con éxito!'),
             backgroundColor: Colors.green,
@@ -91,6 +100,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
             MaterialPageRoute(builder: (context) => RoutesScreenManagement(usuario: widget.usuario)),
           );
         } catch (e) {
+          _logAction(widget.usuario.correo, Tipo.alta, "Error al registrar ruta: $e");
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Error al registrar la ruta: $e'),
             backgroundColor: Colors.red,
@@ -193,6 +203,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
                           setState(() {
                             selectedStops[index] = newValue; // Guardar la parada seleccionada
                           });
+                          _logAction(widget.usuario.correo, Tipo.modifiacion, "Seleccionó la parada ${newValue?.nombre}");
                         },
                       ),
                       IconButton(

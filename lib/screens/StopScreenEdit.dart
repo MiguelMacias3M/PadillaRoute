@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:padillaroutea/models/realtimeDB_models/parada.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
@@ -14,7 +14,9 @@ class StopScreenEdit extends StatefulWidget {
   final Parada parada; // Recibir el objeto Parada
   final Usuario usuario;
 
-  StopScreenEdit({required this.parada, required this.usuario}); // Constructor con parámetro requerido
+  StopScreenEdit(
+      {required this.parada,
+      required this.usuario}); // Constructor con parámetro requerido
 
   @override
   _StopScreenEditState createState() => _StopScreenEditState();
@@ -39,32 +41,47 @@ class _StopScreenEditState extends State<StopScreenEdit> {
 
     // Inicializar controladores con los datos de la parada
     _routeNameController = TextEditingController(text: widget.parada.nombre);
-    _startTimeController = TextEditingController(text: widget.parada.horaLlegada);
+    _startTimeController =
+        TextEditingController(text: widget.parada.horaLlegada);
     _endTimeController = TextEditingController(text: widget.parada.horaSalida);
-    _coordinatesController = TextEditingController(text: widget.parada.coordenadas);
+    _coordinatesController =
+        TextEditingController(text: widget.parada.coordenadas);
 
     // Obtener la ubicación actual
     _getCurrentLocation();
+    _logAction(widget.usuario.correo, Tipo.modifiacion,
+        "Pantalla de edición de paradas abierta");
   }
 
   Future<void> _getCurrentLocation() async {
-    LocationPermission permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      print("Permiso de ubicación denegado");
-      return;
-    }
+    try {
+      LocationPermission permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        print("Permiso de ubicación denegado");
+        _logger.w("Permiso de ubicación denegado");
+        return;
+      }
 
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    setState(() {
-      _currentLocation = LatLng(position.latitude, position.longitude);
-      _mapController?.moveCamera(CameraUpdate.newLatLng(_currentLocation!));
-      _markers.add(Marker(
-        markerId: MarkerId('current_location'),
-        position: _currentLocation!,
-        infoWindow: InfoWindow(title: 'Ubicación Actual'),
-      ));
-    });
-    print("Ubicación actual: $_currentLocation");
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      setState(() {
+        _currentLocation = LatLng(position.latitude, position.longitude);
+        _mapController?.moveCamera(CameraUpdate.newLatLng(_currentLocation!));
+        _markers.add(Marker(
+          markerId: MarkerId('current_location'),
+          position: _currentLocation!,
+          infoWindow: InfoWindow(title: 'Ubicación Actual'),
+        ));
+      });
+      _logAction(
+          widget.usuario.correo, Tipo.modifiacion, "Ubicación actual obtenida");
+    } catch (e) {
+      _logger.e("Error obteniendo ubicación: $e");
+      print("Ubicación actual: $_currentLocation");
+      _logger.e("Error obteniendo ubicación: $e");
+      _logAction(widget.usuario.correo, Tipo.modifiacion,
+          "Error obteniendo ubicación: $e");
+    }
   }
 
   @override
@@ -90,19 +107,31 @@ class _StopScreenEditState extends State<StopScreenEdit> {
           infoWindow: InfoWindow(title: 'Parada seleccionada'),
         ),
       );
-      _coordinatesController.text = "${position.latitude}, ${position.longitude}";
+      _coordinatesController.text =
+          "${position.latitude}, ${position.longitude}";
     });
+    _logAction(widget.usuario.correo, Tipo.modifiacion,
+        "Marcador agregado en: ${position.latitude}, ${position.longitude}");
   }
 
-  Future<void> _selectTime(BuildContext context, TextEditingController controller) async {
-    TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (picked != null) {
-      setState(() {
-        controller.text = picked.format(context);
-      });
+  Future<void> _selectTime(
+      BuildContext context, TextEditingController controller) async {
+    try {
+      TimeOfDay? picked = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+      if (picked != null) {
+        setState(() {
+          controller.text = picked.format(context);
+        });
+        _logAction(widget.usuario.correo, Tipo.modifiacion,
+            "Hora seleccionada: ${controller.text}");
+      }
+    } catch (e) {
+      _logger.e("Error seleccionando la hora: $e");
+      _logAction(widget.usuario.correo, Tipo.modifiacion,
+          "Error seleccionando la hora: $e");
     }
   }
 
@@ -112,10 +141,15 @@ class _StopScreenEditState extends State<StopScreenEdit> {
     String endTime = _endTimeController.text;
     String coordinates = _coordinatesController.text;
 
-    if (routeName.isEmpty || startTime.isEmpty || endTime.isEmpty || coordinates.isEmpty) {
+    if (routeName.isEmpty ||
+        startTime.isEmpty ||
+        endTime.isEmpty ||
+        coordinates.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Por favor, complete todos los campos")),
       );
+      _logAction(widget.usuario.correo, Tipo.modifiacion,
+          "Intento fallido de actualización: Campos vacíos");
       return;
     }
 
@@ -129,15 +163,21 @@ class _StopScreenEditState extends State<StopScreenEdit> {
 
     try {
       // Llamar al método update del ParadasHelper
-      await ParadasHelper(RealtimeDbHelper()).update(widget.parada.idParada, updatedData);
+      await ParadasHelper(RealtimeDbHelper())
+          .update(widget.parada.idParada, updatedData);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Ruta actualizada correctamente")),
       );
+      _logAction(widget.usuario.correo, Tipo.modifiacion,
+          "Parada actualizada correctamente: $routeName");
       Navigator.pop(context); // Regresar a la pantalla anterior
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error al actualizar la ruta: $e")),
       );
+      _logger.e("Error al actualizar la parada: $e");
+      _logAction(widget.usuario.correo, Tipo.modifiacion,
+          "Error al actualizar la parada: $e");
     }
   }
 

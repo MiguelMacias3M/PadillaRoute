@@ -28,6 +28,7 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
   @override
   void initState() {
     super.initState();
+    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a consulta de paradas");
     paradasHelper = ParadasHelper(RealtimeDbHelper());
     _loadStops();
   }
@@ -45,7 +46,9 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
         stops = stopList;
         filteredStops = stopList;
       });
-    } catch (e) {
+    await _logAction(widget.usuario.correo, Tipo.alta, "Cargó la lista de paradas");
+    }  catch (e) {
+      _logger.e("Error loading stops: $e");
       print("Error loading stops: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error al cargar las paradas")),
@@ -137,6 +140,7 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
             context,
             MaterialPageRoute(builder: (context) => StopScreenRegister(usuario: widget.usuario,)),
           );
+          await _logAction(widget.usuario.correo, Tipo.alta, "Registró una nueva parada");
           _loadStops();
         },
         backgroundColor: Colors.blue,
@@ -173,6 +177,7 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
                       context,
                       MaterialPageRoute(builder: (context) => StopScreenEdit(usuario: widget.usuario, parada: parada)),
                     );
+                    await _logAction(widget.usuario.correo, Tipo.modifiacion, "Editó la parada ${parada.nombre}");
                     _loadStops();
                   },
                   style: ElevatedButton.styleFrom(
@@ -184,8 +189,13 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
                 SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: () async {
-                    await paradasHelper.delete(parada.idParada);
-                    _loadStops();
+                    try {
+                      await paradasHelper.delete(parada.idParada);
+                      await _logAction(widget.usuario.correo, Tipo.baja, "Eliminó la parada ${parada.nombre}");
+                      _loadStops();
+                    } catch (e) {
+                      _logger.e("Error eliminando parada: $e");
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
