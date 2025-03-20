@@ -8,21 +8,30 @@ import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
 import 'package:padillaroutea/screens/StopScreenManagement.dart';
 import 'package:padillaroutea/services/firebase_auth/firebase_auth_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
-import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 
 class MonitoringScreenManagement extends StatefulWidget {
+  final Usuario usuario;
+
+  MonitoringScreenManagement({required this.usuario});
   @override
   _MonitoringScreenManagementState createState() =>
       _MonitoringScreenManagementState();
 }
 
-class _MonitoringScreenManagementState extends State<MonitoringScreenManagement> {
+class _MonitoringScreenManagementState
+    extends State<MonitoringScreenManagement> {
   FirebaseAuthHelper authHelper = FirebaseAuthHelper();
   RutasHelper rutasHelper = RutasHelper(RealtimeDbHelper());
   UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
 
   List<Ruta> rutas = [];
   Map<int, String> usuariosMap = {}; // idUsuario -> Nombre del usuario
@@ -30,6 +39,7 @@ class _MonitoringScreenManagementState extends State<MonitoringScreenManagement>
   @override
   void initState() {
     super.initState();
+    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a monitoreo");
     _loadData();
   }
 
@@ -45,15 +55,20 @@ class _MonitoringScreenManagementState extends State<MonitoringScreenManagement>
 
       setState(() {
         // Filtramos solo las rutas con usuario asignado
-        rutas = fetchedRutas.where((ruta) => usuariosMapTemp.containsKey(ruta.idChofer)).toList();
+        rutas = fetchedRutas
+            .where((ruta) => usuariosMapTemp.containsKey(ruta.idChofer))
+            .toList();
         usuariosMap = usuariosMapTemp;
       });
+    _logAction(widget.usuario.correo, Tipo.modifiacion, "Datos de monitoreo cargados");
     } catch (e) {
       print("Error cargando datos: $e");
+      _logger.e("Error cargando datos: $e");
     }
   }
 
   void _handleLogout(BuildContext context) async {
+    await _logAction(widget.usuario.correo, Tipo.baja, "Cierre de sesión");
     await authHelper.logOut();
     Navigator.pushAndRemoveUntil(
       context,
@@ -62,8 +77,27 @@ class _MonitoringScreenManagementState extends State<MonitoringScreenManagement>
     );
   }
 
+  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: correo,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -102,7 +136,8 @@ class _MonitoringScreenManagementState extends State<MonitoringScreenManagement>
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MonitoringRouteScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => MonitoringRouteScreen(usuario: widget.usuario)),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -166,7 +201,8 @@ class _MonitoringScreenManagementState extends State<MonitoringScreenManagement>
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MonitoringRouteScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => MonitoringRouteScreen(usuario: widget.usuario)),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -204,7 +240,8 @@ class _MonitoringScreenManagementState extends State<MonitoringScreenManagement>
                   CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 30,
-                    child: Icon(Icons.location_on, color: Colors.blue, size: 40),
+                    child:
+                        Icon(Icons.location_on, color: Colors.blue, size: 40),
                   ),
                   SizedBox(height: 10),
                   Text(
@@ -217,12 +254,14 @@ class _MonitoringScreenManagementState extends State<MonitoringScreenManagement>
                 ],
               ),
             ),
-            _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
-            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement()),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
-            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
-            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement()),
-            _drawerItem(context, Icons.location_on, 'Monitoreo', MonitoringScreenManagement()),
+            _drawerItem(context, Icons.home, 'Inicio',
+                MenuScreenAdmin(usuario: widget.usuario)),
+            //_drawerItem( context, Icons.people, 'Usuarios', UserScreenManagement()),
+            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin(usuario: widget.usuario)),
+            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.location_on, 'Monitoreo',
+                MonitoringScreenManagement(usuario: widget.usuario)),
             const Divider(color: Colors.white),
             ListTile(
               leading: Icon(Icons.exit_to_app, color: Colors.white),
@@ -240,7 +279,8 @@ class _MonitoringScreenManagementState extends State<MonitoringScreenManagement>
     );
   }
 
-  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget screen) {
+  Widget _drawerItem(
+      BuildContext context, IconData icon, String title, Widget screen) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
       title: Text(

@@ -5,8 +5,16 @@ import 'package:padillaroutea/services/realtime_db_services/paradas_helper.dart'
 import 'package:padillaroutea/models/realtimeDB_models/parada.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 
 class StopScreenRegister extends StatefulWidget {
+  final Usuario usuario;
+
+  StopScreenRegister({required this.usuario});
   @override
   _StopScreenRegisterState createState() => _StopScreenRegisterState();
 }
@@ -16,6 +24,9 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
   final TextEditingController _startTimeController = TextEditingController();
   final TextEditingController _endTimeController = TextEditingController();
   final TextEditingController _coordinatesController = TextEditingController();
+  UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
 
   Set<Marker> _markers = {};
   GoogleMapController? _mapController;
@@ -117,6 +128,23 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(mensaje)),
     );
+  }
+
+  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: correo,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
+    }
   }
 
   @override

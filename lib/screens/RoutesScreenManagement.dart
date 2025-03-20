@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
+import 'package:padillaroutea/screens/menuScreenAdmin.dart';
 import 'package:padillaroutea/screens/RoutesScreenEdit.dart';
 import 'package:padillaroutea/screens/RoutesScreenRegister.dart';
 import 'package:padillaroutea/screens/RoutesScreenAssign.dart';
@@ -10,8 +10,14 @@ import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 
 class RoutesScreenManagement extends StatefulWidget {
+  final Usuario usuario;
+
+  RoutesScreenManagement({required this.usuario});
   @override
   _RoutesScreenManagementState createState() => _RoutesScreenManagementState();
 }
@@ -19,6 +25,9 @@ class RoutesScreenManagement extends StatefulWidget {
 class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
   final RutasHelper _rutasHelper = RutasHelper(RealtimeDbHelper());
   final UsuariosHelper _usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
+
   List<Ruta> _routes = [];
   Map<int, String> _choferNombres = {};
   bool _loading = true;
@@ -59,6 +68,23 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
       setState(() {
         _choferNombres[ruta.idChofer] = chofer?.nombre ?? 'Sin asignar';
       });
+    }
+  }
+
+  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: correo,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
     }
   }
 
@@ -117,7 +143,7 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => RoutesScreenRegister()),
+            MaterialPageRoute(builder: (context) => RoutesScreenRegister(usuario: widget.usuario)),
           ).then((_) => _loadRoutes()); // Recargar al regresar
         },
         backgroundColor: Colors.blue.shade900,
@@ -193,16 +219,19 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          RoutesScreenAssign(rutaSeleccionada: ruta),
+                          RoutesScreenAssign(usuario: widget.usuario, rutaSeleccionada: ruta),
                     ),
                   ).then((_) => _loadRoutes()); // Recargar al regresar
                 }),
                 const SizedBox(width: 10),
-                _actionButton(context, 'Asignar vehiculo', Colors.green, Icons.car_crash, () {
-                  Navigator.push(context, 
-                  MaterialPageRoute(
-                    builder: (context) => VehiclesScreenAssign(rutaSeleccionada: ruta)
-                  ));
+                _actionButton(
+                    context, 'Asignar vehiculo', Colors.green, Icons.car_crash,
+                    () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              VehiclesScreenAssign(rutaSeleccionada: ruta)));
                 }),
                 const SizedBox(width: 10),
                 _actionButton(context, 'Editar', Colors.amber, Icons.edit, () {
@@ -247,7 +276,10 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
           const DrawerHeader(
             child: Text('Gestión de Rutas', style: TextStyle(fontSize: 20)),
           ),
-          _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
+          _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin(usuario: widget.usuario)), 
+          _drawerItem(context, Icons.location_on, 'Monitoreo',
+                RoutesScreenManagement(usuario: widget.usuario)),
+            const Divider(color: Colors.white),
           _drawerItem(
               context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
         ],

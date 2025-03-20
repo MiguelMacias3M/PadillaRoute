@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:padillaroutea/models/realtimeDB_models/incidente_registro.dart';
 import 'package:padillaroutea/services/realtime_db_services/incidentes_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 
 class IncidentsScreenAdmin extends StatefulWidget {
+  final Usuario usuario;
+
+  IncidentsScreenAdmin({required this.usuario});
   @override
   _IncidentsScreenAdminState createState() => _IncidentsScreenAdminState();
 }
@@ -13,6 +20,8 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
   List<IncidenteRegistro> incidents = [];
   List<IncidenteRegistro> filteredIncidents = [];
   late IncidentesHelper incidentesHelper;
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
 
   @override
   void initState() {
@@ -24,6 +33,7 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _loadIncidents(); // Se llama cada vez que la pantalla se reconstruye
+    _logAction(widget.usuario.correo, Tipo.alta, "El usuario ha ingresado a la pantalla de incidencias");
   }
 
   // Cargar incidentes desde la base de datos
@@ -33,6 +43,7 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
       incidents = incidentList;
       filteredIncidents = incidentList;
     });
+  _logAction(widget.usuario.correo, Tipo.modifiacion, "Se han cargado las incidencias");
   }
 
   // Filtrar incidentes por descripción
@@ -43,6 +54,24 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
               incident.descripcion.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
+  _logAction(widget.usuario.correo, Tipo.modifiacion, "Filtrado de incidencias realizado");
+  }
+
+  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: correo,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
+    }
   }
 
   @override
@@ -125,6 +154,8 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
   }
 
   void _showIncidentDetails(BuildContext context, IncidenteRegistro incidente) {
+  _logAction(widget.usuario.correo, Tipo.modifiacion, "Visualización de detalles de incidencia ID: ${incidente.idRegistro}");
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -149,6 +180,7 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
+              _logAction(widget.usuario.correo, Tipo.baja, "Cierre de detalles de incidencia ID: ${incidente.idRegistro}");
               },
               child: Text('Cerrar'),
             ),

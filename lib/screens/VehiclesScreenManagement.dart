@@ -3,7 +3,7 @@ import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart';
 import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
-import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
+import 'package:padillaroutea/screens/menuScreenAdmin.dart';
 import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
 import 'package:padillaroutea/screens/StopScreenManagement.dart';
 import 'package:padillaroutea/screens/UserScreenManagement.dart';
@@ -11,8 +11,15 @@ import 'package:padillaroutea/screens/UserScreenSelect.dart';
 import 'package:padillaroutea/screens/VehiclesScreen.dart';
 import 'package:padillaroutea/screens/VehiclesScreenEdit.dart';
 import 'package:padillaroutea/screens/loginscreen.dart';
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 
 class VehiclesScreenManagement extends StatefulWidget {
+  final Usuario usuario;
+
+  VehiclesScreenManagement({required this.usuario});
   @override
   _VehiclesScreenManagementState createState() =>
       _VehiclesScreenManagementState();
@@ -21,6 +28,8 @@ class VehiclesScreenManagement extends StatefulWidget {
 class _VehiclesScreenManagementState extends State<VehiclesScreenManagement> {
   List<Vehiculo> vehiculos = [];
   late VehiculosHelper vehiculosHelper;
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
 
   @override
   void initState() {
@@ -34,6 +43,23 @@ class _VehiclesScreenManagementState extends State<VehiclesScreenManagement> {
     setState(() {
       vehiculos = vehicleList;
     });
+  }
+
+  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: correo,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
+    }
   }
 
   @override
@@ -76,7 +102,7 @@ class _VehiclesScreenManagementState extends State<VehiclesScreenManagement> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => VehiclesScreen()),
+                    MaterialPageRoute(builder: (context) => VehiclesScreen(usuario: widget.usuario)),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -204,12 +230,13 @@ class _VehiclesScreenManagementState extends State<VehiclesScreenManagement> {
                 ],
               ),
             ),
-             _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
-            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement()),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
-            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
-            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement()),
-            _drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement()),
+            _drawerItem(context, Icons.home, 'Inicio',
+                MenuScreenAdmin(usuario: widget.usuario)),
+            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin(usuario: widget.usuario)),
+            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement(usuario: widget.usuario)),
+            //_drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement(usuario: usuario)),
             Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
           ],

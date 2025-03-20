@@ -5,11 +5,15 @@ import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 
 class RoutesScreenAssign extends StatefulWidget {
+  final Usuario usuario;
   final Ruta rutaSeleccionada;
 
-  RoutesScreenAssign({required this.rutaSeleccionada});
+  RoutesScreenAssign({required this.usuario, required this.rutaSeleccionada});
 
   @override
   _RoutesScreenAssignState createState() => _RoutesScreenAssignState();
@@ -22,9 +26,12 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
   List<Usuario> users = [];
   List<Usuario> filteredUsers = [];
 
-  late UsuariosHelper usuariosHelper;
   late RutasHelper rutasHelper;
   late VehiculosHelper vehiculosHelper;
+
+  UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
 
   @override
   void initState() {
@@ -103,6 +110,23 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Selecciona un vehículo primero')),
       );
+    }
+  }
+
+  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: correo,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
     }
   }
 

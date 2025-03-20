@@ -6,8 +6,14 @@ import 'package:padillaroutea/screens/UserScreenEdit.dart';
 import 'package:padillaroutea/screens/VehiclesScreenAssign.dart'; // Importa la nueva pantalla
 import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart';
 import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 
 class UserScreenManagement extends StatefulWidget {
+  final Usuario usuario;
+
+  UserScreenManagement({required this.usuario});
   @override
   _UserScreenManagementState createState() => _UserScreenManagementState();
 }
@@ -16,8 +22,11 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
   final TextEditingController _searchController = TextEditingController();
   List<Usuario> users = [];
   List<Usuario> filteredUsers = [];
-  late UsuariosHelper usuariosHelper;
   late VehiculosHelper vehiculosHelper;
+  UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
+
 
   @override
   void initState() {
@@ -53,6 +62,23 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
       return await vehiculosHelper.get(idVehiculo);
     }
     return null;
+  }
+
+  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: correo,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
+    }
   }
 
   @override
@@ -151,7 +177,7 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => UserScreenEdit(usuario: usuario),
+                      builder: (context) => UserScreenEdit(usuarioSeleccionado: usuario, usuario: widget.usuario),
                     ),
                   ).then((_) {
                     // Recargar los usuarios después de editar

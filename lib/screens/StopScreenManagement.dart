@@ -4,8 +4,15 @@ import 'package:padillaroutea/services/realtime_db_services/paradas_helper.dart'
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/screens/StopScreenEdit.dart';
 import 'package:padillaroutea/screens/StopScreenRegister.dart';
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 
 class StopScreenManagement extends StatefulWidget {
+  final Usuario usuario;
+
+  StopScreenManagement({required this.usuario});
   @override
   _StopScreenManagementState createState() => _StopScreenManagementState();
 }
@@ -15,6 +22,8 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
   List<Parada> stops = [];
   List<Parada> filteredStops = [];
   late ParadasHelper paradasHelper;
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
 
   @override
   void initState() {
@@ -51,6 +60,23 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
               stop.nombre.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
+  }
+
+  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: correo,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
+    }
   }
 
   @override
@@ -109,7 +135,7 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
         onPressed: () async {
           await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => StopScreenRegister()),
+            MaterialPageRoute(builder: (context) => StopScreenRegister(usuario: widget.usuario,)),
           );
           _loadStops();
         },
@@ -145,7 +171,7 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
                   onPressed: () async {
                     await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => StopScreenEdit(parada: parada)),
+                      MaterialPageRoute(builder: (context) => StopScreenEdit(usuario: widget.usuario, parada: parada)),
                     );
                     _loadStops();
                   },

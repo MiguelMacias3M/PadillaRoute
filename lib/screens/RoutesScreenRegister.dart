@@ -6,8 +6,15 @@ import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/paradas_helper.dart';
 import 'package:padillaroutea/models/realtimeDB_models/parada.dart';
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 
 class RoutesScreenRegister extends StatefulWidget {
+final Usuario usuario; // Agregar este parámetro
+
+  RoutesScreenRegister({required this.usuario});
   @override
   _RoutesScreenRegisterState createState() => _RoutesScreenRegisterState();
 }
@@ -18,6 +25,8 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
   List<Parada?> selectedStops = []; // Paradas seleccionadas
   final RutasHelper _rutasHelper = RutasHelper(RealtimeDbHelper());
   final ParadasHelper _paradasHelper = ParadasHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
 
   @override
   void initState() {
@@ -78,7 +87,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
           // Redirigir a la pantalla de gestión de rutas después del registro
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => RoutesScreenManagement()),
+            MaterialPageRoute(builder: (context) => RoutesScreenManagement(usuario: widget.usuario)),
           );
         } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -97,6 +106,23 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
         content: Text('Por favor, completa todos los campos.'),
         backgroundColor: Colors.orange,
       ));
+    }
+  }
+
+  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: correo,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
     }
   }
 
@@ -243,7 +269,7 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
                 ],
               ),
             ),
-            _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
+            //_drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin(usuario: usuario)),
             const Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
           ],

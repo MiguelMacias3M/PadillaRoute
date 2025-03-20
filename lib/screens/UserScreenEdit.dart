@@ -3,11 +3,15 @@ import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 
 class UserScreenEdit extends StatefulWidget {
+  final Usuario usuarioSeleccionado;
   final Usuario usuario;
 
-  UserScreenEdit({required this.usuario});
+  UserScreenEdit({required this.usuarioSeleccionado, required this.usuario});
 
   @override
   _UserScreenEditState createState() => _UserScreenEditState();
@@ -19,32 +23,36 @@ class _UserScreenEditState extends State<UserScreenEdit> {
   late TextEditingController _phoneController;
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
+  UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
 
   String? _selectedRole;
   final List<String> _roleOptions = ['Chofer', 'Administrativo', 'Gerente'];
 
   String? _selectedStatus;
   final List<String> _statusOptions = ['Activo', 'Inactivo'];
+  
 
   @override
   void initState() {
     super.initState();
     print(
-        "Datos del usuario recibidos: ${widget.usuario.toJson()}"); // Imprime el objeto Usuario completo
+        "Datos del usuario recibidos: ${widget.usuarioSeleccionado.toJson()}"); // Imprime el objeto Usuario completo
 
-    _nameController = TextEditingController(text: widget.usuario.nombre);
-    _lastNameController = TextEditingController(text: widget.usuario.apellidos);
+    _nameController = TextEditingController(text: widget.usuarioSeleccionado.nombre);
+    _lastNameController = TextEditingController(text: widget.usuarioSeleccionado.apellidos);
     _phoneController =
-        TextEditingController(text: widget.usuario.telefono.toString());
-    _emailController = TextEditingController(text: widget.usuario.correo);
+        TextEditingController(text: widget.usuarioSeleccionado.telefono.toString());
+    _emailController = TextEditingController(text: widget.usuarioSeleccionado.correo);
     _passwordController = TextEditingController(text: '••••••••'); // Encriptado
 
     _selectedRole = _roleOptions.firstWhere(
-      (role) => role.toLowerCase() == widget.usuario.rol.name,
+      (role) => role.toLowerCase() == widget.usuarioSeleccionado.rol.name,
       orElse: () => 'Chofer', // Valor por defecto en caso de error
     );
 
-    _selectedStatus = widget.usuario.activo ? 'Activo' : 'Inactivo';
+    _selectedStatus = widget.usuarioSeleccionado.activo ? 'Activo' : 'Inactivo';
   }
 
   @override
@@ -56,6 +64,24 @@ class _UserScreenEditState extends State<UserScreenEdit> {
     _passwordController.dispose();
     super.dispose();
   }
+
+  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: correo,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -198,7 +224,7 @@ class _UserScreenEditState extends State<UserScreenEdit> {
       print(
           "Datos a actualizar: $updatedUser"); // Imprime los datos que se van a actualizar
 
-      await usuariosHelper.update(widget.usuario.idUsuario, updatedUser);
+      await usuariosHelper.update(widget.usuarioSeleccionado.idUsuario, updatedUser);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Cambios guardados correctamente')),

@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
+import 'package:padillaroutea/screens/menuScreenAdmin.dart';
 import 'package:padillaroutea/screens/UserScreenSelect.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 import 'package:padillaroutea/screens/UserScreenManagement.dart';
+import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
+import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
+import 'package:padillaroutea/screens/StopScreenManagement.dart';
 import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 
 class VehiclesScreen extends StatefulWidget {
+  final Usuario usuario;
+
+  VehiclesScreen({required this.usuario});
   @override
   _VehiclesScreenState createState() => _VehiclesScreenState();
 }
@@ -18,9 +29,29 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
   final TextEditingController _numberController = TextEditingController();
   final TextEditingController _plateController = TextEditingController();
   final TextEditingController _capacityController = TextEditingController();
+  UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
 
   // Instancia del helper para la BD
   final VehiculosHelper _vehiculosHelper = VehiculosHelper(RealtimeDbHelper());
+
+  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: correo,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -174,10 +205,14 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
                 ],
               ),
             ),
-            _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
-            _drawerItem(context, Icons.people, 'Usuarios', UserScreenSelect()),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
-            _drawerItem(context, Icons.settings, 'Configuración', UserScreenManagement()),
+            _drawerItem(context, Icons.home, 'Inicio',
+                MenuScreenAdmin(usuario: widget.usuario)),
+            //_drawerItem( context, Icons.people, 'Usuarios', UserScreenManagement()),
+            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin(usuario: widget.usuario)),
+            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.location_on, 'Monitoreo',
+                MonitoringScreenManagement(usuario: widget.usuario)),
             Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
           ],

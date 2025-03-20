@@ -33,7 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (userEmail.isEmpty || userPass.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Some values are missing!!!")));
-      _logAction(userEmail, Tipo.baja, "Intento de inicio de sesión fallido (campos vacíos)");
+      _logAction(userEmail, Tipo.baja,
+          "Intento de inicio de sesión fallido (campos vacíos)");
       return;
     }
 
@@ -50,21 +51,24 @@ class _LoginScreenState extends State<LoginScreen> {
             nextScreen = RouteScreenManagementU(chofer: usuario);
             break;
           case Rol.administrativo:
-            nextScreen = MonitoringScreenManagement();
+            nextScreen = MenuScreenAdmin(usuario: usuario);
+
             _subscribeToTopic('administrativos_y_gerentes');
             break;
           case Rol.gerente:
-            nextScreen = MenuScreenAdmin();
+            nextScreen = MenuScreenAdmin(usuario: usuario);
             _subscribeToTopic('administrativos_y_gerentes');
             break;
           default:
             ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Rol no reconocido")));
-            _logAction(userEmail, Tipo.baja, "Inicio de sesión fallido (rol no reconocido)");
+            _logAction(userEmail, Tipo.baja,
+                "Inicio de sesión fallido (rol no reconocido)");
             return;
         }
 
-        _logAction(userEmail, Tipo.alta, "Inicio de sesión exitoso - Rol: ${rolUsuario.name}");
+        _logAction(userEmail, Tipo.alta,
+            "Inicio de sesión exitoso - Rol: ${rolUsuario.name}");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => nextScreen),
@@ -72,7 +76,8 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Usuario no encontrado")));
-        _logAction(userEmail, Tipo.baja, "Inicio de sesión fallido (usuario no encontrado)");
+        _logAction(userEmail, Tipo.baja,
+            "Inicio de sesión fallido (usuario no encontrado)");
       }
     } catch (e) {
       ScaffoldMessenger.of(context)
@@ -86,10 +91,12 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await FirebaseMessaging.instance.subscribeToTopic(topic);
       _logger.i('Usuario suscrito al tema: $topic');
-      _logAction(_emailController.text, Tipo.modifiacion, "Suscripción a tema FCM: $topic");
+      _logAction(_emailController.text, Tipo.modifiacion,
+          "Suscripción a tema FCM: $topic");
     } catch (e) {
       _logger.e('Error al suscribir al tema: $e');
-      _logAction(_emailController.text, Tipo.baja, "Error al suscribir a tema: $e");
+      _logAction(
+          _emailController.text, Tipo.baja, "Error al suscribir a tema: $e");
     }
   }
 

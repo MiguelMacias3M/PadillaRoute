@@ -276,7 +276,7 @@ void _initializeSelectedStops() {
                 ],
               ),
             ),
-            _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
+            //_drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin(usuario: usuario)),
             const Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
           ],
