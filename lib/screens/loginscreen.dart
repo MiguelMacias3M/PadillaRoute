@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
-<<<<<<< HEAD
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
-=======
 import 'package:padillaroutea/screens/SplashScreen.dart';
->>>>>>> main
 import 'package:padillaroutea/screens/forgotPasswordScreen.dart';
 import 'package:padillaroutea/screens/menuScreenAdmin.dart';
 import 'package:padillaroutea/services/firebase_auth/firebase_auth_helper.dart';
@@ -29,106 +26,14 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   final Logger _logger = Logger();
-<<<<<<< HEAD
   final FirebaseAuthHelper authHelper = FirebaseAuthHelper();
   final UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
   final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
 
-=======
-  FirebaseAuthHelper authHelper = FirebaseAuthHelper();
-  final UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
->>>>>>> main
   final WifiController _wifiController = WifiController();
   bool _isConnected = false;
   bool _isDialogOpen = false;
 
-<<<<<<< HEAD
-=======
-  Future<void> _handleLogin() async {
-    setState(() {
-      _isLoading = true; // 🔵 Inicia la animación de carga
-    });
-
-    final userEmail = _emailController.text;
-    final userPass = _passwordController.text;
-
-    if (userEmail.isEmpty || userPass.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Algunos campos están vacíos")));
-      setState(() {
-        _isLoading = false; // 🔴 Detiene la animación si hay error
-      });
-      return;
-    }
-
-    try {
-      await authHelper.logIn(userEmail, userPass);
-      Usuario? usuario = await usuariosHelper.getByEmail(_emailController.text);
-
-      if (usuario != null) {
-        final rolUsuario = usuario.rol;
-        Widget nextScreen;
-        switch (rolUsuario) {
-          case Rol.chofer:
-            nextScreen = RouteScreenManagementU(chofer: usuario);
-            break;
-          case Rol.administrativo:
-            nextScreen = SplashScreenAdmin();
-            break;
-          case Rol.gerente:
-            nextScreen = SplashScreenAdmin();
-            break;
-          default:
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Rol no reconocido")));
-            setState(() {
-              _isLoading = false;
-            });
-            return;
-        }
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => nextScreen),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Usuario no encontrado")));
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())));
-    }
-
-    setState(() {
-      _isLoading = false; // 🔴 Detiene la animación al terminar
-    });
-  }
-
-  void _showConnectionLostDialog() {
-    _isDialogOpen = true;
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Conexión a internet perdida"),
-          content: const Text('Revisa tu conexión a internet y vuelve a intentarlo'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _isDialogOpen = false;
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
->>>>>>> main
   @override
   void initState() {
     super.initState();
@@ -158,6 +63,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     final userEmail = _emailController.text;
     final userPass = _passwordController.text;
 
@@ -166,12 +75,15 @@ class _LoginScreenState extends State<LoginScreen> {
           const SnackBar(content: Text("Some values are missing!!!")));
       _logAction(userEmail, Tipo.baja,
           "Intento de inicio de sesión fallido (campos vacíos)");
+      setState(() {
+        _isLoading = false; // 🔴 Detiene la animación si hay error
+      });
       return;
     }
 
     try {
       await authHelper.logIn(userEmail, userPass);
-      Usuario? usuario = await usuariosHelper.getByEmail(userEmail);
+      Usuario? usuario = await usuariosHelper.getByEmail(_emailController.text);
 
       if (usuario != null) {
         final rolUsuario = usuario.rol;
@@ -182,12 +94,12 @@ class _LoginScreenState extends State<LoginScreen> {
             nextScreen = RouteScreenManagementU(chofer: usuario);
             break;
           case Rol.administrativo:
-            nextScreen = MenuScreenAdmin(usuario: usuario);
+            nextScreen = SplashScreenAdmin(usuario: usuario);
 
             _subscribeToTopic('administrativos_y_gerentes');
             break;
           case Rol.gerente:
-            nextScreen = MenuScreenAdmin(usuario: usuario);
+            nextScreen = SplashScreenAdmin(usuario: usuario);
             _subscribeToTopic('administrativos_y_gerentes');
             break;
           default:
@@ -209,12 +121,14 @@ class _LoginScreenState extends State<LoginScreen> {
             const SnackBar(content: Text("Usuario no encontrado")));
         _logAction(userEmail, Tipo.baja,
             "Inicio de sesión fallido (usuario no encontrado)");
+        _isLoading = false;
       }
     } catch (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.toString())));
       _logger.e("Error en inicio de sesión: $e");
       _logAction(userEmail, Tipo.baja, "Error en inicio de sesión: $e");
+      _isLoading = false;
     }
   }
 
@@ -293,55 +207,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   fontWeight: FontWeight.bold,
                   color: Color.fromARGB(255, 16, 171, 255),
                   shadows: [
-                    Shadow(color: Colors.black26, offset: Offset(2, 2), blurRadius: 4)
+                    Shadow(
+                        color: Colors.black26,
+                        offset: Offset(2, 2),
+                        blurRadius: 4)
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-<<<<<<< HEAD
-              TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Correo electrónico',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  prefixIcon: const Icon(Icons.email,
-                      color: Color.fromARGB(255, 0, 0, 0)),
-                ),
-                keyboardType: TextInputType.emailAddress,
-              ),
+              _buildTextField(
+                  _emailController, 'Correo electrónico', Icons.email, false),
               const SizedBox(height: 15),
-              TextField(
-                controller: _passwordController,
-                obscureText: !_isPasswordVisible,
-                decoration: InputDecoration(
-                  labelText: 'Contraseña',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  prefixIcon: const Icon(Icons.lock,
-                      color: Color.fromARGB(255, 0, 0, 0)),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: const Color.fromARGB(255, 0, 0, 0),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  ),
-                ),
-              ),
-=======
-              _buildTextField(_emailController, 'Correo electrónico', Icons.email, false),
-              const SizedBox(height: 15),
-              _buildTextField(_passwordController, 'Contraseña', Icons.lock, true),
->>>>>>> main
+              _buildTextField(
+                  _passwordController, 'Contraseña', Icons.lock, true),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -367,8 +244,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildTextField(
-      TextEditingController controller, String label, IconData icon, bool isPassword) {
+  Widget _buildTextField(TextEditingController controller, String label,
+      IconData icon, bool isPassword) {
     return TextField(
       controller: controller,
       obscureText: isPassword ? !_isPasswordVisible : false,

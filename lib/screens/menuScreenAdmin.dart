@@ -8,13 +8,10 @@ import 'package:padillaroutea/screens/RoutesScreenManagement.dart';
 import 'package:padillaroutea/screens/StopScreenManagement.dart';
 import 'package:padillaroutea/screens/UserScreenSelect.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
-<<<<<<< HEAD
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
-=======
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
 import 'package:padillaroutea/screens/loginscreen.dart';
->>>>>>> main
 
 class MenuScreenAdmin extends StatelessWidget {
   final Usuario usuario;
@@ -69,7 +66,6 @@ class MenuScreenAdmin extends StatelessWidget {
           crossAxisSpacing: 20,
           mainAxisSpacing: 20,
           children: [
-<<<<<<< HEAD
             _menuItem(context, Icons.people, 'Usuarios', screen: UserScreenSelect(usuario: usuario)),
             _menuItem(context, Icons.directions_bus, 'Rutas', screen: RoutesScreenManagement(usuario: usuario)),
             _menuItem(context, Icons.location_on, 'Monitorear', screen: MonitoringScreenManagement(usuario: usuario)),
@@ -77,16 +73,6 @@ class MenuScreenAdmin extends StatelessWidget {
             //_menuItem(context, Icons.bar_chart, 'Reportes'),
             _menuItem(context, Icons.local_parking, 'Paradas', screen: StopScreenManagement(usuario: usuario)),
             _menuItem(context, Icons.warning_amber, 'Incidencias', screen: IncidentsScreenAdmin(usuario: usuario)),
-=======
-            _menuItem(context, Icons.people, 'Usuarios', screen: UserScreenSelect()),
-            _menuItem(context, Icons.directions_bus, 'Rutas', screen: RoutesScreenManagement()),
-            _menuItem(context, Icons.location_on, 'Monitorear', screen: MonitoringScreenManagement()),
-            _menuItem(context, Icons.directions_car, 'Vehículos', screen: VehiclesScreenManagement()),
-            _menuItem(context, Icons.bar_chart, 'Reportes'),
-            _menuItem(context, Icons.local_parking, 'Paradas', screen: StopScreenManagement()),
-            _menuItem(context, Icons.warning_amber, 'Inciderncias', screen: IncidentsScreenAdmin()),
-            _menuItem(context, Icons.exit_to_app, 'Cerrar sesión', screen: LoginScreen()),
->>>>>>> main
           ],
         ),
       ),

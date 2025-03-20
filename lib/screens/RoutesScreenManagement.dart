@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:padillaroutea/screens/menuScreenAdmin.dart';
-=======
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
-import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
 import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
->>>>>>> main
 import 'package:padillaroutea/screens/RoutesScreenEdit.dart';
 import 'package:padillaroutea/screens/RoutesScreenRegister.dart';
 import 'package:padillaroutea/screens/RoutesScreenAssign.dart';
@@ -297,15 +293,6 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-<<<<<<< HEAD
-          _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin(usuario: widget.usuario)), 
-          _drawerItem(context, Icons.location_on, 'Monitoreo',
-                RoutesScreenManagement(usuario: widget.usuario)),
-            const Divider(color: Colors.white),
-          _drawerItem(
-              context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
-        ],
-=======
         ),
         child: ListView(
           padding: EdgeInsets.zero,
@@ -327,36 +314,28 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
                 ],
               ),
             ),
-             _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
-            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement()),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
-            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
-            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement()),
-            _drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement()),
+             _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin(usuario: widget.usuario)),
+            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin(usuario: widget.usuario)),
+            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement(usuario: widget.usuario)),
             Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
           ],
-        ),
->>>>>>> main
-      ),
+        ),),
     );
   }
 
-  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
+Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
     return ListTile(
-<<<<<<< HEAD
-      leading: Icon(icon),
-      title: Text(title),
-      onTap: () async {
-        await _logAction(widget.usuario.correo, Tipo.modifiacion, "Navegó a $title");
-=======
       leading: Icon(icon, color: Colors.white),
       title: Text(
         title,
         style: TextStyle(fontSize: 16, color: Colors.white),
       ),
-      onTap: () {
->>>>>>> main
+      onTap: () async {
+        await _logAction(widget.usuario.correo, Tipo.modifiacion, "Navegó a $title");
         if (screen != null) {
           Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
         }

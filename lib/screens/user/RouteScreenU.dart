@@ -3,11 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
-<<<<<<< HEAD
-import 'package:padillaroutea/services/fcm_service.dart'; // Importar FCM service
-=======
 import 'package:padillaroutea/screens/user/IncidentsScreenRegister.dart';
->>>>>>> main
+import 'package:padillaroutea/services/fcm_service.dart';
 
 class RouteScreenU extends StatefulWidget {
   final String routeName;
@@ -21,23 +18,18 @@ class RouteScreenU extends StatefulWidget {
 class _RouteScreenUState extends State<RouteScreenU> {
   Completer<GoogleMapController> _controller = Completer();
   LatLng? _currentPosition;
-<<<<<<< HEAD
-=======
-  List<LatLng> _trackedRoute = [];
+  List<Map<String, dynamic>> _stopRecords = [];
+  Set<Marker> _markers = {};
+  DateTime? _startTime;
+  DateTime? _endTime;
   double _totalDistance = 0.0;
   double _averageSpeed = 0.0;
->>>>>>> main
 
   final List<LatLng> _fixedStops = [
     LatLng(22.324847, -102.292803),
     LatLng(22.324216, -102.293004),
     LatLng(22.321520, -102.293886),
   ];
-
-  List<Map<String, dynamic>> _stopRecords = [];
-  Set<Marker> _markers = {};
-  DateTime? _startTime;
-  DateTime? _endTime;
 
   @override
   void initState() {
@@ -94,7 +86,6 @@ class _RouteScreenUState extends State<RouteScreenU> {
     }
   }
 
-<<<<<<< HEAD
   Future<void> _startNavigation() async {
     if (_currentPosition == null) {
       print("⚠️ No se puede iniciar la ruta sin ubicación.");
@@ -119,9 +110,13 @@ class _RouteScreenUState extends State<RouteScreenU> {
         .map((stop) => "${stop.latitude},${stop.longitude}")
         .join("|");
 
-    String googleMapsUrl =
-        "https://www.google.com/maps/dir/?api=1&origin=$origin&destination=$destination"
-        "&waypoints=$waypoints&travelmode=driving";
+    String googleMapsUrl = "https://www.google.com/maps/dir/?api=1"
+        "&origin=$origin"
+        "&destination=$destination"
+        "&waypoints=$waypoints"
+        "&travelmode=driving";
+
+    print("🔵 URL generada: $googleMapsUrl");
 
     final uri = Uri.parse(googleMapsUrl);
     if (await canLaunchUrl(uri)) {
@@ -129,45 +124,7 @@ class _RouteScreenUState extends State<RouteScreenU> {
     } else {
       print("❌ No se pudo abrir Google Maps.");
     }
-=======
- Future<void> _startNavigation() async {
-  if (_currentPosition == null) {
-    print("⚠️ No se puede iniciar la ruta sin ubicación.");
-    return;
->>>>>>> main
   }
-
-  setState(() {
-    _startTime = DateTime.now();
-    _stopRecords.clear();
-    _endTime = null;
-  });
-
-  print("🚀 Ruta iniciada a las $_startTime");
-
-  String origin = "${_currentPosition!.latitude},${_currentPosition!.longitude}";
-  String destination = "${_fixedStops.last.latitude},${_fixedStops.last.longitude}";
-
-  // Formatear los waypoints correctamente
-  String waypoints = _fixedStops.map((stop) => "${stop.latitude},${stop.longitude}").join("|");
-
-  // Construcción de la URL para Google Maps
-  String googleMapsUrl =
-      "https://www.google.com/maps/dir/?api=1"
-      "&origin=$origin"
-      "&destination=$destination"
-      "&waypoints=$waypoints"
-      "&travelmode=driving";
-
-  print("🔵 URL generada: $googleMapsUrl");
-
-  final uri = Uri.parse(googleMapsUrl);
-  if (await canLaunchUrl(uri)) {
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-  } else {
-    print("❌ No se pudo abrir Google Maps.");
-  }
-}
 
   Future<void> _registerStop() async {
     if (_currentPosition == null) {
@@ -233,7 +190,8 @@ class _RouteScreenUState extends State<RouteScreenU> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => IncidentsScreenRegister()),
+                  MaterialPageRoute(
+                      builder: (context) => IncidentsScreenRegister()),
                 );
               },
               style: TextButton.styleFrom(backgroundColor: Colors.red),
@@ -254,7 +212,7 @@ class _RouteScreenUState extends State<RouteScreenU> {
     setState(() {
       _endTime = DateTime.now();
     });
-    // Enviar notificación a los usuarios con roles 'gerente' y 'administrativo' al finalizar la ruta
+// Enviar notificación a los usuarios con roles 'gerente' y 'administrativo' al finalizar la ruta
     _sendNotification("La ruta ${widget.routeName} ha finalizado.");
     print("🏁 Ruta finalizada a las $_endTime");
     _showSummary();
@@ -273,12 +231,12 @@ class _RouteScreenUState extends State<RouteScreenU> {
             children: [
               Text("🕒 Inicio: $_startTime"),
               Text("⏹ Paradas: ${_stopRecords.length}"),
-              ..._stopRecords.map((stop) => Text(
-                  "📍 ${stop['location']} - 🕓 Llegada: ${stop['arrivalTime']} - 🚀 Salida: ${stop['departureTime']} - 👥 Pasajeros: ${stop['passengers']}")),
               Text("🏁 Fin: $_endTime"),
               Text("⏳ Tiempo total: ${totalTime.inMinutes} min"),
-              Text("📏 Distancia total: ${_totalDistance.toStringAsFixed(2)} m"),
-              Text("🚀 Velocidad promedio: ${_averageSpeed.toStringAsFixed(2)} m/s"),
+              Text(
+                  "📏 Distancia total: ${_totalDistance.toStringAsFixed(2)} m"),
+              Text(
+                  "🚀 Velocidad promedio: ${_averageSpeed.toStringAsFixed(2)} m/s"),
             ],
           ),
           actions: [
@@ -293,28 +251,30 @@ class _RouteScreenUState extends State<RouteScreenU> {
   }
 
   Future<void> _sendNotification(String message) async {
-  try {
-    // Obtener el accessToken usando la función pública
-    final accessToken = await getAccessToken();
-    await sendFCMMessage("Actualización de Ruta", message, "administrativos_y_gerentes", accessToken);
-    print("Notificación enviada: $message");
-  } catch (e) {
-    print("Error al enviar la notificación: $e");
+    try {
+      // Obtener el accessToken usando la función pública
+      final accessToken = await getAccessToken();
+      await sendFCMMessage("Actualización de Ruta", message,
+          "administrativos_y_gerentes", accessToken);
+      print("Notificación enviada: $message");
+    } catch (e) {
+      print("Error al enviar la notificación: $e");
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.routeName), backgroundColor: Colors.blueAccent),
+      appBar: AppBar(
+        title: Text(widget.routeName),
+        backgroundColor: Colors.blueAccent,
+      ),
       body: Column(
         children: [
           Expanded(
             child: _currentPosition == null
                 ? Center(child: CircularProgressIndicator())
                 : GoogleMap(
-<<<<<<< HEAD
                     initialCameraPosition:
                         CameraPosition(target: _currentPosition!, zoom: 15),
                     myLocationEnabled: true,
@@ -322,9 +282,6 @@ class _RouteScreenUState extends State<RouteScreenU> {
                       _controller.complete(controller);
                       setState(() {});
                     },
-=======
-                    initialCameraPosition: CameraPosition(target: _currentPosition!, zoom: 15),
->>>>>>> main
                     markers: _markers,
                   ),
           ),
@@ -334,59 +291,37 @@ class _RouteScreenUState extends State<RouteScreenU> {
     );
   }
 
-<<<<<<< HEAD
   Widget _buildNavigationButtons() {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          ElevatedButton.icon(
-              onPressed: _startNavigation,
-              icon: Icon(Icons.navigation),
-              label: Text("Iniciar Ruta")),
-          ElevatedButton.icon(
-              onPressed: _registerStop,
-              icon: Icon(Icons.add_location),
-              label: Text("Registrar Parada")),
-          ElevatedButton.icon(
-              onPressed: _endNavigation,
-              icon: Icon(Icons.stop),
-              label: Text("Finalizar Ruta")),
-        ],
-=======
-Widget _buildNavigationButtons() {
-  return Column(
-    children: [
-      ElevatedButton(
-        onPressed: _startNavigation,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green, // Color de fondo verde
-          foregroundColor: Colors.white, // Color de texto blanco
-          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-          textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: _startNavigation,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green, // Color de fondo verde
+            foregroundColor: Colors.white, // Color de texto blanco
+            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+            textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          child: Text("Iniciar Ruta"),
         ),
-        child: Text("Iniciar Ruta"),
->>>>>>> main
-      ),
-      ElevatedButton(
-        onPressed: _registerStop,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.orange, // Color de fondo naranja
-          foregroundColor: Colors.white, // Color de texto blanco
+        ElevatedButton(
+          onPressed: _registerStop,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orange, // Color de fondo naranja
+            foregroundColor: Colors.white, // Color de texto blanco
+          ),
+          child: Text("Registrar Parada"),
         ),
-        child: Text("Registrar Parada"),
-      ),
-      ElevatedButton(
-        onPressed: _endNavigation,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red, // Color de fondo rojo
-          foregroundColor: const Color.fromARGB(255, 255, 255, 255), // Color de texto blanco
+        ElevatedButton(
+          onPressed: _endNavigation,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red, // Color de fondo rojo
+            foregroundColor: const Color.fromARGB(
+                255, 255, 255, 255), // Color de texto blanco
+          ),
+          child: Text("Finalizar Ruta"),
         ),
-        child: Text("Finalizar Ruta"),
-      ),
-    ],
-  );
-}
-
+      ],
+    );
+  }
 }

@@ -5,13 +5,20 @@ import 'package:padillaroutea/firebase_options.dart';
 import 'package:padillaroutea/objectbox.g.dart';
 import 'package:padillaroutea/services/connectors/objectbox_connector.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:padillaroutea/screens/loginscreen.dart';
+import 'package:padillaroutea/services/fcm_service.dart'; 
+import 'package:padillaroutea/screens/loginscreen.dart'; 
+import 'package:padillaroutea/screens/user/IncidentsScreenRegister.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:padillaroutea/screens/user/IncidentsScreenRegister.dart'; // ✅ Importamos la pantalla de incidencias
 
 
 late ObjectBox objectBox;
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Mensaje en segundo plano: ${message.notification?.title}");
+  _showNotification(message.notification?.title, message.notification?.body);
+}
   void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -52,8 +59,6 @@ late ObjectBox objectBox;
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const MyApp());
-// Muestra el cuadro de diálogo de éxito después de la inicialización
-  WidgetsBinding.instance.addPostFrameCallback((_) => showSuccessDialog());
 }
 
 // Inicializa las notificaciones locales
@@ -111,6 +116,8 @@ void showSuccessDialog() {
   );
 }
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -122,10 +129,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      initialRoute: '/', // ✅ Definimos una ruta inicial
+      initialRoute: '/', // Definimos una ruta inicial
       routes: {
-        '/': (context) => LoginScreen(), // ✅ Ruta principal
-        '/incidentsScreenRegister': (context) => IncidentsScreenRegister(), // ✅ Agregamos la ruta de incidencias
+        '/': (context) => LoginScreen(), // Ruta principal
+        '/incidentsScreenRegister': (context) => IncidentsScreenRegister(), // Agregamos la ruta de incidencias
       },
     );
   }
