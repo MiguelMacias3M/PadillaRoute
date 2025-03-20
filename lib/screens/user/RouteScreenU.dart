@@ -17,6 +17,9 @@ class RouteScreenU extends StatefulWidget {
 class _RouteScreenUState extends State<RouteScreenU> {
   Completer<GoogleMapController> _controller = Completer();
   LatLng? _currentPosition;
+  List<LatLng> _trackedRoute = [];
+  double _totalDistance = 0.0;
+  double _averageSpeed = 0.0;
 
   final List<LatLng> _fixedStops = [
     LatLng(22.324847, -102.292803),
@@ -82,35 +85,43 @@ class _RouteScreenUState extends State<RouteScreenU> {
     }
   }
 
-  Future<void> _startNavigation() async {
-    if (_currentPosition == null) {
-      print("⚠️ No se puede iniciar la ruta sin ubicación.");
-      return;
-    }
-
-    setState(() {
-      _startTime = DateTime.now();
-      _stopRecords.clear();
-      _endTime = null;
-    });
-
-    print("🚀 Ruta iniciada a las $_startTime");
-
-    String origin = "${_currentPosition!.latitude},${_currentPosition!.longitude}";
-    String destination = "${_fixedStops.last.latitude},${_fixedStops.last.longitude}";
-    String waypoints = _fixedStops.map((stop) => "${stop.latitude},${stop.longitude}").join("|");
-
-    String googleMapsUrl =
-        "https://www.google.com/maps/dir/?api=1&origin=$origin&destination=$destination"
-        "&waypoints=$waypoints&travelmode=driving";
-
-    final uri = Uri.parse(googleMapsUrl);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      print("❌ No se pudo abrir Google Maps.");
-    }
+ Future<void> _startNavigation() async {
+  if (_currentPosition == null) {
+    print("⚠️ No se puede iniciar la ruta sin ubicación.");
+    return;
   }
+
+  setState(() {
+    _startTime = DateTime.now();
+    _stopRecords.clear();
+    _endTime = null;
+  });
+
+  print("🚀 Ruta iniciada a las $_startTime");
+
+  String origin = "${_currentPosition!.latitude},${_currentPosition!.longitude}";
+  String destination = "${_fixedStops.last.latitude},${_fixedStops.last.longitude}";
+
+  // Formatear los waypoints correctamente
+  String waypoints = _fixedStops.map((stop) => "${stop.latitude},${stop.longitude}").join("|");
+
+  // Construcción de la URL para Google Maps
+  String googleMapsUrl =
+      "https://www.google.com/maps/dir/?api=1"
+      "&origin=$origin"
+      "&destination=$destination"
+      "&waypoints=$waypoints"
+      "&travelmode=driving";
+
+  print("🔵 URL generada: $googleMapsUrl");
+
+  final uri = Uri.parse(googleMapsUrl);
+  if (await canLaunchUrl(uri)) {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  } else {
+    print("❌ No se pudo abrir Google Maps.");
+  }
+}
 
   Future<void> _registerStop() async {
     if (_currentPosition == null) {
@@ -139,18 +150,18 @@ class _RouteScreenUState extends State<RouteScreenU> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(context),
               child: Text("Cancelar"),
             ),
             TextButton(
               onPressed: () {
                 int passengers = int.tryParse(passengersController.text) ?? 0;
+                DateTime departureTime = DateTime.now();
+
                 setState(() {
                   _stopRecords.add({
                     "arrivalTime": arrivalTime,
-                    "departureTime": DateTime.now(),
+                    "departureTime": departureTime,
                     "location": _currentPosition,
                     "passengers": passengers,
                   });
@@ -160,7 +171,7 @@ class _RouteScreenUState extends State<RouteScreenU> {
                       markerId: MarkerId("User_Stop_${_stopRecords.length}"),
                       position: _currentPosition!,
                       infoWindow: InfoWindow(
-                          title: "Parada Extra ${_stopRecords.length}",
+                          title: "Parada ${_stopRecords.length}",
                           snippet: "Pasajeros: $passengers"),
                       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
                     ),
@@ -202,21 +213,24 @@ class _RouteScreenUState extends State<RouteScreenU> {
   }
 
   void _showSummary() {
+    Duration totalTime = _endTime!.difference(_startTime!);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        Duration totalTime = _endTime!.difference(_startTime!);
-
         return AlertDialog(
           title: Text("Felicidades, has terminado el viaje 🎉"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text("🕒 Inicio: $_startTime"),
-              Text("⏹ Paradas Fijas: ${_fixedStops.length}"),
-              Text("🟢 Paradas en la ruta: ${_stopRecords.length}"),
+              Text("⏹ Paradas: ${_stopRecords.length}"),
+              ..._stopRecords.map((stop) => Text(
+                  "📍 ${stop['location']} - 🕓 Llegada: ${stop['arrivalTime']} - 🚀 Salida: ${stop['departureTime']} - 👥 Pasajeros: ${stop['passengers']}")),
               Text("🏁 Fin: $_endTime"),
               Text("⏳ Tiempo total: ${totalTime.inMinutes} min"),
+              Text("📏 Distancia total: ${_totalDistance.toStringAsFixed(2)} m"),
+              Text("🚀 Velocidad promedio: ${_averageSpeed.toStringAsFixed(2)} m/s"),
             ],
           ),
           actions: [
@@ -230,20 +244,6 @@ class _RouteScreenUState extends State<RouteScreenU> {
     );
   }
 
-  Widget _buildNavigationButtons() {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          ElevatedButton.icon(onPressed: _startNavigation, icon: Icon(Icons.navigation), label: Text("Iniciar Ruta")),
-          ElevatedButton.icon(onPressed: _registerStop, icon: Icon(Icons.add_location), label: Text("Registrar Parada")),
-          ElevatedButton.icon(onPressed: _endNavigation, icon: Icon(Icons.stop), label: Text("Finalizar Ruta")),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -253,11 +253,48 @@ class _RouteScreenUState extends State<RouteScreenU> {
           Expanded(
             child: _currentPosition == null
                 ? Center(child: CircularProgressIndicator())
-                : GoogleMap(initialCameraPosition: CameraPosition(target: _currentPosition!, zoom: 15), markers: _markers),
+                : GoogleMap(
+                    initialCameraPosition: CameraPosition(target: _currentPosition!, zoom: 15),
+                    markers: _markers,
+                  ),
           ),
           _buildNavigationButtons(),
         ],
       ),
     );
   }
+
+Widget _buildNavigationButtons() {
+  return Column(
+    children: [
+      ElevatedButton(
+        onPressed: _startNavigation,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.green, // Color de fondo verde
+          foregroundColor: Colors.white, // Color de texto blanco
+          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+          textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        child: Text("Iniciar Ruta"),
+      ),
+      ElevatedButton(
+        onPressed: _registerStop,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.orange, // Color de fondo naranja
+          foregroundColor: Colors.white, // Color de texto blanco
+        ),
+        child: Text("Registrar Parada"),
+      ),
+      ElevatedButton(
+        onPressed: _endNavigation,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red, // Color de fondo rojo
+          foregroundColor: const Color.fromARGB(255, 255, 255, 255), // Color de texto blanco
+        ),
+        child: Text("Finalizar Ruta"),
+      ),
+    ],
+  );
+}
+
 }

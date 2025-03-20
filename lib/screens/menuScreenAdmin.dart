@@ -8,6 +8,7 @@ import 'package:padillaroutea/screens/UserScreenSelect.dart';
 import 'package:padillaroutea/screens/VehiclesScreen.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
+import 'package:padillaroutea/screens/loginscreen.dart';
 
 class MenuScreenAdmin extends StatelessWidget {
   @override
@@ -49,7 +50,8 @@ class MenuScreenAdmin extends StatelessWidget {
             _menuItem(context, Icons.directions_car, 'Vehículos', screen: VehiclesScreenManagement()),
             _menuItem(context, Icons.bar_chart, 'Reportes'),
             _menuItem(context, Icons.local_parking, 'Paradas', screen: StopScreenManagement()),
-           _menuItem(context, Icons.warning_amber, 'Inciderncias', screen: IncidentsScreenAdmin()),
+            _menuItem(context, Icons.warning_amber, 'Inciderncias', screen: IncidentsScreenAdmin()),
+            _menuItem(context, Icons.exit_to_app, 'Cerrar sesión', screen: LoginScreen()),
           ],
         ),
       ),

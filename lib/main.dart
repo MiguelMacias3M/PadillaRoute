@@ -62,16 +62,11 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-<<<<<<< HEAD
       initialRoute: '/', // ✅ Definimos una ruta inicial
       routes: {
         '/': (context) => LoginScreen(), // ✅ Ruta principal
         '/incidentsScreenRegister': (context) => IncidentsScreenRegister(), // ✅ Agregamos la ruta de incidencias
       },
-=======
-      home: LoginScreen(),
-      navigatorKey: navigatorKey,
->>>>>>> 34e2962de2b5fc9bb957506848b0fdf2554721e6
     );
   }
 }

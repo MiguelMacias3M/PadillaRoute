@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
 import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
+import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
 import 'package:padillaroutea/screens/RoutesScreenEdit.dart';
 import 'package:padillaroutea/screens/RoutesScreenRegister.dart';
 import 'package:padillaroutea/screens/RoutesScreenAssign.dart';
+import 'package:padillaroutea/screens/StopScreenManagement.dart';
+import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/VehiclesScreenAssign.dart';
+import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 import 'package:padillaroutea/screens/loginscreen.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
@@ -240,26 +245,57 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
     );
   }
 
-  Widget _buildDrawer(BuildContext context) {
+ Widget _buildDrawer(BuildContext context) {
     return Drawer(
-      child: ListView(
-        children: [
-          const DrawerHeader(
-            child: Text('Gestión de Rutas', style: TextStyle(fontSize: 20)),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.blue.shade900, Colors.blueAccent],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
-          _drawerItem(
-              context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
-        ],
+        ),
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 30,
+                    child: Icon(Icons.directions_bus, color: Colors.blue, size: 40),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Rutas',
+                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+             _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin()),
+            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement()),
+            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement()),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin()),
+            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement()),
+            _drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement()),
+            Divider(color: Colors.white),
+            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _drawerItem(
-      BuildContext context, IconData icon, String title, Widget? screen) {
+  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
     return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
+      leading: Icon(icon, color: Colors.white),
+      title: Text(
+        title,
+        style: TextStyle(fontSize: 16, color: Colors.white),
+      ),
       onTap: () {
         if (screen != null) {
           Navigator.push(
@@ -268,6 +304,8 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
           );
         }
       },
+      tileColor: Colors.blue.shade800,
+      contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
     );
   }
 }
