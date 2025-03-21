@@ -10,6 +10,7 @@ import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class RoutesScreenRegister extends StatefulWidget {
   final Usuario usuario;
@@ -31,7 +32,8 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
   @override
   void initState() {
     super.initState();
-    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a registro de rutas");
+    logAction(widget.usuario.correo, Tipo.alta, "Ingreso a registro de rutas",
+        logsHelper, _logger);
     _loadStops(); // Cargar las paradas al iniciar
     _initializeDefaultStop(); // Inicializar parada por defecto
   }
@@ -42,11 +44,11 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
       setState(() {
         stops = allStops;
       });
-      _logAction(
-          widget.usuario.correo, Tipo.alta, "Cargó las paradas disponibles");
+      logAction(widget.usuario.correo, Tipo.alta,
+          "Cargó las paradas disponibles", logsHelper, _logger);
     } catch (e) {
-      _logAction(
-          widget.usuario.correo, Tipo.alta, "Error al cargar paradas: $e");
+      logAction(widget.usuario.correo, Tipo.alta, "Error al cargar paradas: $e",
+          logsHelper, _logger);
     }
   }
 
@@ -54,24 +56,24 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
     setState(() {
       selectedStops = [null]; // Inicializa con una parada vacía
     });
-    _logAction(
-        widget.usuario.correo, Tipo.alta, "Inicializó la selección de paradas");
+    logAction(widget.usuario.correo, Tipo.alta,
+        "Inicializó la selección de paradas", logsHelper, _logger);
   }
 
   void _addStop() {
     setState(() {
       selectedStops.add(null); // Añadir un nuevo campo vacío
     });
-    _logAction(
-        widget.usuario.correo, Tipo.alta, "Agregó un nuevo campo de parada");
+    logAction(widget.usuario.correo, Tipo.alta,
+        "Agregó un nuevo campo de parada", logsHelper, _logger);
   }
 
   void _removeStop(int index) {
     setState(() {
       selectedStops.removeAt(index);
     });
-    _logAction(widget.usuario.correo, Tipo.baja,
-        "Eliminó la parada en el índice $index");
+    logAction(widget.usuario.correo, Tipo.baja,
+        "Eliminó la parada en el índice $index", logsHelper, _logger);
   }
 
   Future<void> _registerRoute() async {
@@ -93,8 +95,12 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
         try {
           // Guardar la ruta en la base de datos
           await _rutasHelper.setNew(nuevaRuta);
-          _logAction(widget.usuario.correo, Tipo.alta,
-              "Registró una nueva ruta: ${nuevaRuta.nombre}");
+          logAction(
+              widget.usuario.correo,
+              Tipo.alta,
+              "Registró una nueva ruta: ${nuevaRuta.nombre}",
+              logsHelper,
+              _logger);
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Ruta registrada con éxito!'),
             backgroundColor: Colors.green,
@@ -108,8 +114,8 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
                     RoutesScreenManagement(usuario: widget.usuario)),
           );
         } catch (e) {
-          _logAction(
-              widget.usuario.correo, Tipo.alta, "Error al registrar ruta: $e");
+          logAction(widget.usuario.correo, Tipo.alta,
+              "Error al registrar ruta: $e", logsHelper, _logger);
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Error al registrar la ruta: $e'),
             backgroundColor: Colors.red,
@@ -129,27 +135,10 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
     }
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -221,8 +210,12 @@ void _menuLateral(BuildContext context) {
                             selectedStops[index] =
                                 newValue; // Guardar la parada seleccionada
                           });
-                          _logAction(widget.usuario.correo, Tipo.modificacion,
-                              "Seleccionó la parada ${newValue?.nombre}");
+                          logAction(
+                              widget.usuario.correo,
+                              Tipo.modificacion,
+                              "Seleccionó la parada ${newValue?.nombre}",
+                              logsHelper,
+                              _logger);
                         },
                       ),
                       IconButton(

@@ -11,7 +11,7 @@ import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
-
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class MonitoringScreenManagement extends StatefulWidget {
   final Usuario usuario;
@@ -36,10 +36,11 @@ class _MonitoringScreenManagementState
   @override
   void initState() {
     super.initState();
-    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a monitoreo");
+    logAction(widget.usuario.correo, Tipo.alta, "Ingreso a monitoreo",
+        logsHelper, _logger);
+
     _loadData();
   }
-
 
   Future<void> _loadData() async {
     try {
@@ -58,46 +59,18 @@ class _MonitoringScreenManagementState
             .toList();
         usuariosMap = usuariosMapTemp;
       });
-      _logAction(widget.usuario.correo, Tipo.modificacion,
-          "Datos de monitoreo cargados");
+      logAction(widget.usuario.correo, Tipo.modificacion,
+          "Datos de monitoreo cargados", logsHelper, _logger);
     } catch (e) {
       print("Error cargando datos: $e");
       _logger.e("Error cargando datos: $e");
     }
   }
 
-  void _handleLogout(BuildContext context) async {
-    await _logAction(widget.usuario.correo, Tipo.baja, "Cierre de sesión");
-    await authHelper.logOut();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
-      (Route<dynamic> route) => false,
-    );
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
-  }
-
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(
@@ -226,6 +199,4 @@ void _menuLateral(BuildContext context) {
       ),
     );
   }
-
-  
 }

@@ -7,6 +7,7 @@ import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class UserScreenEdit extends StatefulWidget {
   final Usuario usuarioSeleccionado;
@@ -37,8 +38,12 @@ class _UserScreenEditState extends State<UserScreenEdit> {
   @override
   void initState() {
     super.initState();
-    _logAction(widget.usuario.correo, Tipo.alta,
-        "Ingreso a edición del usuario ${widget.usuarioSeleccionado.toJson()}");
+    logAction(
+        widget.usuario.correo,
+        Tipo.alta,
+        "Ingreso a edición del usuario ${widget.usuarioSeleccionado.toJson()}",
+        logsHelper,
+        _logger);
 
     print(
         "Datos del usuario recibidos: ${widget.usuarioSeleccionado.toJson()}"); // Imprime el objeto Usuario completo
@@ -71,27 +76,10 @@ class _UserScreenEditState extends State<UserScreenEdit> {
     super.dispose();
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -239,8 +227,8 @@ void _menuLateral(BuildContext context) {
 
       await usuariosHelper.update(
           widget.usuarioSeleccionado.idUsuario, updatedUser);
-      await _logAction(widget.usuarioSeleccionado.correo, Tipo.modificacion,
-          "Usuario actualizado");
+      await logAction(widget.usuarioSeleccionado.correo, Tipo.modificacion,
+          "Usuario actualizado", logsHelper, _logger);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Cambios guardados correctamente')),
@@ -249,8 +237,8 @@ void _menuLateral(BuildContext context) {
       Navigator.pop(context); // Regresar a UserScreenManagement.dart
     } catch (e) {
       _logger.e("Error al actualizar usuario: $e");
-      await _logAction(widget.usuarioSeleccionado.correo, Tipo.modificacion,
-          "Error al actualizar usuario: $e");
+      await logAction(widget.usuarioSeleccionado.correo, Tipo.modificacion,
+          "Error al actualizar usuario: $e", logsHelper, _logger);
 
       print("Error al actualizar: $e"); // Imprime el error
 

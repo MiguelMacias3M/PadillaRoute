@@ -9,6 +9,7 @@ import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class StopScreenEdit extends StatefulWidget {
   final Parada parada; // Recibir el objeto Parada
@@ -48,8 +49,8 @@ class _StopScreenEditState extends State<StopScreenEdit> {
 
     // Obtener la ubicación actual
     _getCurrentLocation();
-    _logAction(widget.usuario.correo, Tipo.modificacion,
-        "Pantalla de edición de paradas abierta");
+    logAction(widget.usuario.correo, Tipo.modificacion,
+        "Pantalla de edición de paradas abierta", logsHelper, _logger);
   }
 
   Future<void> _getCurrentLocation() async {
@@ -72,14 +73,14 @@ class _StopScreenEditState extends State<StopScreenEdit> {
           infoWindow: InfoWindow(title: 'Ubicación Actual'),
         ));
       });
-      _logAction(
-          widget.usuario.correo, Tipo.modificacion, "Ubicación actual obtenida");
+      logAction(widget.usuario.correo, Tipo.modificacion,
+          "Ubicación actual obtenida", logsHelper, _logger);
     } catch (e) {
       _logger.e("Error obteniendo ubicación: $e");
       print("Ubicación actual: $_currentLocation");
       _logger.e("Error obteniendo ubicación: $e");
-      _logAction(widget.usuario.correo, Tipo.modificacion,
-          "Error obteniendo ubicación: $e");
+      logAction(widget.usuario.correo, Tipo.modificacion,
+          "Error obteniendo ubicación: $e", logsHelper, _logger);
     }
   }
 
@@ -109,8 +110,12 @@ class _StopScreenEditState extends State<StopScreenEdit> {
       _coordinatesController.text =
           "${position.latitude}, ${position.longitude}";
     });
-    _logAction(widget.usuario.correo, Tipo.modificacion,
-        "Marcador agregado en: ${position.latitude}, ${position.longitude}");
+    logAction(
+        widget.usuario.correo,
+        Tipo.modificacion,
+        "Marcador agregado en: ${position.latitude}, ${position.longitude}",
+        logsHelper,
+        _logger);
   }
 
   Future<void> _selectTime(
@@ -124,13 +129,13 @@ class _StopScreenEditState extends State<StopScreenEdit> {
         setState(() {
           controller.text = picked.format(context);
         });
-        _logAction(widget.usuario.correo, Tipo.modificacion,
-            "Hora seleccionada: ${controller.text}");
+        logAction(widget.usuario.correo, Tipo.modificacion,
+            "Hora seleccionada: ${controller.text}", logsHelper, _logger);
       }
     } catch (e) {
       _logger.e("Error seleccionando la hora: $e");
-      _logAction(widget.usuario.correo, Tipo.modificacion,
-          "Error seleccionando la hora: $e");
+      logAction(widget.usuario.correo, Tipo.modificacion,
+          "Error seleccionando la hora: $e", logsHelper, _logger);
     }
   }
 
@@ -147,8 +152,12 @@ class _StopScreenEditState extends State<StopScreenEdit> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Por favor, complete todos los campos")),
       );
-      _logAction(widget.usuario.correo, Tipo.modificacion,
-          "Intento fallido de actualización: Campos vacíos");
+      logAction(
+          widget.usuario.correo,
+          Tipo.modificacion,
+          "Intento fallido de actualización: Campos vacíos",
+          logsHelper,
+          _logger);
       return;
     }
 
@@ -167,40 +176,23 @@ class _StopScreenEditState extends State<StopScreenEdit> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Ruta actualizada correctamente")),
       );
-      _logAction(widget.usuario.correo, Tipo.modificacion,
-          "Parada actualizada correctamente: $routeName");
+      logAction(widget.usuario.correo, Tipo.modificacion,
+          "Parada actualizada correctamente: $routeName", logsHelper, _logger);
       Navigator.pop(context); // Regresar a la pantalla anterior
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error al actualizar la ruta: $e")),
       );
       _logger.e("Error al actualizar la parada: $e");
-      _logAction(widget.usuario.correo, Tipo.modificacion,
-          "Error al actualizar la parada: $e");
+      logAction(widget.usuario.correo, Tipo.modificacion,
+          "Error al actualizar la parada: $e", logsHelper, _logger);
     }
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -209,7 +201,8 @@ void _menuLateral(BuildContext context) {
         title: Text("Editar Parada"),
         backgroundColor: Colors.blueAccent,
       ),
-      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Editar Parada'),
+      drawer:
+          buildDrawer(context, widget.usuario, _menuLateral, 'Editar Parada'),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

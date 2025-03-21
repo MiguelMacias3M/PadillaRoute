@@ -10,6 +10,7 @@ import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class RoutesScreenEdit extends StatefulWidget {
   final int routeId; // Cambiado para recibir el ID de la ruta
@@ -39,7 +40,8 @@ class _RoutesScreenEditState extends State<RoutesScreenEdit> {
     print(
         'Parada añadida. Total paradas seleccionadas: ${selectedStops.length}');
     super.initState();
-    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a edicion de rutas");
+    logAction(widget.usuario.correo, Tipo.alta, "Ingreso a edicion de rutas",
+        logsHelper, _logger);
     _loadStops(); // Cargar las paradas al iniciar
     _initializeSelectedStops(); // Inicializa las paradas seleccionadas
     _routeNameController.text = widget.ruta.nombre; // Cargar nombre de la ruta
@@ -56,13 +58,13 @@ class _RoutesScreenEditState extends State<RoutesScreenEdit> {
 
       // Inicializar paradas seleccionadas después de cargar las paradas
       _initializeSelectedStops();
-      await _logAction(widget.usuario.correo, Tipo.modificacion,
-          'Paradas cargadas correctamente');
+      await logAction(widget.usuario.correo, Tipo.modificacion,
+          'Paradas cargadas correctamente', logsHelper, _logger);
     } catch (e) {
       print('Error al cargar las paradas: $e');
       _logger.e('Error al cargar las paradas: $e');
-      await _logAction(widget.usuario.correo, Tipo.modificacion,
-          'Error al cargar las paradas: $e');
+      await logAction(widget.usuario.correo, Tipo.modificacion,
+          'Error al cargar las paradas: $e', logsHelper, _logger);
     }
   }
 
@@ -97,7 +99,8 @@ class _RoutesScreenEditState extends State<RoutesScreenEdit> {
       print(
           'Parada añadida. Total paradas seleccionadas: ${selectedStops.length}'); // Debug
     });
-    _logAction(widget.usuario.correo, Tipo.alta, 'Se agregó una nueva parada');
+    logAction(widget.usuario.correo, Tipo.alta, 'Se agregó una nueva parada',
+        logsHelper, _logger);
   }
 
   void _removeStop(int index) {
@@ -107,8 +110,8 @@ class _RoutesScreenEditState extends State<RoutesScreenEdit> {
       print(
           'Parada eliminada. Total paradas seleccionadas: ${selectedStops.length}'); // Debug
     });
-    _logAction(widget.usuario.correo, Tipo.baja,
-        'Se eliminó la parada: $paradaEliminada');
+    logAction(widget.usuario.correo, Tipo.baja,
+        'Se eliminó la parada: $paradaEliminada', logsHelper, _logger);
   }
 
   Future<void> _updateRoute() async {
@@ -132,8 +135,8 @@ class _RoutesScreenEditState extends State<RoutesScreenEdit> {
             content: Text('Ruta actualizada con éxito!'),
             backgroundColor: Colors.green,
           ));
-          await _logAction(widget.usuario.correo, Tipo.modificacion,
-              'Ruta actualizada: ${updatedRuta.nombre}');
+          await logAction(widget.usuario.correo, Tipo.modificacion,
+              'Ruta actualizada: ${updatedRuta.nombre}', logsHelper, _logger);
 
           Navigator.pop(context); // Regresar a la pantalla anterior
         } catch (e) {
@@ -141,20 +144,28 @@ class _RoutesScreenEditState extends State<RoutesScreenEdit> {
             content: Text('Error al actualizar la ruta: $e'),
             backgroundColor: Colors.red,
           ));
-          await _logAction(widget.usuario.correo, Tipo.modificacion,
-              'Error al actualizar la ruta: $e');
+          await logAction(widget.usuario.correo, Tipo.modificacion,
+              'Error al actualizar la ruta: $e', logsHelper, _logger);
         }
       } else {
-        await _logAction(widget.usuario.correo, Tipo.modificacion,
-            'Error al actualizar la ruta: paradas no seleccionadas');
+        await logAction(
+            widget.usuario.correo,
+            Tipo.modificacion,
+            'Error al actualizar la ruta: paradas no seleccionadas',
+            logsHelper,
+            _logger);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Por favor, selecciona al menos una parada.'),
           backgroundColor: Colors.orange,
         ));
       }
     } else {
-      await _logAction(widget.usuario.correo, Tipo.modificacion,
-          'Error al actualizar la ruta: Campos sin completar');
+      await logAction(
+          widget.usuario.correo,
+          Tipo.modificacion,
+          'Error al actualizar la ruta: Campos sin completar',
+          logsHelper,
+          _logger);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Por favor, completa todos los campos.'),
         backgroundColor: Colors.orange,
@@ -162,27 +173,10 @@ class _RoutesScreenEditState extends State<RoutesScreenEdit> {
     }
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {

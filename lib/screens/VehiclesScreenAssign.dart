@@ -10,6 +10,7 @@ import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class VehiclesScreenAssign extends StatefulWidget {
   final Ruta rutaSeleccionada; // Agregar este parámetro
@@ -42,20 +43,23 @@ class _VehiclesScreenAssignState extends State<VehiclesScreenAssign> {
     super.initState();
     vehiculosHelper = VehiculosHelper(RealtimeDbHelper());
     rutasHelper = RutasHelper(RealtimeDbHelper());
-    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a asignacion de vehiculo");
+    logAction(widget.usuario.correo, Tipo.alta,
+        "Ingreso a asignacion de vehiculo", logsHelper, _logger);
     _fetchData();
   }
 
   Future<void> _fetchData() async {
-  try {
-    vehicles = await vehiculosHelper.getAll();
-    setState(() {
-      filteredVehicles = vehicles;
-    });
-    await _logAction(widget.usuario.correo, Tipo.alta, "Cargó la lista de vehículos.");
+    try {
+      vehicles = await vehiculosHelper.getAll();
+      setState(() {
+        filteredVehicles = vehicles;
+      });
+      await logAction(widget.usuario.correo, Tipo.alta,
+          "Cargó la lista de vehículos.", logsHelper, _logger);
     } catch (e) {
       _logger.e("Error al cargar vehículos: $e");
-      await _logAction(widget.usuario.correo, Tipo.alta, "Error al cargar vehículos.");
+      await logAction(widget.usuario.correo, Tipo.alta,
+          "Error al cargar vehículos.", logsHelper, _logger);
     }
   }
 
@@ -66,7 +70,8 @@ class _VehiclesScreenAssignState extends State<VehiclesScreenAssign> {
               vehicle.placa.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
-   _logAction(widget.usuario.correo, Tipo.modificacion, "Filtró vehículos con query: $query");
+    logAction(widget.usuario.correo, Tipo.modificacion,
+        "Filtró vehículos con query: $query", logsHelper, _logger);
   }
 
   void _selectVehicle(Vehiculo vehicle) {
@@ -77,7 +82,8 @@ class _VehiclesScreenAssignState extends State<VehiclesScreenAssign> {
       _searchController.text = vehicle.placa;
       filteredVehicles = vehicles;
     });
-  _logAction(widget.usuario.correo, Tipo.modificacion, "Seleccionó vehículo: ${vehicle.placa}");
+    logAction(widget.usuario.correo, Tipo.modificacion,
+        "Seleccionó vehículo: ${vehicle.placa}", logsHelper, _logger);
   }
 
   Future<void> _assignVehicleToRoute() async {
@@ -91,9 +97,12 @@ class _VehiclesScreenAssignState extends State<VehiclesScreenAssign> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Vehículo asignado correctamente')),
         );
-        await _logAction(widget.usuario.correo, Tipo.modificacion,
-            "Asignó vehículo ID $selectedVehicleId a la ruta ID ${widget.rutaSeleccionada.idRuta}");
-
+        await logAction(
+            widget.usuario.correo,
+            Tipo.modificacion,
+            "Asignó vehículo ID $selectedVehicleId a la ruta ID ${widget.rutaSeleccionada.idRuta}",
+            logsHelper,
+            _logger);
 
         Navigator.pop(context);
       } catch (e) {
@@ -101,37 +110,22 @@ class _VehiclesScreenAssignState extends State<VehiclesScreenAssign> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al asignar vehículo')),
         );
-      await _logAction(widget.usuario.correo, Tipo.modificacion, "Error al asignar vehículo.");
+        await logAction(widget.usuario.correo, Tipo.modificacion,
+            "Error al asignar vehículo.", logsHelper, _logger);
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Selecciona un vehículo primero')),
       );
-    await _logAction(widget.usuario.correo, Tipo.baja, "Intentó asignar un vehículo sin seleccionar.");
+      await logAction(widget.usuario.correo, Tipo.baja,
+          "Intentó asignar un vehículo sin seleccionar.", logsHelper, _logger);
     }
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +149,8 @@ void _menuLateral(BuildContext context) {
           ),
         ],
       ),
-      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Asignar vehículo a la ruta'),
+      drawer: buildDrawer(
+          context, widget.usuario, _menuLateral, 'Asignar vehículo a la ruta'),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(

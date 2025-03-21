@@ -11,6 +11,7 @@ import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class MenuScreenAdmin extends StatelessWidget {
   final Usuario usuario;
@@ -18,30 +19,14 @@ class MenuScreenAdmin extends StatelessWidget {
   final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
 
   MenuScreenAdmin({required this.usuario, Key? key}) : super(key: key) {
-    _logAction(usuario.correo, Tipo.alta, "Acceso al menú principal");
+    logAction(usuario.correo, Tipo.alta, "Acceso al menú principal", logsHelper,
+        _logger);
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +81,8 @@ void _menuLateral(BuildContext context) {
     return GestureDetector(
       onTap: () {
         if (screen != null) {
-          _logAction(usuario.correo, Tipo.modificacion, "Accedió a $title");
+          logAction(usuario.correo, Tipo.modificacion, "Accedió a $title",
+              logsHelper, _logger);
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => screen),

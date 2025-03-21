@@ -9,6 +9,7 @@ import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class MonitoringRouteScreen extends StatefulWidget {
   final Usuario usuario;
@@ -29,8 +30,8 @@ class _MonitoringRouteScreenState extends State<MonitoringRouteScreen> {
   @override
   void initState() {
     super.initState();
-    _logAction(
-        widget.usuario.correo, Tipo.alta, "Pantalla de monitoreo abierta");
+    logAction(widget.usuario.correo, Tipo.alta, "Pantalla de monitoreo abierta",
+        logsHelper, _logger);
     _getCurrentLocation(); // Obtener ubicación actual al iniciar
   }
 
@@ -50,8 +51,8 @@ class _MonitoringRouteScreenState extends State<MonitoringRouteScreen> {
       _mapController?.animateCamera(CameraUpdate.newLatLng(
           _currentLocation!)); // Enfocar cámara en la ubicación actual
     });
-    _logAction(widget.usuario.correo, Tipo.alta,
-        "Ubicación obtenida: $_currentLocation");
+    logAction(widget.usuario.correo, Tipo.alta,
+        "Ubicación obtenida: $_currentLocation", logsHelper, _logger);
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -69,8 +70,8 @@ class _MonitoringRouteScreenState extends State<MonitoringRouteScreen> {
       return;
     }
 
-    _logAction(widget.usuario.correo, Tipo.alta,
-        "Seguimiento en tiempo real iniciado");
+    logAction(widget.usuario.correo, Tipo.alta,
+        "Seguimiento en tiempo real iniciado", logsHelper, _logger);
 
     _timer = Timer.periodic(Duration(seconds: 2), (timer) {
       setState(() {
@@ -85,40 +86,27 @@ class _MonitoringRouteScreenState extends State<MonitoringRouteScreen> {
         print(
             "Nueva ubicación del vehículo: $_currentLocation"); // Mensaje a la consola
       });
-      _logAction(widget.usuario.correo, Tipo.modificacion,
-          "Nueva ubicación del vehículo: $_currentLocation");
+      logAction(
+          widget.usuario.correo,
+          Tipo.modificacion,
+          "Nueva ubicación del vehículo: $_currentLocation",
+          logsHelper,
+          _logger);
     });
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    _logAction(
-        widget.usuario.correo, Tipo.baja, "Pantalla de monitoreo cerrada");
+    logAction(widget.usuario.correo, Tipo.baja, "Pantalla de monitoreo cerrada",
+        logsHelper, _logger);
     super.dispose();
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +115,8 @@ void _menuLateral(BuildContext context) {
         title: Text("Monitoreo de Vehículo en Tiempo Real"),
         backgroundColor: Colors.blueAccent,
       ),
-      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Monitoreo de Vehículo en Tiempo Real'),
+      drawer: buildDrawer(context, widget.usuario, _menuLateral,
+          'Monitoreo de Vehículo en Tiempo Real'),
       body: Column(
         children: [
           Expanded(

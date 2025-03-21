@@ -9,6 +9,7 @@ import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class VehiclesScreenManagement extends StatefulWidget {
   final Usuario usuario;
@@ -29,44 +30,30 @@ class _VehiclesScreenManagementState extends State<VehiclesScreenManagement> {
   void initState() {
     super.initState();
     vehiculosHelper = VehiculosHelper(RealtimeDbHelper());
-    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a consulta de vehiculos");
+    logAction(widget.usuario.correo, Tipo.alta,
+        "Ingreso a consulta de vehiculos", logsHelper, _logger);
     _loadVehicles();
   }
 
   Future<void> _loadVehicles() async {
-  try{
-    List<Vehiculo> vehicleList = await vehiculosHelper.getAll();
-    setState(() {
-      vehiculos = vehicleList;
-    });
-  await _logAction(widget.usuario.correo, Tipo.alta, 'Cargó los vehículos');
+    try {
+      List<Vehiculo> vehicleList = await vehiculosHelper.getAll();
+      setState(() {
+        vehiculos = vehicleList;
+      });
+      await logAction(widget.usuario.correo, Tipo.alta, 'Cargó los vehículos',
+          logsHelper, _logger);
     } catch (e) {
       _logger.e("Error al cargar vehículos: $e");
-      await _logAction(widget.usuario.correo, Tipo.baja, 'Error al cargar los vehículos');
+      await logAction(widget.usuario.correo, Tipo.baja,
+          'Error al cargar los vehículos', logsHelper, _logger);
     }
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +68,8 @@ void _menuLateral(BuildContext context) {
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.blue),
       ),
-      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Gestión de vehículos'),
+      drawer: buildDrawer(
+          context, widget.usuario, _menuLateral, 'Gestión de vehículos'),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(
@@ -109,9 +97,12 @@ void _menuLateral(BuildContext context) {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => VehiclesScreen(usuario: widget.usuario)),
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            VehiclesScreen(usuario: widget.usuario)),
                   );
-                _logAction(widget.usuario.correo, Tipo.alta, 'Registró un nuevo vehículo');
+                  logAction(widget.usuario.correo, Tipo.alta,
+                      'Registró un nuevo vehículo', logsHelper, _logger);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
@@ -185,11 +176,16 @@ void _menuLateral(BuildContext context) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          VehiclesScreenEdit(vehiculo: vehiculo, usuario: widget.usuario),
+                      builder: (context) => VehiclesScreenEdit(
+                          vehiculo: vehiculo, usuario: widget.usuario),
                     ),
                   );
-                _logAction(widget.usuario.correo, Tipo.modificacion, 'Editó el vehículo ${vehiculo.marca}');
+                  logAction(
+                      widget.usuario.correo,
+                      Tipo.modificacion,
+                      'Editó el vehículo ${vehiculo.marca}',
+                      logsHelper,
+                      _logger);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,

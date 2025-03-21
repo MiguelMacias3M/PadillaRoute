@@ -11,6 +11,7 @@ import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/user/RouteScreenManagementU.dart';
 import 'package:padillaroutea/services/wifi_connection/wifi_controller.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -71,8 +72,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (userEmail.isEmpty || userPass.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Some values are missing!!!")));
-      _logAction(userEmail, Tipo.baja,
-          "Intento de inicio de sesión fallido (campos vacíos)");
+      logAction(
+          userEmail,
+          Tipo.baja,
+          "Intento de inicio de sesión fallido (campos vacíos)",
+          logsHelper,
+          _logger);
       setState(() {
         _isLoading = false; // 🔴 Detiene la animación si hay error
       });
@@ -102,8 +107,12 @@ class _LoginScreenState extends State<LoginScreen> {
             break;
         }
 
-        _logAction(userEmail, Tipo.alta,
-            "Inicio de sesión exitoso - Rol: ${rolUsuario.name}");
+        logAction(
+            userEmail,
+            Tipo.alta,
+            "Inicio de sesión exitoso - Rol: ${rolUsuario.name}",
+            logsHelper,
+            _logger);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => nextScreen),
@@ -111,15 +120,20 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Usuario no encontrado")));
-        _logAction(userEmail, Tipo.baja,
-            "Inicio de sesión fallido (usuario no encontrado)");
+        logAction(
+            userEmail,
+            Tipo.baja,
+            "Inicio de sesión fallido (usuario no encontrado)",
+            logsHelper,
+            _logger);
         _isLoading = false;
       }
     } catch (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.toString())));
       _logger.e("Error en inicio de sesión: $e");
-      _logAction(userEmail, Tipo.baja, "Error en inicio de sesión: $e");
+      logAction(userEmail, Tipo.baja, "Error en inicio de sesión: $e",
+          logsHelper, _logger);
       _isLoading = false;
     }
   }
@@ -128,29 +142,12 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await FirebaseMessaging.instance.subscribeToTopic(topic);
       _logger.i('Usuario suscrito al tema: $topic');
-      _logAction(_emailController.text, Tipo.modificacion,
-          "Suscripción a tema FCM: $topic");
+      logAction(_emailController.text, Tipo.modificacion,
+          "Suscripción a tema FCM: $topic", logsHelper, _logger);
     } catch (e) {
       _logger.e('Error al suscribir al tema: $e');
-      _logAction(
-          _emailController.text, Tipo.baja, "Error al suscribir a tema: $e");
-    }
-  }
-
-  Future<void> _logAction(String email, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: email,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
+      logAction(_emailController.text, Tipo.baja,
+          "Error al suscribir a tema: $e", logsHelper, _logger);
     }
   }
 

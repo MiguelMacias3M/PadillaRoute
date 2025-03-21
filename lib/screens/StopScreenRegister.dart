@@ -10,6 +10,7 @@ import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class StopScreenRegister extends StatefulWidget {
   final Usuario usuario;
@@ -37,8 +38,8 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
   void initState() {
     super.initState();
     paradasHelper = ParadasHelper(RealtimeDbHelper());
-    _logAction(
-        widget.usuario.correo, Tipo.alta, "Ingreso a registro de paradas");
+    logAction(widget.usuario.correo, Tipo.alta, "Ingreso a registro de paradas",
+        logsHelper, _logger);
     _getCurrentLocation();
   }
 
@@ -62,12 +63,12 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
         ));
       });
       print("Ubicación actual: $_currentLocation");
-      _logAction(widget.usuario.correo, Tipo.modificacion,
-          "Ubicación obtenida: $_currentLocation");
+      logAction(widget.usuario.correo, Tipo.modificacion,
+          "Ubicación obtenida: $_currentLocation", logsHelper, _logger);
     } catch (e) {
       _logger.e("Error obteniendo la ubicación: $e");
-      _logAction(
-          widget.usuario.correo, Tipo.baja, "Error obteniendo ubicación");
+      logAction(widget.usuario.correo, Tipo.baja, "Error obteniendo ubicación",
+          logsHelper, _logger);
     }
   }
 
@@ -88,8 +89,8 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
       _coordinatesController.text =
           "${position.latitude}, ${position.longitude}";
     });
-    _logAction(widget.usuario.correo, Tipo.modificacion,
-        "Marcador agregado en: $position");
+    logAction(widget.usuario.correo, Tipo.modificacion,
+        "Marcador agregado en: $position", logsHelper, _logger);
   }
 
   Future<void> _selectTime(
@@ -103,12 +104,13 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
         setState(() {
           controller.text = picked.format(context);
         });
-        _logAction(widget.usuario.correo, Tipo.modificacion,
-            "Hora seleccionada: ${controller.text}");
+        logAction(widget.usuario.correo, Tipo.modificacion,
+            "Hora seleccionada: ${controller.text}", logsHelper, _logger);
       }
     } catch (e) {
       _logger.e("Error seleccionando hora: $e");
-      _logAction(widget.usuario.correo, Tipo.baja, "Error seleccionando hora");
+      logAction(widget.usuario.correo, Tipo.baja, "Error seleccionando hora",
+          logsHelper, _logger);
     }
   }
 
@@ -123,8 +125,8 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
         horaFin.isEmpty ||
         coordenadas.isEmpty) {
       _showMessage('Por favor, completa todos los campos.');
-      _logAction(widget.usuario.correo, Tipo.baja,
-          "Intento fallido de registro: Campos vacíos");
+      logAction(widget.usuario.correo, Tipo.baja,
+          "Intento fallido de registro: Campos vacíos", logsHelper, _logger);
       return;
     }
 
@@ -139,12 +141,13 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
     try {
       await paradasHelper.setNew(nuevaParada);
       _showMessage('Parada registrada exitosamente.');
-      _logAction(
-          widget.usuario.correo, Tipo.alta, "Parada registrada: $nombreParada");
+      logAction(widget.usuario.correo, Tipo.alta,
+          "Parada registrada: $nombreParada", logsHelper, _logger);
       _clearFields();
     } catch (e) {
       _logger.e("Error registrando parada: $e");
-      _logAction(widget.usuario.correo, Tipo.baja, "Error registrando parada");
+      logAction(widget.usuario.correo, Tipo.baja, "Error registrando parada",
+          logsHelper, _logger);
     }
   }
 
@@ -156,7 +159,8 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
     setState(() {
       _markers.clear();
     });
-    _logAction(widget.usuario.correo, Tipo.modificacion, "Campos limpiados");
+    logAction(widget.usuario.correo, Tipo.modificacion, "Campos limpiados",
+        logsHelper, _logger);
   }
 
   void _showMessage(String mensaje) {
@@ -165,27 +169,10 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
     );
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +181,8 @@ void _menuLateral(BuildContext context) {
         title: Text("Registrar Parada"),
         backgroundColor: Colors.blueAccent,
       ),
-      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Registrar Parada'),
+      drawer: buildDrawer(
+          context, widget.usuario, _menuLateral, 'Registrar Parada'),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

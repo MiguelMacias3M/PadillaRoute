@@ -18,7 +18,7 @@ class ForgotPasswordScreen extends StatelessWidget {
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Por favor, ingresa tu correo')));
-      _logAction(
+      logAction(
           email, Tipo.baja, "Intento de recuperación fallido (correo vacío)");
       return;
     }
@@ -29,7 +29,7 @@ class ForgotPasswordScreen extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Se ha enviado un correo de recuperación a $email')));
 
-      _logAction(
+      logAction(
           email, Tipo.alta, "Solicitud de recuperación de contraseña enviada");
 
       Navigator.pushReplacement(
@@ -41,14 +41,14 @@ class ForgotPasswordScreen extends StatelessWidget {
 
       if (e.code == 'user-not-found') {
         errorMessage = 'No hay un usuario registrado con ese correo.';
-        _logAction(email, Tipo.baja,
+        logAction(email, Tipo.baja,
             "Intento de recuperación fallido (usuario no encontrado)");
       } else if (e.code == 'invalid-email') {
         errorMessage = 'El correo electrónico ingresado no es válido.';
-        _logAction(email, Tipo.baja,
+        logAction(email, Tipo.baja,
             "Intento de recuperación fallido (correo inválido)");
       } else {
-        _logAction(
+        logAction(
             email, Tipo.baja, "Error en recuperación de contraseña: ${e.code}");
       }
 
@@ -58,7 +58,7 @@ class ForgotPasswordScreen extends StatelessWidget {
     }
   }
 
-  Future<void> _logAction(String email, Tipo tipo, String accion) async {
+  Future<void> logAction(String email, Tipo tipo, String accion) async {
     final logEntry = Log(
       idLog: DateTime.now().millisecondsSinceEpoch,
       tipo: tipo,

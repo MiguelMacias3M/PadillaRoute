@@ -9,6 +9,7 @@ import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class UserScreenManagement extends StatefulWidget {
   final Usuario usuario;
@@ -32,8 +33,8 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
     super.initState();
     usuariosHelper = UsuariosHelper(RealtimeDbHelper());
     vehiculosHelper = VehiculosHelper(RealtimeDbHelper());
-    _logAction(
-        widget.usuario.correo, Tipo.alta, "Ingreso a consulta de usuarios");
+    logAction(widget.usuario.correo, Tipo.alta,
+        "Ingreso a consulta de usuarios", logsHelper, _logger);
     _loadUsers();
   }
 
@@ -45,12 +46,12 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
         users = userList;
         filteredUsers = userList;
       });
-      await _logAction(
-          widget.usuario.correo, Tipo.alta, "Cargó la lista de usuarios");
+      await logAction(widget.usuario.correo, Tipo.alta,
+          "Cargó la lista de usuarios", logsHelper, _logger);
     } catch (e) {
       _logger.e("Error al cargar usuarios: $e");
-      await _logAction(widget.usuario.correo, Tipo.modificacion,
-          "Error al cargar usuarios: $e");
+      await logAction(widget.usuario.correo, Tipo.modificacion,
+          "Error al cargar usuarios: $e", logsHelper, _logger);
     }
   }
 
@@ -73,27 +74,10 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
     return null;
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +101,8 @@ void _menuLateral(BuildContext context) {
           ),
         ],
       ),
-      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Gestión de Usuarios'),
+      drawer: buildDrawer(
+          context, widget.usuario, _menuLateral, 'Gestión de Usuarios'),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(
@@ -127,8 +112,8 @@ void _menuLateral(BuildContext context) {
               controller: _searchController,
               onChanged: (value) {
                 _filterUsers(value);
-                _logAction(widget.usuario.correo, Tipo.modificacion,
-                    "Filtró usuarios con: $value");
+                logAction(widget.usuario.correo, Tipo.modificacion,
+                    "Filtró usuarios con: $value", logsHelper, _logger);
               },
               decoration: InputDecoration(
                 prefixIcon: Icon(Icons.search),
@@ -197,8 +182,12 @@ void _menuLateral(BuildContext context) {
                   ],
                 ),
                 onTap: () async {
-                  await _logAction(widget.usuario.correo, Tipo.modificacion,
-                      "Accedió a la edición de usuario: ${usuario.correo}");
+                  await logAction(
+                      widget.usuario.correo,
+                      Tipo.modificacion,
+                      "Accedió a la edición de usuario: ${usuario.correo}",
+                      logsHelper,
+                      _logger);
 
                   Navigator.push(
                     context,

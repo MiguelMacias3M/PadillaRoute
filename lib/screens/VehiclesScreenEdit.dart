@@ -8,10 +8,11 @@ import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class VehiclesScreenEdit extends StatefulWidget {
   final Vehiculo vehiculo;
-final Usuario usuario;
+  final Usuario usuario;
   VehiclesScreenEdit({required this.vehiculo, required this.usuario});
 
   @override
@@ -55,31 +56,15 @@ class _VehiclesScreenEditState extends State<VehiclesScreenEdit> {
     _numeroCombiController.dispose();
     _placaController.dispose();
     _capacidadController.dispose();
-    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a edicion de vehiculos");
+    logAction(widget.usuario.correo, Tipo.alta,
+        "Ingreso a edicion de vehiculos", logsHelper, _logger);
     super.dispose();
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +88,8 @@ void _menuLateral(BuildContext context) {
           ),
         ],
       ),
-      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Editar Vehículo'),
+      drawer:
+          buildDrawer(context, widget.usuario, _menuLateral, 'Editar Vehículo'),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(
@@ -206,8 +192,12 @@ void _menuLateral(BuildContext context) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Cambios guardados correctamente')),
       );
-      await _logAction(widget.usuario.correo, Tipo.modificacion, 'Modificó vehículo ${widget.vehiculo.idVehiculo}');
-
+      await logAction(
+          widget.usuario.correo,
+          Tipo.modificacion,
+          'Modificó vehículo ${widget.vehiculo.idVehiculo}',
+          logsHelper,
+          _logger);
 
       Navigator.pop(context);
     } catch (e) {
@@ -216,17 +206,24 @@ void _menuLateral(BuildContext context) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al actualizar: $e')),
       );
-    await _logAction(widget.usuario.correo, Tipo.modificacion, 'Error al modificar vehículo ${widget.vehiculo.idVehiculo}: $e');
+      await logAction(
+          widget.usuario.correo,
+          Tipo.modificacion,
+          'Error al modificar vehículo ${widget.vehiculo.idVehiculo}: $e',
+          logsHelper,
+          _logger);
     }
   }
 }
 
 // --- Actualización del onPressed en la lista de vehículos ---
-void navigateToEditScreen(BuildContext context, Vehiculo vehiculo, Usuario usuario) {
+void navigateToEditScreen(
+    BuildContext context, Vehiculo vehiculo, Usuario usuario) {
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => VehiclesScreenEdit(vehiculo: vehiculo, usuario: usuario),
+      builder: (context) =>
+          VehiclesScreenEdit(vehiculo: vehiculo, usuario: usuario),
     ),
   );
 }

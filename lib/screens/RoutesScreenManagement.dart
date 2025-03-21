@@ -12,6 +12,7 @@ import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class RoutesScreenManagement extends StatefulWidget {
   final Usuario usuario;
@@ -34,7 +35,8 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
   @override
   void initState() {
     super.initState();
-    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a consulta de rutas");
+    logAction(widget.usuario.correo, Tipo.alta, "Ingreso a consulta de rutas",
+        logsHelper, _logger);
     _loadRoutes();
   }
 
@@ -52,13 +54,13 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
     try {
       _routes = await _rutasHelper.getAll();
       await _loadChoferes();
-      await _logAction(
-          widget.usuario.correo, Tipo.modificacion, "Cargó la lista de rutas");
+      await logAction(widget.usuario.correo, Tipo.modificacion,
+          "Cargó la lista de rutas", logsHelper, _logger);
     } catch (e) {
       print('Error al cargar rutas: $e');
       _logger.e('Error al cargar rutas: $e');
-      await _logAction(
-          widget.usuario.correo, Tipo.modificacion, "Error al cargar rutas");
+      await logAction(widget.usuario.correo, Tipo.modificacion,
+          "Error al cargar rutas", logsHelper, _logger);
     } finally {
       setState(() {
         _loading = false;
@@ -80,27 +82,10 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
     }
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -155,8 +140,8 @@ void _menuLateral(BuildContext context) {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await _logAction(widget.usuario.correo, Tipo.alta,
-              "Entró a la pantalla de registro de ruta");
+          await logAction(widget.usuario.correo, Tipo.alta,
+              "Entró a la pantalla de registro de ruta", logsHelper, _logger);
           Navigator.push(
             context,
             MaterialPageRoute(

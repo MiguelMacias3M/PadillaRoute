@@ -9,6 +9,7 @@ import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class RoutesScreenAssign extends StatefulWidget {
   final Usuario usuario;
@@ -39,7 +40,8 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
     super.initState();
     usuariosHelper = UsuariosHelper(RealtimeDbHelper());
     rutasHelper = RutasHelper(RealtimeDbHelper());
-    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a asignar rutas");
+    logAction(widget.usuario.correo, Tipo.alta, "Ingreso a asignar rutas",
+        logsHelper, _logger);
     _fetchData();
   }
 
@@ -75,11 +77,12 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
           "idChofer": selectedUserId, // Actualizar solo el campo idChofer
         });
 
-        await _logAction(
-          widget.usuario.correo,
-          Tipo.modificacion,
-          "Asignó usuario $selectedUser a la ruta ${widget.rutaSeleccionada.nombre}",
-        );
+        await logAction(
+            widget.usuario.correo,
+            Tipo.modificacion,
+            "Asignó usuario $selectedUser a la ruta ${widget.rutaSeleccionada.nombre}",
+            logsHelper,
+            _logger);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Usuario asignado correctamente')),
@@ -88,11 +91,12 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
         Navigator.pop(context);
       } catch (e) {
         _logger.e("Error al asignar usuario: $e");
-        await _logAction(
-          widget.usuario.correo,
-          Tipo.modificacion,
-          "Error al asignar usuario a ruta ${widget.rutaSeleccionada.nombre}: $e",
-        );
+        await logAction(
+            widget.usuario.correo,
+            Tipo.modificacion,
+            "Error al asignar usuario a ruta ${widget.rutaSeleccionada.nombre}: $e",
+            logsHelper,
+            _logger);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al asignar usuario')),
         );
@@ -104,27 +108,10 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
     }
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +135,8 @@ void _menuLateral(BuildContext context) {
           ),
         ],
       ),
-      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Asignar usuario a ruta'),
+      drawer: buildDrawer(
+          context, widget.usuario, _menuLateral, 'Asignar usuario a ruta'),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(

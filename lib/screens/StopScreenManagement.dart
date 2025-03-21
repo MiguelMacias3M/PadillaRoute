@@ -9,6 +9,7 @@ import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class StopScreenManagement extends StatefulWidget {
   final Usuario usuario;
@@ -29,8 +30,8 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
   @override
   void initState() {
     super.initState();
-    _logAction(
-        widget.usuario.correo, Tipo.alta, "Ingreso a consulta de paradas");
+    logAction(widget.usuario.correo, Tipo.alta, "Ingreso a consulta de paradas",
+        logsHelper, _logger);
     paradasHelper = ParadasHelper(RealtimeDbHelper());
     _loadStops();
   }
@@ -48,8 +49,8 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
         stops = stopList;
         filteredStops = stopList;
       });
-      await _logAction(
-          widget.usuario.correo, Tipo.alta, "Cargó la lista de paradas");
+      await logAction(widget.usuario.correo, Tipo.alta,
+          "Cargó la lista de paradas", logsHelper, _logger);
     } catch (e) {
       _logger.e("Error loading stops: $e");
       print("Error loading stops: $e");
@@ -68,27 +69,10 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
     });
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +96,8 @@ void _menuLateral(BuildContext context) {
           ),
         ],
       ),
-      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Gestión de Paradas'),
+      drawer: buildDrawer(
+          context, widget.usuario, _menuLateral, 'Gestión de Paradas'),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(
@@ -152,8 +137,8 @@ void _menuLateral(BuildContext context) {
                       usuario: widget.usuario,
                     )),
           );
-          await _logAction(
-              widget.usuario.correo, Tipo.alta, "Registró una nueva parada");
+          await logAction(widget.usuario.correo, Tipo.alta,
+              "Registró una nueva parada", logsHelper, _logger);
           _loadStops();
         },
         backgroundColor: Colors.blue,
@@ -198,8 +183,12 @@ void _menuLateral(BuildContext context) {
                           builder: (context) => StopScreenEdit(
                               usuario: widget.usuario, parada: parada)),
                     );
-                    await _logAction(widget.usuario.correo, Tipo.modificacion,
-                        "Editó la parada ${parada.nombre}");
+                    await logAction(
+                        widget.usuario.correo,
+                        Tipo.modificacion,
+                        "Editó la parada ${parada.nombre}",
+                        logsHelper,
+                        _logger);
                     _loadStops();
                   },
                   style: ElevatedButton.styleFrom(
@@ -214,8 +203,12 @@ void _menuLateral(BuildContext context) {
                   onPressed: () async {
                     try {
                       await paradasHelper.delete(parada.idParada);
-                      await _logAction(widget.usuario.correo, Tipo.baja,
-                          "Eliminó la parada ${parada.nombre}");
+                      await logAction(
+                          widget.usuario.correo,
+                          Tipo.baja,
+                          "Eliminó la parada ${parada.nombre}",
+                          logsHelper,
+                          _logger);
                       _loadStops();
                     } catch (e) {
                       _logger.e("Error eliminando parada: $e");

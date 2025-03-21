@@ -8,6 +8,7 @@ import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class UserScreenSelect extends StatefulWidget {
   final Usuario usuario;
@@ -22,27 +23,10 @@ class _UserScreenSelect extends State<UserScreenSelect> {
   final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
   final Logger _logger = Logger();
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -81,8 +65,12 @@ void _menuLateral(BuildContext context) {
               child: Column(
                 children: [
                   _optionButton(context, 'Dar de alta usuarios', () async {
-                    await _logAction(widget.usuario.correo, Tipo.alta,
-                        "Ingresó a la pantalla de registro de usuarios");
+                    await logAction(
+                        widget.usuario.correo,
+                        Tipo.alta,
+                        "Ingresó a la pantalla de registro de usuarios",
+                        logsHelper,
+                        _logger);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -92,8 +80,12 @@ void _menuLateral(BuildContext context) {
                     );
                   }),
                   _optionButton(context, 'Gestión de usuarios', () async {
-                    await _logAction(widget.usuario.correo, Tipo.modificacion,
-                        "Ingresó a la pantalla de gestión de usuarios");
+                    await logAction(
+                        widget.usuario.correo,
+                        Tipo.modificacion,
+                        "Ingresó a la pantalla de gestión de usuarios",
+                        logsHelper,
+                        _logger);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -122,8 +114,8 @@ void _menuLateral(BuildContext context) {
               onPressed();
             }
           } catch (e) {
-            await _logAction(widget.usuario.correo, Tipo.modificacion,
-                "Error en acción: $title - $e");
+            await logAction(widget.usuario.correo, Tipo.modificacion,
+                "Error en acción: $title - $e", logsHelper, _logger);
           }
         },
         style: OutlinedButton.styleFrom(

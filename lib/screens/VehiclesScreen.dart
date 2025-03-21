@@ -8,6 +8,7 @@ import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class VehiclesScreen extends StatefulWidget {
   final Usuario usuario;
@@ -30,27 +31,10 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
   // Instancia del helper para la BD
   final VehiculosHelper _vehiculosHelper = VehiculosHelper(RealtimeDbHelper());
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -164,8 +148,8 @@ void _menuLateral(BuildContext context) {
     try {
       // Guardar en Firebase
       await _vehiculosHelper.setNew(vehiculo);
-      await _logAction(widget.usuario.correo, Tipo.alta,
-          "Registro de vehículo: ${vehiculo.placa}");
+      await logAction(widget.usuario.correo, Tipo.alta,
+          "Registro de vehículo: ${vehiculo.placa}", logsHelper, _logger);
 
       // Mostrar mensaje de éxito
       ScaffoldMessenger.of(context).showSnackBar(
@@ -180,8 +164,8 @@ void _menuLateral(BuildContext context) {
       _capacityController.clear();
     } catch (e) {
       _logger.e("Error al registrar vehículo: $e");
-      await _logAction(widget.usuario.correo, Tipo.modificacion,
-          "Error al registrar vehículo: $e");
+      await logAction(widget.usuario.correo, Tipo.modificacion,
+          "Error al registrar vehículo: $e", logsHelper, _logger);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al registrar vehículo')),
       );

@@ -7,6 +7,7 @@ import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class IncidentsScreenAdmin extends StatefulWidget {
   final Usuario usuario;
@@ -34,8 +35,12 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _loadIncidents(); // Se llama cada vez que la pantalla se reconstruye
-    _logAction(widget.usuario.correo, Tipo.alta,
-        "El usuario ha ingresado a la pantalla de incidencias");
+    logAction(
+        widget.usuario.correo,
+        Tipo.alta,
+        "El usuario ha ingresado a la pantalla de incidencias",
+        logsHelper,
+        _logger);
   }
 
   // Cargar incidentes desde la base de datos
@@ -45,8 +50,8 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
       incidents = incidentList;
       filteredIncidents = incidentList;
     });
-    _logAction(widget.usuario.correo, Tipo.modificacion,
-        "Se han cargado las incidencias");
+    logAction(widget.usuario.correo, Tipo.modificacion,
+        "Se han cargado las incidencias", logsHelper, _logger);
   }
 
   // Filtrar incidentes por descripción
@@ -57,31 +62,14 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
               incident.descripcion.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
-    _logAction(widget.usuario.correo, Tipo.modificacion,
-        "Filtrado de incidencias realizado");
+    logAction(widget.usuario.correo, Tipo.modificacion,
+        "Filtrado de incidencias realizado", logsHelper, _logger);
   }
 
-  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
-    final logEntry = Log(
-      idLog: DateTime.now().millisecondsSinceEpoch,
-      tipo: tipo,
-      usuario: correo,
-      accion: accion,
-      fecha: DateTime.now().toIso8601String(),
-    );
-
-    try {
-      await logsHelper.setNew(logEntry);
-      _logger.i("Log registrado: $accion");
-    } catch (e) {
-      _logger.e("Error al registrar log: $e");
-    }
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
-void _menuLateral(BuildContext context) {
-  // Solo cerrar el Drawer (menú lateral)
-  Navigator.pop(context); // Esto cierra el menú lateral
-}
 
   @override
   Widget build(BuildContext context) {
@@ -166,8 +154,12 @@ void _menuLateral(BuildContext context) {
   }
 
   void _showIncidentDetails(BuildContext context, IncidenteRegistro incidente) {
-    _logAction(widget.usuario.correo, Tipo.modificacion,
-        "Visualización de detalles de incidencia ID: ${incidente.idRegistro}");
+    logAction(
+        widget.usuario.correo,
+        Tipo.modificacion,
+        "Visualización de detalles de incidencia ID: ${incidente.idRegistro}",
+        logsHelper,
+        _logger);
 
     showDialog(
       context: context,
@@ -193,8 +185,12 @@ void _menuLateral(BuildContext context) {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _logAction(widget.usuario.correo, Tipo.baja,
-                    "Cierre de detalles de incidencia ID: ${incidente.idRegistro}");
+                logAction(
+                    widget.usuario.correo,
+                    Tipo.baja,
+                    "Cierre de detalles de incidencia ID: ${incidente.idRegistro}",
+                    logsHelper,
+                    _logger);
               },
               child: Text('Cerrar'),
             ),

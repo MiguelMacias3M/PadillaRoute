@@ -6,8 +6,8 @@ import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
 import 'package:padillaroutea/screens/StopScreenManagement.dart';
 import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
 
-
-Widget buildDrawer(BuildContext context, dynamic usuario, Function _menuLateral, String tituloPantalla) {
+Widget buildDrawer(BuildContext context, dynamic usuario, Function _menuLateral,
+    String tituloPantalla) {
   return Drawer(
     child: Container(
       decoration: BoxDecoration(
@@ -49,12 +49,18 @@ Widget buildDrawer(BuildContext context, dynamic usuario, Function _menuLateral,
               ],
             ),
           ),
-          drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin(usuario: usuario)),
-          drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement(usuario: usuario)),
-          drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement(usuario: usuario)),
-          drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin(usuario: usuario)),
-          drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement(usuario: usuario)),
-          drawerItem(context, Icons.location_on, 'Monitoreo', MonitoringScreenManagement(usuario: usuario)),
+          drawerItem(
+              context, Icons.home, 'Inicio', MenuScreenAdmin(usuario: usuario)),
+          drawerItem(context, Icons.people, 'Usuarios',
+              UserScreenManagement(usuario: usuario)),
+          drawerItem(context, Icons.directions_car, 'Vehículos',
+              VehiclesScreenManagement(usuario: usuario)),
+          drawerItem(context, Icons.warning_amber, 'Incidencias',
+              IncidentsScreenAdmin(usuario: usuario)),
+          drawerItem(context, Icons.local_parking, 'Paradas',
+              StopScreenManagement(usuario: usuario)),
+          drawerItem(context, Icons.location_on, 'Monitoreo',
+              MonitoringScreenManagement(usuario: usuario)),
           const Divider(color: Colors.white),
           ListTile(
             leading: Icon(Icons.exit_to_app, color: Colors.white),
@@ -72,7 +78,8 @@ Widget buildDrawer(BuildContext context, dynamic usuario, Function _menuLateral,
   );
 }
 
-Widget drawerItem(BuildContext context, IconData icon, String title, Widget screen) {
+Widget drawerItem(
+    BuildContext context, IconData icon, String title, Widget screen) {
   return ListTile(
     leading: Icon(icon, color: Colors.white),
     title: Text(
