@@ -8,6 +8,7 @@ import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
 
 class MonitoringRouteScreen extends StatefulWidget {
   final Usuario usuario;
@@ -113,6 +114,11 @@ class _MonitoringRouteScreenState extends State<MonitoringRouteScreen> {
       _logger.e("Error al registrar log: $e");
     }
   }
+  
+void _menuLateral(BuildContext context) {
+  // Solo cerrar el Drawer (menú lateral)
+  Navigator.pop(context); // Esto cierra el menú lateral
+}
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +127,7 @@ class _MonitoringRouteScreenState extends State<MonitoringRouteScreen> {
         title: Text("Monitoreo de Vehículo en Tiempo Real"),
         backgroundColor: Colors.blueAccent,
       ),
+      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Monitoreo de Vehículo en Tiempo Real'),
       body: Column(
         children: [
           Expanded(

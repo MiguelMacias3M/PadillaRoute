@@ -6,6 +6,7 @@ import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.d
 import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
+import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
 
 class UserScreenEdit extends StatefulWidget {
   final Usuario usuarioSeleccionado;
@@ -86,6 +87,11 @@ class _UserScreenEditState extends State<UserScreenEdit> {
       _logger.e("Error al registrar log: $e");
     }
   }
+  
+void _menuLateral(BuildContext context) {
+  // Solo cerrar el Drawer (menú lateral)
+  Navigator.pop(context); // Esto cierra el menú lateral
+}
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +115,7 @@ class _UserScreenEditState extends State<UserScreenEdit> {
           ),
         ],
       ),
+      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Usuarios'),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(

@@ -7,6 +7,7 @@ import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
+import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
 
 class VehiclesScreenEdit extends StatefulWidget {
   final Vehiculo vehiculo;
@@ -74,6 +75,11 @@ class _VehiclesScreenEditState extends State<VehiclesScreenEdit> {
       _logger.e("Error al registrar log: $e");
     }
   }
+  
+void _menuLateral(BuildContext context) {
+  // Solo cerrar el Drawer (menú lateral)
+  Navigator.pop(context); // Esto cierra el menú lateral
+}
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +103,7 @@ class _VehiclesScreenEditState extends State<VehiclesScreenEdit> {
           ),
         ],
       ),
+      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Editar Vehículo'),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(

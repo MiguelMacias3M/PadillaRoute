@@ -10,6 +10,7 @@ import 'package:padillaroutea/screens/UserScreenSelect.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
 
 class MenuScreenAdmin extends StatelessWidget {
   final Usuario usuario;
@@ -36,6 +37,11 @@ class MenuScreenAdmin extends StatelessWidget {
       _logger.e("Error al registrar log: $e");
     }
   }
+  
+void _menuLateral(BuildContext context) {
+  // Solo cerrar el Drawer (menú lateral)
+  Navigator.pop(context); // Esto cierra el menú lateral
+}
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +57,7 @@ class MenuScreenAdmin extends StatelessWidget {
         elevation: 4,
         centerTitle: true,
       ),
+      drawer: buildDrawer(context, usuario, _menuLateral, 'Menú Principal'),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

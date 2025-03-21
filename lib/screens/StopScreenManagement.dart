@@ -8,6 +8,7 @@ import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
+import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
 
 class StopScreenManagement extends StatefulWidget {
   final Usuario usuario;
@@ -83,6 +84,11 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
       _logger.e("Error al registrar log: $e");
     }
   }
+  
+void _menuLateral(BuildContext context) {
+  // Solo cerrar el Drawer (menú lateral)
+  Navigator.pop(context); // Esto cierra el menú lateral
+}
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +112,7 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
           ),
         ],
       ),
+      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Gestión de Paradas'),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(

@@ -1,10 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:padillaroutea/screens/menuScreenAdmin.dart';
-import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
-import 'package:padillaroutea/screens/UserScreenManagement.dart';
-import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
-import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
-import 'package:padillaroutea/screens/StopScreenManagement.dart';
 import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
@@ -13,6 +7,7 @@ import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
+import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
 
 class VehiclesScreen extends StatefulWidget {
   final Usuario usuario;
@@ -51,6 +46,11 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
       _logger.e("Error al registrar log: $e");
     }
   }
+  
+void _menuLateral(BuildContext context) {
+  // Solo cerrar el Drawer (menú lateral)
+  Navigator.pop(context); // Esto cierra el menú lateral
+}
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +74,7 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
           ),
         ],
       ),
-      drawer: _buildDrawer(context),
+      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Vehículos'),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(
@@ -186,81 +186,5 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
         SnackBar(content: Text('Error al registrar vehículo')),
       );
     }
-  }
-
-  Widget _buildDrawer(BuildContext context) {
-    return Drawer(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue.shade900, Colors.blueAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 30,
-                    child: Icon(Icons.directions_car,
-                        color: Colors.blue, size: 40),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Gestión de Vehículos',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-            _drawerItem(context, Icons.home, 'Inicio',
-                MenuScreenAdmin(usuario: widget.usuario)),
-            _drawerItem(context, Icons.people, 'Usuarios',
-                UserScreenManagement(usuario: widget.usuario)),
-            _drawerItem(context, Icons.directions_car, 'Vehículos',
-                VehiclesScreenManagement(usuario: widget.usuario)),
-            _drawerItem(context, Icons.warning_amber, 'Incidencias',
-                IncidentsScreenAdmin(usuario: widget.usuario)),
-            _drawerItem(context, Icons.local_parking, 'Paradas',
-                StopScreenManagement(usuario: widget.usuario)),
-            _drawerItem(context, Icons.location_on, 'Monitoreo',
-                MonitoringScreenManagement(usuario: widget.usuario)),
-            Divider(color: Colors.white),
-            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _drawerItem(
-      BuildContext context, IconData icon, String title, Widget? screen) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white),
-      title: Text(
-        title,
-        style: TextStyle(fontSize: 16, color: Colors.white),
-      ),
-      onTap: () {
-        if (screen != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => screen),
-          );
-        }
-      },
-      tileColor: Colors.blue.shade800,
-      contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-    );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
-import 'package:padillaroutea/screens/menuScreenAdmin.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
@@ -10,6 +9,7 @@ import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
+import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
 
 class RoutesScreenEdit extends StatefulWidget {
   final int routeId; // Cambiado para recibir el ID de la ruta
@@ -178,6 +178,11 @@ class _RoutesScreenEditState extends State<RoutesScreenEdit> {
       _logger.e("Error al registrar log: $e");
     }
   }
+  
+void _menuLateral(BuildContext context) {
+  // Solo cerrar el Drawer (menú lateral)
+  Navigator.pop(context); // Esto cierra el menú lateral
+}
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +206,7 @@ class _RoutesScreenEditState extends State<RoutesScreenEdit> {
           ),
         ],
       ),
-      drawer: _buildDrawer(context),
+      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Editar ruta'),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -301,71 +306,6 @@ class _RoutesScreenEditState extends State<RoutesScreenEdit> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildDrawer(BuildContext context) {
-    return Drawer(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue.shade900, Colors.blueAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 30,
-                    child: Icon(Icons.directions_bus,
-                        color: Colors.blue, size: 40),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Gestión de Rutas',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-            _drawerItem(context, Icons.home, 'Inicio',
-                MenuScreenAdmin(usuario: widget.usuario)),
-            const Divider(color: Colors.white),
-            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _drawerItem(
-      BuildContext context, IconData icon, String title, Widget? screen) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white),
-      title: Text(
-        title,
-        style: const TextStyle(fontSize: 16, color: Colors.white),
-      ),
-      onTap: () {
-        if (screen != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => screen),
-          );
-        }
-      },
-      tileColor: Colors.blue.shade800,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
     );
   }
 }

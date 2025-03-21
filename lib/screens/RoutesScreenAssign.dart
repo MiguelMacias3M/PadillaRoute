@@ -8,6 +8,7 @@ import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dar
 import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
+import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
 
 class RoutesScreenAssign extends StatefulWidget {
   final Usuario usuario;
@@ -119,6 +120,11 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
       _logger.e("Error al registrar log: $e");
     }
   }
+  
+void _menuLateral(BuildContext context) {
+  // Solo cerrar el Drawer (menú lateral)
+  Navigator.pop(context); // Esto cierra el menú lateral
+}
 
   @override
   Widget build(BuildContext context) {
@@ -142,6 +148,7 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
           ),
         ],
       ),
+      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Asignar usuario a ruta'),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(
