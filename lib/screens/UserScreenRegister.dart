@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:padillaroutea/services/firebase_auth/firebase_auth_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
-import 'package:padillaroutea/services/realtime_db_services/db_collections.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 
 class UserScreenRegister extends StatefulWidget {
+  final Usuario usuario;
+
+  UserScreenRegister({required this.usuario});
   @override
   _UserScreenRegisterState createState() => _UserScreenRegisterState();
 }
@@ -20,8 +24,9 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
   bool _isPasswordVisible = false;
   bool _isLoading = false; // 🔥 Variable para controlar la carga
   String? _selectedRole;
-  final FirebaseAuthHelper _authHelper = FirebaseAuthHelper();
   final UsuariosHelper _usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
 
   void _showSnackbar(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -56,7 +61,6 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
 
     try {
       final telefono = int.parse(telefonoText);
-      final uid = await _authHelper.createUser(email, password);
 
       final rolEnum = Rol.values.firstWhere(
         (r) => r.toString().split('.').last.toLowerCase() == (_selectedRole ?? 'chofer').toLowerCase(),
@@ -76,6 +80,7 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
       );
 
       await _usuariosHelper.setNew(usuario);
+await _logAction(email, Tipo.alta, "Registro de usuario exitoso");
 
       _showSnackbar("✅ Usuario registrado exitosamente.", Colors.green);
 
@@ -90,6 +95,7 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
       });
 
     } catch (e) {
+      await _logAction(email, Tipo.alta, "Error al registrar usuario: $e");
       _showSnackbar("❌ Error al registrar usuario: $e", Colors.red);
     }
 
@@ -143,6 +149,23 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
         });
       },
     );
+  }
+
+  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: correo,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
+    }
   }
 
   @override

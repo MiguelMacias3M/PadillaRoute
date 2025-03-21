@@ -90,11 +90,13 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
             SizedBox(height: 10),
             _inputField('Modelo', _modelController),
             SizedBox(height: 10),
-            _inputField('Num. Combi', _numberController, inputType: TextInputType.number),
+            _inputField('Num. Combi', _numberController,
+                inputType: TextInputType.number),
             SizedBox(height: 10),
             _inputField('Placa', _plateController),
             SizedBox(height: 10),
-            _inputField('Capacidad', _capacityController, inputType: TextInputType.number),
+            _inputField('Capacidad', _capacityController,
+                inputType: TextInputType.number),
             SizedBox(height: 20),
             Center(
               child: ElevatedButton(
@@ -118,7 +120,8 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
     );
   }
 
-  Widget _inputField(String label, TextEditingController controller, {TextInputType inputType = TextInputType.text}) {
+  Widget _inputField(String label, TextEditingController controller,
+      {TextInputType inputType = TextInputType.text}) {
     return TextField(
       controller: controller,
       keyboardType: inputType,
@@ -143,7 +146,8 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
     }
 
     // Convertir valores
-    int idVehiculo = DateTime.now().millisecondsSinceEpoch; // ID único basado en tiempo
+    int idVehiculo =
+        DateTime.now().millisecondsSinceEpoch; // ID único basado en tiempo
     int capacidad = int.tryParse(_capacityController.text) ?? 0;
     int numeroSerie = int.tryParse(_numberController.text) ?? 0;
 
@@ -158,20 +162,31 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
       estatus: Estatus.activo, // Se registra como activo por defecto
     );
 
-    // Guardar en Firebase
-    await _vehiculosHelper.setNew(vehiculo);
+    try {
+      // Guardar en Firebase
+      await _vehiculosHelper.setNew(vehiculo);
+      await _logAction(widget.usuario.correo, Tipo.alta,
+          "Registro de vehículo: ${vehiculo.placa}");
 
-    // Mostrar mensaje de éxito
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Vehículo registrado correctamente')),
-    );
+      // Mostrar mensaje de éxito
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Vehículo registrado correctamente')),
+      );
 
-    // Limpiar los campos
-    _brandController.clear();
-    _modelController.clear();
-    _numberController.clear();
-    _plateController.clear();
-    _capacityController.clear();
+      // Limpiar los campos
+      _brandController.clear();
+      _modelController.clear();
+      _numberController.clear();
+      _plateController.clear();
+      _capacityController.clear();
+    } catch (e) {
+      _logger.e("Error al registrar vehículo: $e");
+      await _logAction(widget.usuario.correo, Tipo.modifiacion,
+          "Error al registrar vehículo: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al registrar vehículo')),
+      );
+    }
   }
 
   Widget _buildDrawer(BuildContext context) {
@@ -195,12 +210,16 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
                   CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 30,
-                    child: Icon(Icons.directions_car, color: Colors.blue, size: 40),
+                    child: Icon(Icons.directions_car,
+                        color: Colors.blue, size: 40),
                   ),
                   SizedBox(height: 10),
                   Text(
                     'Gestión de Vehículos',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -208,9 +227,12 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
             _drawerItem(context, Icons.home, 'Inicio',
                 MenuScreenAdmin(usuario: widget.usuario)),
             //_drawerItem( context, Icons.people, 'Usuarios', UserScreenManagement()),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement(usuario: widget.usuario)),
-            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin(usuario: widget.usuario)),
-            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.directions_car, 'Vehículos',
+                VehiclesScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias',
+                IncidentsScreenAdmin(usuario: widget.usuario)),
+            _drawerItem(context, Icons.local_parking, 'Paradas',
+                StopScreenManagement(usuario: widget.usuario)),
             _drawerItem(context, Icons.location_on, 'Monitoreo',
                 MonitoringScreenManagement(usuario: widget.usuario)),
             Divider(color: Colors.white),
@@ -221,7 +243,8 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
     );
   }
 
-  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
+  Widget _drawerItem(
+      BuildContext context, IconData icon, String title, Widget? screen) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
       title: Text(

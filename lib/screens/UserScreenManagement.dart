@@ -3,7 +3,6 @@ import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/screens/UserScreenEdit.dart';
-import 'package:padillaroutea/screens/VehiclesScreenAssign.dart'; // Importa la nueva pantalla
 import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart';
 import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
 import 'package:logger/logger.dart';
@@ -27,22 +26,31 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
   final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
   final Logger _logger = Logger();
 
-
   @override
   void initState() {
     super.initState();
     usuariosHelper = UsuariosHelper(RealtimeDbHelper());
     vehiculosHelper = VehiculosHelper(RealtimeDbHelper());
+    _logAction(
+        widget.usuario.correo, Tipo.alta, "Ingreso a consulta de usuarios");
     _loadUsers();
   }
 
   // Cargar usuarios desde la base de datos
   Future<void> _loadUsers() async {
-    List<Usuario> userList = await usuariosHelper.getAll();
-    setState(() {
-      users = userList;
-      filteredUsers = userList;
-    });
+    try {
+      List<Usuario> userList = await usuariosHelper.getAll();
+      setState(() {
+        users = userList;
+        filteredUsers = userList;
+      });
+      await _logAction(
+          widget.usuario.correo, Tipo.alta, "Cargó la lista de usuarios");
+    } catch (e) {
+      _logger.e("Error al cargar usuarios: $e");
+      await _logAction(widget.usuario.correo, Tipo.modifiacion,
+          "Error al cargar usuarios: $e");
+    }
   }
 
   // Filtrar usuarios por nombre
@@ -110,7 +118,10 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
           children: [
             TextField(
               controller: _searchController,
-              onChanged: _filterUsers,
+              onChanged: (value) {
+                _filterUsers(value);
+                _logAction(widget.usuario.correo, Tipo.modifiacion, "Filtró usuarios con: $value");
+              },
               decoration: InputDecoration(
                 prefixIcon: Icon(Icons.search),
                 hintText: 'Buscar usuario',
@@ -122,7 +133,8 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
             SizedBox(height: 20),
             Expanded(
               child: filteredUsers.isEmpty
-                  ? Center(child: CircularProgressIndicator()) // Cargando usuarios
+                  ? Center(
+                      child: CircularProgressIndicator()) // Cargando usuarios
                   : ListView.builder(
                       itemCount: filteredUsers.length,
                       itemBuilder: (context, index) {
@@ -146,14 +158,16 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
         } else if (snapshot.hasData) {
           Vehiculo? vehiculo = snapshot.data;
           if (vehiculo != null) {
-            vehicleInfo = 'Vehículo: ${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placa})';
+            vehicleInfo =
+                'Vehículo: ${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placa})';
           }
         }
 
         return Card(
           margin: EdgeInsets.symmetric(vertical: 10),
           elevation: 3,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: Column(
             children: [
               ListTile(
@@ -169,15 +183,21 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
                     Text(usuario.correo),
                     SizedBox(height: 5),
                     // Mostrar vehículo solo si no es gerente o administrativo
-                    if (usuario.rol != Rol.gerente && usuario.rol != Rol.administrativo)
+                    if (usuario.rol != Rol.gerente &&
+                        usuario.rol != Rol.administrativo)
                       Text(vehicleInfo),
                   ],
                 ),
-                onTap: () {
+                onTap: () async {
+                  await _logAction(widget.usuario.correo, Tipo.modifiacion,
+                      "Accedió a la edición de usuario: ${usuario.correo}");
+                  
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => UserScreenEdit(usuarioSeleccionado: usuario, usuario: widget.usuario),
+                      builder: (context) => UserScreenEdit(
+                          usuarioSeleccionado: usuario,
+                          usuario: widget.usuario),
                     ),
                   ).then((_) {
                     // Recargar los usuarios después de editar
@@ -185,7 +205,7 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
                   });
                 },
               ),
-              // if (usuario.rol == Rol.chofer) 
+              // if (usuario.rol == Rol.chofer)
               //   Padding(
               //     padding: const EdgeInsets.all(10.0),
               //     child: ElevatedButton(

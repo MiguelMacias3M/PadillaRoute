@@ -32,19 +32,24 @@ class _UserScreenEditState extends State<UserScreenEdit> {
 
   String? _selectedStatus;
   final List<String> _statusOptions = ['Activo', 'Inactivo'];
-  
 
   @override
   void initState() {
     super.initState();
+    _logAction(widget.usuario.correo, Tipo.alta,
+        "Ingreso a edición del usuario ${widget.usuarioSeleccionado.toJson()}");
+
     print(
         "Datos del usuario recibidos: ${widget.usuarioSeleccionado.toJson()}"); // Imprime el objeto Usuario completo
 
-    _nameController = TextEditingController(text: widget.usuarioSeleccionado.nombre);
-    _lastNameController = TextEditingController(text: widget.usuarioSeleccionado.apellidos);
-    _phoneController =
-        TextEditingController(text: widget.usuarioSeleccionado.telefono.toString());
-    _emailController = TextEditingController(text: widget.usuarioSeleccionado.correo);
+    _nameController =
+        TextEditingController(text: widget.usuarioSeleccionado.nombre);
+    _lastNameController =
+        TextEditingController(text: widget.usuarioSeleccionado.apellidos);
+    _phoneController = TextEditingController(
+        text: widget.usuarioSeleccionado.telefono.toString());
+    _emailController =
+        TextEditingController(text: widget.usuarioSeleccionado.correo);
     _passwordController = TextEditingController(text: '••••••••'); // Encriptado
 
     _selectedRole = _roleOptions.firstWhere(
@@ -81,7 +86,6 @@ class _UserScreenEditState extends State<UserScreenEdit> {
       _logger.e("Error al registrar log: $e");
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -221,10 +225,15 @@ class _UserScreenEditState extends State<UserScreenEdit> {
         'activo': _selectedStatus == 'Activo',
       };
 
+      _logger.i("Intentando actualizar usuario: $updatedUser");
+
       print(
           "Datos a actualizar: $updatedUser"); // Imprime los datos que se van a actualizar
 
-      await usuariosHelper.update(widget.usuarioSeleccionado.idUsuario, updatedUser);
+      await usuariosHelper.update(
+          widget.usuarioSeleccionado.idUsuario, updatedUser);
+      await _logAction(widget.usuarioSeleccionado.correo, Tipo.modifiacion,
+          "Usuario actualizado");
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Cambios guardados correctamente')),
@@ -232,6 +241,10 @@ class _UserScreenEditState extends State<UserScreenEdit> {
 
       Navigator.pop(context); // Regresar a UserScreenManagement.dart
     } catch (e) {
+      _logger.e("Error al actualizar usuario: $e");
+      await _logAction(widget.usuarioSeleccionado.correo, Tipo.modifiacion,
+          "Error al actualizar usuario: $e");
+
       print("Error al actualizar: $e"); // Imprime el error
 
       ScaffoldMessenger.of(context).showSnackBar(

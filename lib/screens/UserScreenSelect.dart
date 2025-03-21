@@ -13,11 +13,6 @@ import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.d
 import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
-import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
-import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
-import 'package:logger/logger.dart';
-import 'package:padillaroutea/models/realtimeDB_models/log.dart';
-import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 
 class UserScreenSelect extends StatefulWidget {
@@ -89,13 +84,15 @@ class _UserScreenSelect
             Center(
               child: Column(
                 children: [
-                  _optionButton(context, 'Dar de alta usuarios', () {
+                  _optionButton(context, 'Dar de alta usuarios', () async {
+                    await _logAction(widget.usuario.correo, Tipo.alta, "Ingresó a la pantalla de registro de usuarios");
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => UserScreenRegister()),
+                      MaterialPageRoute(builder: (context) => UserScreenRegister(usuario: widget.usuario,)),
                     );
                   }),
-                  _optionButton(context, 'Gestión de usuarios', () {
+                  _optionButton(context, 'Gestión de usuarios', () async {
+                    await _logAction(widget.usuario.correo, Tipo.modifiacion, "Ingresó a la pantalla de gestión de usuarios");
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => UserScreenManagement(usuario: widget.usuario,)),
@@ -114,7 +111,15 @@ class _UserScreenSelect
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton(
-        onPressed: onPressed,
+        onPressed: () async {
+          try {
+            if (onPressed != null) {
+              onPressed();
+            }
+          } catch (e) {
+            await _logAction(widget.usuario.correo, Tipo.modifiacion, "Error en acción: $title - $e");
+          }
+        },
         style: OutlinedButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 15),
           side: BorderSide(color: Colors.black),
@@ -184,14 +189,13 @@ class _UserScreenSelect
         title,
         style: TextStyle(fontSize: 16, color: Colors.white),
       ),
-      onTap: () {
-        if (screen != null) {
-          Navigator.push(
+      onTap: () async {
+                await _logAction(widget.usuario.correo, Tipo.baja, "Cerró sesión");
+                Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => screen),
+            MaterialPageRoute(builder: (context) => LoginScreen()),
           );
-        }
-      },
+        },
       tileColor: Colors.blue.shade800,
       contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
     );

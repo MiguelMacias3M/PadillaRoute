@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:padillaroutea/services/realtime_db_services/paradas_helper.dart';
 import 'package:padillaroutea/models/realtimeDB_models/parada.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
@@ -37,27 +36,38 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
   void initState() {
     super.initState();
     paradasHelper = ParadasHelper(RealtimeDbHelper());
+    _logAction(
+        widget.usuario.correo, Tipo.alta, "Ingreso a registro de paradas");
     _getCurrentLocation();
   }
 
   Future<void> _getCurrentLocation() async {
-    LocationPermission permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      print("Permiso de ubicación denegado");
-      return;
-    }
+    try {
+      LocationPermission permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        print("Permiso de ubicación denegado");
+        return;
+      }
 
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    setState(() {
-      _currentLocation = LatLng(position.latitude, position.longitude);
-      _mapController?.moveCamera(CameraUpdate.newLatLng(_currentLocation!));
-      _markers.add(Marker(
-        markerId: MarkerId('current_location'),
-        position: _currentLocation!,
-        infoWindow: InfoWindow(title: 'Ubicación Actual'),
-      ));
-    });
-    print("Ubicación actual: $_currentLocation");
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      setState(() {
+        _currentLocation = LatLng(position.latitude, position.longitude);
+        _mapController?.moveCamera(CameraUpdate.newLatLng(_currentLocation!));
+        _markers.add(Marker(
+          markerId: MarkerId('current_location'),
+          position: _currentLocation!,
+          infoWindow: InfoWindow(title: 'Ubicación Actual'),
+        ));
+      });
+      print("Ubicación actual: $_currentLocation");
+      _logAction(widget.usuario.correo, Tipo.modifiacion,
+          "Ubicación obtenida: $_currentLocation");
+    } catch (e) {
+      _logger.e("Error obteniendo la ubicación: $e");
+      _logAction(
+          widget.usuario.correo, Tipo.baja, "Error obteniendo ubicación");
+    }
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -74,19 +84,30 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
           infoWindow: InfoWindow(title: 'Parada seleccionada'),
         ),
       );
-      _coordinatesController.text = "${position.latitude}, ${position.longitude}";
+      _coordinatesController.text =
+          "${position.latitude}, ${position.longitude}";
     });
+    _logAction(widget.usuario.correo, Tipo.modifiacion,
+        "Marcador agregado en: $position");
   }
 
-  Future<void> _selectTime(BuildContext context, TextEditingController controller) async {
-    TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (picked != null) {
-      setState(() {
-        controller.text = picked.format(context);
-      });
+  Future<void> _selectTime(
+      BuildContext context, TextEditingController controller) async {
+    try {
+      TimeOfDay? picked = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+      if (picked != null) {
+        setState(() {
+          controller.text = picked.format(context);
+        });
+        _logAction(widget.usuario.correo, Tipo.modifiacion,
+            "Hora seleccionada: ${controller.text}");
+      }
+    } catch (e) {
+      _logger.e("Error seleccionando hora: $e");
+      _logAction(widget.usuario.correo, Tipo.baja, "Error seleccionando hora");
     }
   }
 
@@ -96,8 +117,13 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
     String horaFin = _endTimeController.text.trim();
     String coordenadas = _coordinatesController.text.trim();
 
-    if (nombreParada.isEmpty || horaInicio.isEmpty || horaFin.isEmpty || coordenadas.isEmpty) {
+    if (nombreParada.isEmpty ||
+        horaInicio.isEmpty ||
+        horaFin.isEmpty ||
+        coordenadas.isEmpty) {
       _showMessage('Por favor, completa todos los campos.');
+      _logAction(widget.usuario.correo, Tipo.baja,
+          "Intento fallido de registro: Campos vacíos");
       return;
     }
 
@@ -109,9 +135,16 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
       coordenadas: coordenadas,
     );
 
-    await paradasHelper.setNew(nuevaParada);
-    _showMessage('Parada registrada exitosamente.');
-    _clearFields();
+    try {
+      await paradasHelper.setNew(nuevaParada);
+      _showMessage('Parada registrada exitosamente.');
+      _logAction(
+          widget.usuario.correo, Tipo.alta, "Parada registrada: $nombreParada");
+      _clearFields();
+    } catch (e) {
+      _logger.e("Error registrando parada: $e");
+      _logAction(widget.usuario.correo, Tipo.baja, "Error registrando parada");
+    }
   }
 
   void _clearFields() {
@@ -122,6 +155,7 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
     setState(() {
       _markers.clear();
     });
+    _logAction(widget.usuario.correo, Tipo.modifiacion, "Campos limpiados");
   }
 
   void _showMessage(String mensaje) {
