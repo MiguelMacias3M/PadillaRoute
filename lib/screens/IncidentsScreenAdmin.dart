@@ -33,7 +33,8 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _loadIncidents(); // Se llama cada vez que la pantalla se reconstruye
-    _logAction(widget.usuario.correo, Tipo.alta, "El usuario ha ingresado a la pantalla de incidencias");
+    _logAction(widget.usuario.correo, Tipo.alta,
+        "El usuario ha ingresado a la pantalla de incidencias");
   }
 
   // Cargar incidentes desde la base de datos
@@ -43,7 +44,8 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
       incidents = incidentList;
       filteredIncidents = incidentList;
     });
-  _logAction(widget.usuario.correo, Tipo.modifiacion, "Se han cargado las incidencias");
+    _logAction(widget.usuario.correo, Tipo.modificacion,
+        "Se han cargado las incidencias");
   }
 
   // Filtrar incidentes por descripción
@@ -54,7 +56,8 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
               incident.descripcion.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
-  _logAction(widget.usuario.correo, Tipo.modifiacion, "Filtrado de incidencias realizado");
+    _logAction(widget.usuario.correo, Tipo.modificacion,
+        "Filtrado de incidencias realizado");
   }
 
   Future<void> _logAction(String correo, Tipo tipo, String accion) async {
@@ -115,7 +118,8 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
             SizedBox(height: 20),
             Expanded(
               child: filteredIncidents.isEmpty
-                  ? Center(child: CircularProgressIndicator()) // Cargando incidentes
+                  ? Center(
+                      child: CircularProgressIndicator()) // Cargando incidentes
                   : ListView.builder(
                       itemCount: filteredIncidents.length,
                       itemBuilder: (context, index) {
@@ -135,7 +139,8 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
-        title: Text(incidente.descripcion, style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(incidente.descripcion,
+            style: TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text('ID Usuario: ${incidente.idUsuario}'),
         trailing: ElevatedButton(
           onPressed: () {
@@ -154,7 +159,8 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
   }
 
   void _showIncidentDetails(BuildContext context, IncidenteRegistro incidente) {
-  _logAction(widget.usuario.correo, Tipo.modifiacion, "Visualización de detalles de incidencia ID: ${incidente.idRegistro}");
+    _logAction(widget.usuario.correo, Tipo.modificacion,
+        "Visualización de detalles de incidencia ID: ${incidente.idRegistro}");
 
     showDialog(
       context: context,
@@ -180,7 +186,8 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-              _logAction(widget.usuario.correo, Tipo.baja, "Cierre de detalles de incidencia ID: ${incidente.idRegistro}");
+                _logAction(widget.usuario.correo, Tipo.baja,
+                    "Cierre de detalles de incidencia ID: ${incidente.idRegistro}");
               },
               child: Text('Cerrar'),
             ),

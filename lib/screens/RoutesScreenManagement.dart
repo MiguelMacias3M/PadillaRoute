@@ -58,12 +58,14 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
     try {
       _routes = await _rutasHelper.getAll();
       await _loadChoferes();
-    await _logAction(widget.usuario.correo, Tipo.modifiacion, "Cargó la lista de rutas");
-    }  catch (e) {
+      await _logAction(
+          widget.usuario.correo, Tipo.modificacion, "Cargó la lista de rutas");
+    } catch (e) {
       print('Error al cargar rutas: $e');
-    _logger.e('Error al cargar rutas: $e');
-      await _logAction(widget.usuario.correo, Tipo.modifiacion, "Error al cargar rutas");
-    }  finally {
+      _logger.e('Error al cargar rutas: $e');
+      await _logAction(
+          widget.usuario.correo, Tipo.modificacion, "Error al cargar rutas");
+    } finally {
       setState(() {
         _loading = false;
       });
@@ -154,10 +156,13 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await _logAction(widget.usuario.correo, Tipo.alta, "Entró a la pantalla de registro de ruta");
+          await _logAction(widget.usuario.correo, Tipo.alta,
+              "Entró a la pantalla de registro de ruta");
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => RoutesScreenRegister(usuario: widget.usuario)),
+            MaterialPageRoute(
+                builder: (context) =>
+                    RoutesScreenRegister(usuario: widget.usuario)),
           ).then((_) => _loadRoutes()); // Recargar al regresar
         },
         backgroundColor: Colors.blue.shade900,
@@ -232,8 +237,8 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          RoutesScreenAssign(usuario: widget.usuario, rutaSeleccionada: ruta),
+                      builder: (context) => RoutesScreenAssign(
+                          usuario: widget.usuario, rutaSeleccionada: ruta),
                     ),
                   ).then((_) => _loadRoutes()); // Recargar al regresar
                 }),
@@ -244,8 +249,10 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                              VehiclesScreenAssign(rutaSeleccionada: ruta)));
+                          builder: (context) => VehiclesScreenAssign(
+                                rutaSeleccionada: ruta,
+                                usuario: widget.usuario,
+                              )));
                 }),
                 const SizedBox(width: 10),
                 _actionButton(context, 'Editar', Colors.amber, Icons.edit, () {
@@ -284,7 +291,7 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
     );
   }
 
- Widget _buildDrawer(BuildContext context) {
+  Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: Container(
         decoration: BoxDecoration(
@@ -304,30 +311,43 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
                   CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 30,
-                    child: Icon(Icons.directions_bus, color: Colors.blue, size: 40),
+                    child: Icon(Icons.directions_bus,
+                        color: Colors.blue, size: 40),
                   ),
                   SizedBox(height: 10),
                   Text(
                     'Rutas',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
-             _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin(usuario: widget.usuario)),
-            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement(usuario: widget.usuario)),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement(usuario: widget.usuario)),
-            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin(usuario: widget.usuario)),
-            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement(usuario: widget.usuario)),
-            _drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.home, 'Inicio',
+                MenuScreenAdmin(usuario: widget.usuario)),
+            _drawerItem(context, Icons.people, 'Usuarios',
+                UserScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.directions_car, 'Vehículos',
+                VehiclesScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias',
+                IncidentsScreenAdmin(usuario: widget.usuario)),
+            _drawerItem(context, Icons.local_parking, 'Paradas',
+                StopScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.location_on, 'Monioreo',
+                MonitoringScreenManagement(usuario: widget.usuario)),
             Divider(color: Colors.white),
-            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
+            _drawerItem(
+                context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
           ],
-        ),),
+        ),
+      ),
     );
   }
 
-Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
+  Widget _drawerItem(
+      BuildContext context, IconData icon, String title, Widget? screen) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
       title: Text(
@@ -335,9 +355,11 @@ Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? sc
         style: TextStyle(fontSize: 16, color: Colors.white),
       ),
       onTap: () async {
-        await _logAction(widget.usuario.correo, Tipo.modifiacion, "Navegó a $title");
+        await _logAction(
+            widget.usuario.correo, Tipo.modificacion, "Navegó a $title");
         if (screen != null) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => screen));
         }
       },
       tileColor: Colors.blue.shade800,

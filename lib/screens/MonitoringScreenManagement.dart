@@ -60,7 +60,8 @@ class _MonitoringScreenManagementState
             .toList();
         usuariosMap = usuariosMapTemp;
       });
-    _logAction(widget.usuario.correo, Tipo.modifiacion, "Datos de monitoreo cargados");
+      _logAction(widget.usuario.correo, Tipo.modificacion,
+          "Datos de monitoreo cargados");
     } catch (e) {
       print("Error cargando datos: $e");
       _logger.e("Error cargando datos: $e");
@@ -137,7 +138,8 @@ class _MonitoringScreenManagementState
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => MonitoringRouteScreen(usuario: widget.usuario)),
+                        builder: (context) =>
+                            MonitoringRouteScreen(usuario: widget.usuario)),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -202,7 +204,8 @@ class _MonitoringScreenManagementState
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => MonitoringRouteScreen(usuario: widget.usuario)),
+                        builder: (context) =>
+                            MonitoringRouteScreen(usuario: widget.usuario)),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -256,10 +259,14 @@ class _MonitoringScreenManagementState
             ),
             _drawerItem(context, Icons.home, 'Inicio',
                 MenuScreenAdmin(usuario: widget.usuario)),
-            _drawerItem( context, Icons.people, 'Usuarios', UserScreenManagement(usuario: widget.usuario)),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement(usuario: widget.usuario)),
-            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin(usuario: widget.usuario)),
-            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.people, 'Usuarios',
+                UserScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.directions_car, 'Vehículos',
+                VehiclesScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias',
+                IncidentsScreenAdmin(usuario: widget.usuario)),
+            _drawerItem(context, Icons.local_parking, 'Paradas',
+                StopScreenManagement(usuario: widget.usuario)),
             _drawerItem(context, Icons.location_on, 'Monitoreo',
                 MonitoringScreenManagement(usuario: widget.usuario)),
             const Divider(color: Colors.white),

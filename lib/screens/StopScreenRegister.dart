@@ -61,7 +61,7 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
         ));
       });
       print("Ubicación actual: $_currentLocation");
-      _logAction(widget.usuario.correo, Tipo.modifiacion,
+      _logAction(widget.usuario.correo, Tipo.modificacion,
           "Ubicación obtenida: $_currentLocation");
     } catch (e) {
       _logger.e("Error obteniendo la ubicación: $e");
@@ -87,7 +87,7 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
       _coordinatesController.text =
           "${position.latitude}, ${position.longitude}";
     });
-    _logAction(widget.usuario.correo, Tipo.modifiacion,
+    _logAction(widget.usuario.correo, Tipo.modificacion,
         "Marcador agregado en: $position");
   }
 
@@ -102,7 +102,7 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
         setState(() {
           controller.text = picked.format(context);
         });
-        _logAction(widget.usuario.correo, Tipo.modifiacion,
+        _logAction(widget.usuario.correo, Tipo.modificacion,
             "Hora seleccionada: ${controller.text}");
       }
     } catch (e) {
@@ -155,7 +155,7 @@ class _StopScreenRegisterState extends State<StopScreenRegister> {
     setState(() {
       _markers.clear();
     });
-    _logAction(widget.usuario.correo, Tipo.modifiacion, "Campos limpiados");
+    _logAction(widget.usuario.correo, Tipo.modificacion, "Campos limpiados");
   }
 
   void _showMessage(String mensaje) {

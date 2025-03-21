@@ -181,7 +181,7 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
       _capacityController.clear();
     } catch (e) {
       _logger.e("Error al registrar vehículo: $e");
-      await _logAction(widget.usuario.correo, Tipo.modifiacion,
+      await _logAction(widget.usuario.correo, Tipo.modificacion,
           "Error al registrar vehículo: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al registrar vehículo')),
@@ -226,7 +226,8 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
             ),
             _drawerItem(context, Icons.home, 'Inicio',
                 MenuScreenAdmin(usuario: widget.usuario)),
-            //_drawerItem( context, Icons.people, 'Usuarios', UserScreenManagement()),
+            _drawerItem(context, Icons.people, 'Usuarios',
+                UserScreenManagement(usuario: widget.usuario)),
             _drawerItem(context, Icons.directions_car, 'Vehículos',
                 VehiclesScreenManagement(usuario: widget.usuario)),
             _drawerItem(context, Icons.warning_amber, 'Incidencias',

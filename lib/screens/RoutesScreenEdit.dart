@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:padillaroutea/models/realtimeDB_models/usuario.dart'; 
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/screens/menuScreenAdmin.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
@@ -16,7 +16,8 @@ class RoutesScreenEdit extends StatefulWidget {
   final Ruta ruta; // Recibe la ruta a editar
   final Usuario usuario;
 
-  const RoutesScreenEdit({required this.routeId, required this.ruta, required this.usuario});
+  const RoutesScreenEdit(
+      {required this.routeId, required this.ruta, required this.usuario});
 
   @override
   _RoutesScreenEditState createState() => _RoutesScreenEditState();
@@ -28,14 +29,15 @@ class _RoutesScreenEditState extends State<RoutesScreenEdit> {
   List<Parada> selectedStops = []; // Paradas seleccionadas
   final RutasHelper _rutasHelper = RutasHelper(RealtimeDbHelper());
   final ParadasHelper _paradasHelper = ParadasHelper(RealtimeDbHelper());
-  
+
   UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
   final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
   final Logger _logger = Logger();
 
   @override
   void initState() {
-  print('Parada añadida. Total paradas seleccionadas: ${selectedStops.length}');
+    print(
+        'Parada añadida. Total paradas seleccionadas: ${selectedStops.length}');
     super.initState();
     _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a edicion de rutas");
     _loadStops(); // Cargar las paradas al iniciar
@@ -44,43 +46,44 @@ class _RoutesScreenEditState extends State<RoutesScreenEdit> {
   }
 
   Future<void> _loadStops() async {
-  try {
-    List<Parada> allStops = await _paradasHelper.getAll();
-    setState(() {
-      stops = allStops;
-    });
+    try {
+      List<Parada> allStops = await _paradasHelper.getAll();
+      setState(() {
+        stops = allStops;
+      });
 
-    print('Paradas cargadas: ${stops.length}');
-    
-    // Inicializar paradas seleccionadas después de cargar las paradas
-    _initializeSelectedStops();
-  await _logAction(widget.usuario.correo, Tipo.modifiacion, 'Paradas cargadas correctamente');
-  } catch (e) {
-  print('Error al cargar las paradas: $e');
-    _logger.e('Error al cargar las paradas: $e');
-    await _logAction(widget.usuario.correo, Tipo.modifiacion, 'Error al cargar las paradas: $e');
+      print('Paradas cargadas: ${stops.length}');
+
+      // Inicializar paradas seleccionadas después de cargar las paradas
+      _initializeSelectedStops();
+      await _logAction(widget.usuario.correo, Tipo.modificacion,
+          'Paradas cargadas correctamente');
+    } catch (e) {
+      print('Error al cargar las paradas: $e');
+      _logger.e('Error al cargar las paradas: $e');
+      await _logAction(widget.usuario.correo, Tipo.modificacion,
+          'Error al cargar las paradas: $e');
+    }
   }
-}
 
-void _initializeSelectedStops() {
-  setState(() {
-    selectedStops = widget.ruta.paradas.map((nombre) {
-      var parada = stops.firstWhere(
-        (parada) => parada.nombre == nombre,
-        orElse: () => Parada(
-          idParada: 0,
-          nombre: '',
-          horaLlegada: '',
-          horaSalida: '',
-          coordenadas: '',
-        ),
-      );
-      return parada;
-    }).toList();
-    print('Paradas seleccionadas inicializadas: ${selectedStops.length}');
-  });
-}
-
+  void _initializeSelectedStops() {
+    setState(() {
+      selectedStops = widget.ruta.paradas.map((nombre) {
+        var parada = stops.firstWhere(
+          (parada) => parada.nombre == nombre,
+          orElse: () => Parada(
+            idParada: 0,
+            nombre: '',
+            horaLlegada: '',
+            horaSalida: '',
+            coordenadas: '',
+          ),
+        );
+        return parada;
+      }).toList();
+      print('Paradas seleccionadas inicializadas: ${selectedStops.length}');
+    });
+  }
 
   void _addStop() {
     setState(() {
@@ -91,23 +94,27 @@ void _initializeSelectedStops() {
         horaSalida: '',
         coordenadas: '',
       )); // Añadir un nuevo campo vacío
-      print('Parada añadida. Total paradas seleccionadas: ${selectedStops.length}'); // Debug
+      print(
+          'Parada añadida. Total paradas seleccionadas: ${selectedStops.length}'); // Debug
     });
-  _logAction(widget.usuario.correo, Tipo.alta, 'Se agregó una nueva parada');
-}
+    _logAction(widget.usuario.correo, Tipo.alta, 'Se agregó una nueva parada');
+  }
 
   void _removeStop(int index) {
-  String paradaEliminada = selectedStops[index].nombre;
+    String paradaEliminada = selectedStops[index].nombre;
     setState(() {
       selectedStops.removeAt(index);
-      print('Parada eliminada. Total paradas seleccionadas: ${selectedStops.length}'); // Debug
+      print(
+          'Parada eliminada. Total paradas seleccionadas: ${selectedStops.length}'); // Debug
     });
-  _logAction(widget.usuario.correo, Tipo.baja, 'Se eliminó la parada: $paradaEliminada');
-}
+    _logAction(widget.usuario.correo, Tipo.baja,
+        'Se eliminó la parada: $paradaEliminada');
+  }
 
   Future<void> _updateRoute() async {
     if (_routeNameController.text.isNotEmpty && selectedStops.isNotEmpty) {
-      final validStops = selectedStops.where((stop) => stop.nombre.isNotEmpty).toList();
+      final validStops =
+          selectedStops.where((stop) => stop.nombre.isNotEmpty).toList();
       if (validStops.isNotEmpty) {
         Ruta updatedRuta = Ruta(
           idRuta: widget.ruta.idRuta,
@@ -125,25 +132,29 @@ void _initializeSelectedStops() {
             content: Text('Ruta actualizada con éxito!'),
             backgroundColor: Colors.green,
           ));
-          await _logAction(widget.usuario.correo, Tipo.modifiacion, 'Ruta actualizada: ${updatedRuta.nombre}');
-        
+          await _logAction(widget.usuario.correo, Tipo.modificacion,
+              'Ruta actualizada: ${updatedRuta.nombre}');
+
           Navigator.pop(context); // Regresar a la pantalla anterior
         } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Error al actualizar la ruta: $e'),
             backgroundColor: Colors.red,
           ));
-       await _logAction(widget.usuario.correo, Tipo.modifiacion, 'Error al actualizar la ruta: $e');
-      }
+          await _logAction(widget.usuario.correo, Tipo.modificacion,
+              'Error al actualizar la ruta: $e');
+        }
       } else {
-      await _logAction(widget.usuario.correo, Tipo.modifiacion, 'Error al actualizar la ruta: paradas no seleccionadas');
+        await _logAction(widget.usuario.correo, Tipo.modificacion,
+            'Error al actualizar la ruta: paradas no seleccionadas');
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Por favor, selecciona al menos una parada.'),
           backgroundColor: Colors.orange,
         ));
       }
     } else {
-    await _logAction(widget.usuario.correo, Tipo.modifiacion, 'Error al actualizar la ruta: Campos sin completar');
+      await _logAction(widget.usuario.correo, Tipo.modificacion,
+          'Error al actualizar la ruta: Campos sin completar');
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Por favor, completa todos los campos.'),
         backgroundColor: Colors.orange,
@@ -220,7 +231,9 @@ void _initializeSelectedStops() {
                     children: [
                       Text('Parada ${index + 1}'),
                       DropdownButton<Parada>(
-                        value: selectedStops[index].idParada != 0 ? selectedStops[index] : null,
+                        value: selectedStops[index].idParada != 0
+                            ? selectedStops[index]
+                            : null,
                         items: stops.map((Parada parada) {
                           return DropdownMenuItem<Parada>(
                             value: parada,
@@ -229,14 +242,16 @@ void _initializeSelectedStops() {
                         }).toList(),
                         onChanged: (Parada? newValue) {
                           setState(() {
-                            selectedStops[index] = newValue ?? Parada(
-                              idParada: 0,
-                              nombre: '',
-                              horaLlegada: '',
-                              horaSalida: '',
-                              coordenadas: '',
-                            ); // Guardar la parada seleccionada
-                            print('Parada seleccionada en dropdown: ${selectedStops[index].nombre}'); // Debug
+                            selectedStops[index] = newValue ??
+                                Parada(
+                                  idParada: 0,
+                                  nombre: '',
+                                  horaLlegada: '',
+                                  horaSalida: '',
+                                  coordenadas: '',
+                                ); // Guardar la parada seleccionada
+                            print(
+                                'Parada seleccionada en dropdown: ${selectedStops[index].nombre}'); // Debug
                           });
                         },
                       ),
@@ -268,14 +283,18 @@ void _initializeSelectedStops() {
                 onPressed: _updateRoute,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 child: const Text(
                   'Actualizar ruta',
-                  style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -305,12 +324,16 @@ void _initializeSelectedStops() {
                   CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 30,
-                    child: Icon(Icons.directions_bus, color: Colors.blue, size: 40),
+                    child: Icon(Icons.directions_bus,
+                        color: Colors.blue, size: 40),
                   ),
                   SizedBox(height: 10),
                   Text(
                     'Gestión de Rutas',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -325,7 +348,8 @@ void _initializeSelectedStops() {
     );
   }
 
-  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
+  Widget _drawerItem(
+      BuildContext context, IconData icon, String title, Widget? screen) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
       title: Text(

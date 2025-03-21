@@ -4,13 +4,11 @@ import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/screens/SplashScreen.dart';
 import 'package:padillaroutea/screens/forgotPasswordScreen.dart';
-import 'package:padillaroutea/screens/menuScreenAdmin.dart';
 import 'package:padillaroutea/services/firebase_auth/firebase_auth_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/user/RouteScreenManagementU.dart';
-import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
 import 'package:padillaroutea/services/wifi_connection/wifi_controller.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -102,12 +100,6 @@ class _LoginScreenState extends State<LoginScreen> {
             nextScreen = SplashScreenAdmin(usuario: usuario);
             _subscribeToTopic('administrativos_y_gerentes');
             break;
-          default:
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Rol no reconocido")));
-            _logAction(userEmail, Tipo.baja,
-                "Inicio de sesión fallido (rol no reconocido)");
-            return;
         }
 
         _logAction(userEmail, Tipo.alta,
@@ -136,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await FirebaseMessaging.instance.subscribeToTopic(topic);
       _logger.i('Usuario suscrito al tema: $topic');
-      _logAction(_emailController.text, Tipo.modifiacion,
+      _logAction(_emailController.text, Tipo.modificacion,
           "Suscripción a tema FCM: $topic");
     } catch (e) {
       _logger.e('Error al suscribir al tema: $e');

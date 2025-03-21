@@ -4,7 +4,6 @@ import 'package:padillaroutea/models/realtimeDB_models/parada.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/paradas_helper.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
@@ -27,7 +26,6 @@ class _StopScreenEditState extends State<StopScreenEdit> {
   late TextEditingController _startTimeController;
   late TextEditingController _endTimeController;
   late TextEditingController _coordinatesController;
-  final UsuariosHelper _usuariosHelper = UsuariosHelper(RealtimeDbHelper());
   final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
   final Logger _logger = Logger();
 
@@ -49,7 +47,7 @@ class _StopScreenEditState extends State<StopScreenEdit> {
 
     // Obtener la ubicación actual
     _getCurrentLocation();
-    _logAction(widget.usuario.correo, Tipo.modifiacion,
+    _logAction(widget.usuario.correo, Tipo.modificacion,
         "Pantalla de edición de paradas abierta");
   }
 
@@ -74,12 +72,12 @@ class _StopScreenEditState extends State<StopScreenEdit> {
         ));
       });
       _logAction(
-          widget.usuario.correo, Tipo.modifiacion, "Ubicación actual obtenida");
+          widget.usuario.correo, Tipo.modificacion, "Ubicación actual obtenida");
     } catch (e) {
       _logger.e("Error obteniendo ubicación: $e");
       print("Ubicación actual: $_currentLocation");
       _logger.e("Error obteniendo ubicación: $e");
-      _logAction(widget.usuario.correo, Tipo.modifiacion,
+      _logAction(widget.usuario.correo, Tipo.modificacion,
           "Error obteniendo ubicación: $e");
     }
   }
@@ -110,7 +108,7 @@ class _StopScreenEditState extends State<StopScreenEdit> {
       _coordinatesController.text =
           "${position.latitude}, ${position.longitude}";
     });
-    _logAction(widget.usuario.correo, Tipo.modifiacion,
+    _logAction(widget.usuario.correo, Tipo.modificacion,
         "Marcador agregado en: ${position.latitude}, ${position.longitude}");
   }
 
@@ -125,12 +123,12 @@ class _StopScreenEditState extends State<StopScreenEdit> {
         setState(() {
           controller.text = picked.format(context);
         });
-        _logAction(widget.usuario.correo, Tipo.modifiacion,
+        _logAction(widget.usuario.correo, Tipo.modificacion,
             "Hora seleccionada: ${controller.text}");
       }
     } catch (e) {
       _logger.e("Error seleccionando la hora: $e");
-      _logAction(widget.usuario.correo, Tipo.modifiacion,
+      _logAction(widget.usuario.correo, Tipo.modificacion,
           "Error seleccionando la hora: $e");
     }
   }
@@ -148,7 +146,7 @@ class _StopScreenEditState extends State<StopScreenEdit> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Por favor, complete todos los campos")),
       );
-      _logAction(widget.usuario.correo, Tipo.modifiacion,
+      _logAction(widget.usuario.correo, Tipo.modificacion,
           "Intento fallido de actualización: Campos vacíos");
       return;
     }
@@ -168,7 +166,7 @@ class _StopScreenEditState extends State<StopScreenEdit> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Ruta actualizada correctamente")),
       );
-      _logAction(widget.usuario.correo, Tipo.modifiacion,
+      _logAction(widget.usuario.correo, Tipo.modificacion,
           "Parada actualizada correctamente: $routeName");
       Navigator.pop(context); // Regresar a la pantalla anterior
     } catch (e) {
@@ -176,7 +174,7 @@ class _StopScreenEditState extends State<StopScreenEdit> {
         SnackBar(content: Text("Error al actualizar la ruta: $e")),
       );
       _logger.e("Error al actualizar la parada: $e");
-      _logAction(widget.usuario.correo, Tipo.modifiacion,
+      _logAction(widget.usuario.correo, Tipo.modificacion,
           "Error al actualizar la parada: $e");
     }
   }

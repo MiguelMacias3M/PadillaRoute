@@ -20,13 +20,10 @@ class UserScreenSelect extends StatefulWidget {
 
   UserScreenSelect({required this.usuario});
   @override
-  _UserScreenSelect createState() =>
-      _UserScreenSelect();
+  _UserScreenSelect createState() => _UserScreenSelect();
 }
 
-class _UserScreenSelect
-    extends State<UserScreenSelect> {
-    
+class _UserScreenSelect extends State<UserScreenSelect> {
   UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
   final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
   final Logger _logger = Logger();
@@ -47,7 +44,7 @@ class _UserScreenSelect
       _logger.e("Error al registrar log: $e");
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,17 +82,25 @@ class _UserScreenSelect
               child: Column(
                 children: [
                   _optionButton(context, 'Dar de alta usuarios', () async {
-                    await _logAction(widget.usuario.correo, Tipo.alta, "Ingresó a la pantalla de registro de usuarios");
+                    await _logAction(widget.usuario.correo, Tipo.alta,
+                        "Ingresó a la pantalla de registro de usuarios");
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => UserScreenRegister(usuario: widget.usuario,)),
+                      MaterialPageRoute(
+                          builder: (context) => UserScreenRegister(
+                                usuario: widget.usuario,
+                              )),
                     );
                   }),
                   _optionButton(context, 'Gestión de usuarios', () async {
-                    await _logAction(widget.usuario.correo, Tipo.modifiacion, "Ingresó a la pantalla de gestión de usuarios");
+                    await _logAction(widget.usuario.correo, Tipo.modificacion,
+                        "Ingresó a la pantalla de gestión de usuarios");
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => UserScreenManagement(usuario: widget.usuario,)),
+                      MaterialPageRoute(
+                          builder: (context) => UserScreenManagement(
+                                usuario: widget.usuario,
+                              )),
                     );
                   }),
                 ],
@@ -107,7 +112,8 @@ class _UserScreenSelect
     );
   }
 
-  Widget _optionButton(BuildContext context, String title, VoidCallback? onPressed) {
+  Widget _optionButton(
+      BuildContext context, String title, VoidCallback? onPressed) {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton(
@@ -117,17 +123,20 @@ class _UserScreenSelect
               onPressed();
             }
           } catch (e) {
-            await _logAction(widget.usuario.correo, Tipo.modifiacion, "Error en acción: $title - $e");
+            await _logAction(widget.usuario.correo, Tipo.modificacion,
+                "Error en acción: $title - $e");
           }
         },
         style: OutlinedButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 15),
           side: BorderSide(color: Colors.black),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
         child: Text(
           title,
-          style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -158,7 +167,10 @@ class _UserScreenSelect
                   SizedBox(height: 10),
                   Text(
                     'Administrador',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
                   ),
                   Text(
                     'admin@empresa.com',
@@ -167,22 +179,31 @@ class _UserScreenSelect
                 ],
               ),
             ),
-             _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin(usuario: widget.usuario)),
-            _drawerItem(context, Icons.people, 'Usuarios', UserScreenManagement(usuario: widget.usuario)),
-            _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement(usuario: widget.usuario)),
-            _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin(usuario: widget.usuario)),
-            _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement(usuario: widget.usuario)),
-            _drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement(usuario: widget.usuario)),
-            _drawerItem(context, Icons.directions_car, 'Rutas', RoutesScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.home, 'Inicio',
+                MenuScreenAdmin(usuario: widget.usuario)),
+            _drawerItem(context, Icons.people, 'Usuarios',
+                UserScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.directions_car, 'Vehículos',
+                VehiclesScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.warning_amber, 'Incidencias',
+                IncidentsScreenAdmin(usuario: widget.usuario)),
+            _drawerItem(context, Icons.local_parking, 'Paradas',
+                StopScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.location_on, 'Monioreo',
+                MonitoringScreenManagement(usuario: widget.usuario)),
+            _drawerItem(context, Icons.directions_car, 'Rutas',
+                RoutesScreenManagement(usuario: widget.usuario)),
             Divider(color: Colors.white),
-            _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
+            _drawerItem(
+                context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
           ],
         ),
       ),
     );
   }
 
-  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
+  Widget _drawerItem(
+      BuildContext context, IconData icon, String title, Widget? screen) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
       title: Text(
@@ -190,12 +211,12 @@ class _UserScreenSelect
         style: TextStyle(fontSize: 16, color: Colors.white),
       ),
       onTap: () async {
-                await _logAction(widget.usuario.correo, Tipo.baja, "Cerró sesión");
-                Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => LoginScreen()),
-          );
-        },
+        await _logAction(widget.usuario.correo, Tipo.baja, "Cerró sesión");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+      },
       tileColor: Colors.blue.shade800,
       contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
     );

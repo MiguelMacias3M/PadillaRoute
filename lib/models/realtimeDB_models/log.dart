@@ -8,7 +8,7 @@ enum Tipo {
   @JsonValue('baja')
   baja, 
   @JsonValue('modificacion')
-  modifiacion, 
+  modificacion, 
 }
 
 @JsonSerializable()

@@ -52,7 +52,8 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
   void _filterUsers(String query) {
     setState(() {
       filteredUsers = users
-          .where((user) => user.nombre.toLowerCase().contains(query.toLowerCase()))
+          .where(
+              (user) => user.nombre.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -75,7 +76,7 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
 
         await _logAction(
           widget.usuario.correo,
-          Tipo.modifiacion,
+          Tipo.modificacion,
           "Asignó usuario $selectedUser a la ruta ${widget.rutaSeleccionada.nombre}",
         );
 
@@ -85,10 +86,10 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
 
         Navigator.pop(context);
       } catch (e) {
-      _logger.e("Error al asignar usuario: $e");
+        _logger.e("Error al asignar usuario: $e");
         await _logAction(
           widget.usuario.correo,
-          Tipo.modifiacion,
+          Tipo.modificacion,
           "Error al asignar usuario a ruta ${widget.rutaSeleccionada.nombre}: $e",
         );
         ScaffoldMessenger.of(context).showSnackBar(
@@ -98,36 +99,6 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Selecciona un usuario primero')),
-      );
-    }
-  }
-
-    Future<void> _assignVehicleToRoute() async {
-    if (selectedUserId != null) {
-      try {
-        await rutasHelper.update(widget.rutaSeleccionada.idRuta, {
-          "idChofer": selectedUserId, // Actualizar solo el campo idChofer
-        });
-
-        await _logAction(
-          widget.usuario.correo,
-          Tipo.modifiacion,
-          "Asignó un vehículo a la ruta ${widget.rutaSeleccionada.nombre}",
-        );
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Vehículo asignada correctamente')),
-        );
-
-        Navigator.pop(context);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al asignar vehículo')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Selecciona un vehículo primero')),
       );
     }
   }
@@ -222,7 +193,8 @@ class _RoutesScreenAssignState extends State<RoutesScreenAssign> {
                   : Center(child: Text('No se encontraron usuarios')),
             ),
             SizedBox(height: 10),
-            Text('Usuario seleccionado:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text('Usuario seleccionado:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),

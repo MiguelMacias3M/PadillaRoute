@@ -23,8 +23,9 @@ class _SplashScreenAdminState extends State<SplashScreenAdmin> {
       // Decidir a qué pantalla ir dependiendo del rol del usuario
       if (widget.usuario.rol == Rol.administrativo) {
         nextScreen = MonitoringScreenManagement(usuario: widget.usuario);
-      }else {
-        nextScreen = MenuScreenAdmin(usuario: widget.usuario); // Pantalla por defecto
+      } else {
+        nextScreen =
+            MenuScreenAdmin(usuario: widget.usuario); // Pantalla por defecto
       }
 
       Navigator.pushReplacement(
@@ -63,4 +64,3 @@ class _SplashScreenAdminState extends State<SplashScreenAdmin> {
     );
   }
 }
-

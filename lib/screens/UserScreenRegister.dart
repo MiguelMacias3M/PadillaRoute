@@ -45,7 +45,11 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
     final apellidos = _lastNameController.text.trim();
     final telefonoText = _phoneController.text.trim();
 
-    if (email.isEmpty || password.isEmpty || nombre.isEmpty || apellidos.isEmpty || telefonoText.isEmpty) {
+    if (email.isEmpty ||
+        password.isEmpty ||
+        nombre.isEmpty ||
+        apellidos.isEmpty ||
+        telefonoText.isEmpty) {
       _showSnackbar("⚠️ Todos los campos son obligatorios.", Colors.amber);
       return;
     }
@@ -63,7 +67,9 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
       final telefono = int.parse(telefonoText);
 
       final rolEnum = Rol.values.firstWhere(
-        (r) => r.toString().split('.').last.toLowerCase() == (_selectedRole ?? 'chofer').toLowerCase(),
+        (r) =>
+            r.toString().split('.').last.toLowerCase() ==
+            (_selectedRole ?? 'chofer').toLowerCase(),
         orElse: () => Rol.chofer,
       );
 
@@ -80,7 +86,7 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
       );
 
       await _usuariosHelper.setNew(usuario);
-await _logAction(email, Tipo.alta, "Registro de usuario exitoso");
+      await _logAction(email, Tipo.alta, "Registro de usuario exitoso");
 
       _showSnackbar("✅ Usuario registrado exitosamente.", Colors.green);
 
@@ -93,7 +99,6 @@ await _logAction(email, Tipo.alta, "Registro de usuario exitoso");
       setState(() {
         _selectedRole = null;
       });
-
     } catch (e) {
       await _logAction(email, Tipo.alta, "Error al registrar usuario: $e");
       _showSnackbar("❌ Error al registrar usuario: $e", Colors.red);
@@ -197,9 +202,11 @@ await _logAction(email, Tipo.alta, "Registro de usuario exitoso");
             SizedBox(height: 10),
             _inputField('Apellidos', _lastNameController),
             SizedBox(height: 10),
-            _inputField('Teléfono', _phoneController, inputType: TextInputType.phone),
+            _inputField('Teléfono', _phoneController,
+                inputType: TextInputType.phone),
             SizedBox(height: 10),
-            _inputField('Correo', _emailController, inputType: TextInputType.emailAddress),
+            _inputField('Correo', _emailController,
+                inputType: TextInputType.emailAddress),
             SizedBox(height: 10),
             _inputField('Contraseña', _passwordController, isPassword: true),
             SizedBox(height: 10),

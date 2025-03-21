@@ -28,31 +28,36 @@ class _MonitoringRouteScreenState extends State<MonitoringRouteScreen> {
   @override
   void initState() {
     super.initState();
-    _logAction(widget.usuario.correo, Tipo.alta, "Pantalla de monitoreo abierta");
+    _logAction(
+        widget.usuario.correo, Tipo.alta, "Pantalla de monitoreo abierta");
     _getCurrentLocation(); // Obtener ubicación actual al iniciar
   }
 
   Future<void> _getCurrentLocation() async {
     LocationPermission permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied) {
-    _logger.w("Permiso de ubicación denegado");
+      _logger.w("Permiso de ubicación denegado");
       print("Permiso de ubicación denegado");
       return;
     }
 
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
     setState(() {
       _currentLocation = LatLng(position.latitude, position.longitude);
       print("Ubicación actual: $_currentLocation");
-      _mapController?.animateCamera(CameraUpdate.newLatLng(_currentLocation!)); // Enfocar cámara en la ubicación actual
+      _mapController?.animateCamera(CameraUpdate.newLatLng(
+          _currentLocation!)); // Enfocar cámara en la ubicación actual
     });
-  _logAction(widget.usuario.correo, Tipo.alta, "Ubicación obtenida: $_currentLocation");
+    _logAction(widget.usuario.correo, Tipo.alta,
+        "Ubicación obtenida: $_currentLocation");
   }
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
     if (_currentLocation != null) {
-      _mapController?.animateCamera(CameraUpdate.newLatLng(_currentLocation!)); // Enfocar en la ubicación actual
+      _mapController?.animateCamera(CameraUpdate.newLatLng(
+          _currentLocation!)); // Enfocar en la ubicación actual
     }
   }
 
@@ -63,7 +68,8 @@ class _MonitoringRouteScreenState extends State<MonitoringRouteScreen> {
       return;
     }
 
-    _logAction(widget.usuario.correo, Tipo.alta, "Seguimiento en tiempo real iniciado");
+    _logAction(widget.usuario.correo, Tipo.alta,
+        "Seguimiento en tiempo real iniciado");
 
     _timer = Timer.periodic(Duration(seconds: 2), (timer) {
       setState(() {
@@ -75,16 +81,19 @@ class _MonitoringRouteScreenState extends State<MonitoringRouteScreen> {
         _mapController?.animateCamera(
           CameraUpdate.newLatLng(_currentLocation!),
         );
-        print("Nueva ubicación del vehículo: $_currentLocation"); // Mensaje a la consola
+        print(
+            "Nueva ubicación del vehículo: $_currentLocation"); // Mensaje a la consola
       });
-    _logAction(widget.usuario.correo, Tipo.modifiacion, "Nueva ubicación del vehículo: $_currentLocation");
+      _logAction(widget.usuario.correo, Tipo.modificacion,
+          "Nueva ubicación del vehículo: $_currentLocation");
     });
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    _logAction(widget.usuario.correo, Tipo.baja, "Pantalla de monitoreo cerrada");
+    _logAction(
+        widget.usuario.correo, Tipo.baja, "Pantalla de monitoreo cerrada");
     super.dispose();
   }
 
@@ -118,7 +127,8 @@ class _MonitoringRouteScreenState extends State<MonitoringRouteScreen> {
             child: GoogleMap(
               onMapCreated: _onMapCreated,
               initialCameraPosition: CameraPosition(
-                target: _currentLocation ?? LatLng(0, 0), // Utilizar ubicación actual
+                target: _currentLocation ??
+                    LatLng(0, 0), // Utilizar ubicación actual
                 zoom: 15,
               ),
               markers: _currentLocation != null
@@ -139,7 +149,8 @@ class _MonitoringRouteScreenState extends State<MonitoringRouteScreen> {
               backgroundColor: Colors.blue,
               padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
             ),
-            child: Text("Iniciar Seguimiento", style: TextStyle(color: Colors.white)),
+            child: Text("Iniciar Seguimiento",
+                style: TextStyle(color: Colors.white)),
           ),
           SizedBox(height: 10),
         ],

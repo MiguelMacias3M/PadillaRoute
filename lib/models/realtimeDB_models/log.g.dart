@@ -25,5 +25,5 @@ Map<String, dynamic> _$LogToJson(Log instance) => <String, dynamic>{
 const _$TipoEnumMap = {
   Tipo.alta: 'alta',
   Tipo.baja: 'baja',
-  Tipo.modifiacion: 'modificacion',
+  Tipo.modificacion: 'modificacion',
 };

@@ -4,11 +4,19 @@ import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart';
 import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 
 class VehiclesScreenAssign extends StatefulWidget {
   final Ruta rutaSeleccionada; // Agregar este parámetro
+  final Usuario usuario;
 
-  const VehiclesScreenAssign({required this.rutaSeleccionada}); // Incluir en el constructor
+  const VehiclesScreenAssign(
+      {required this.rutaSeleccionada,
+      required this.usuario}); // Incluir en el constructor
 
   @override
   _VehiclesScreenAssignState createState() => _VehiclesScreenAssignState();
@@ -24,59 +32,98 @@ class _VehiclesScreenAssignState extends State<VehiclesScreenAssign> {
   late VehiculosHelper vehiculosHelper;
   late RutasHelper rutasHelper;
 
+  UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
+
   @override
   void initState() {
     super.initState();
     vehiculosHelper = VehiculosHelper(RealtimeDbHelper());
     rutasHelper = RutasHelper(RealtimeDbHelper());
+    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a asignacion de vehiculo");
     _fetchData();
   }
 
   Future<void> _fetchData() async {
+  try {
     vehicles = await vehiculosHelper.getAll();
     setState(() {
       filteredVehicles = vehicles;
     });
+    await _logAction(widget.usuario.correo, Tipo.alta, "Cargó la lista de vehículos.");
+    } catch (e) {
+      _logger.e("Error al cargar vehículos: $e");
+      await _logAction(widget.usuario.correo, Tipo.alta, "Error al cargar vehículos.");
+    }
   }
 
   void _filterVehicles(String query) {
     setState(() {
       filteredVehicles = vehicles
-          .where((vehicle) => vehicle.placa.toLowerCase().contains(query.toLowerCase()))
+          .where((vehicle) =>
+              vehicle.placa.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
+   _logAction(widget.usuario.correo, Tipo.modificacion, "Filtró vehículos con query: $query");
   }
 
   void _selectVehicle(Vehiculo vehicle) {
     setState(() {
       selectedVehicle = vehicle.placa;
-      selectedVehicleId = vehicle.idVehiculo; // Guardar el ID del vehículo seleccionado
+      selectedVehicleId =
+          vehicle.idVehiculo; // Guardar el ID del vehículo seleccionado
       _searchController.text = vehicle.placa;
       filteredVehicles = vehicles;
     });
+  _logAction(widget.usuario.correo, Tipo.modificacion, "Seleccionó vehículo: ${vehicle.placa}");
   }
 
   Future<void> _assignVehicleToRoute() async {
     if (selectedVehicleId != null) {
       try {
         await rutasHelper.update(widget.rutaSeleccionada.idRuta, {
-          "idVehiculo": selectedVehicleId, // Actualizar solo el campo idVehiculo
+          "idVehiculo":
+              selectedVehicleId, // Actualizar solo el campo idVehiculo
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Vehículo asignado correctamente')),
         );
+        await _logAction(widget.usuario.correo, Tipo.modificacion,
+            "Asignó vehículo ID $selectedVehicleId a la ruta ID ${widget.rutaSeleccionada.idRuta}");
+
 
         Navigator.pop(context);
       } catch (e) {
+        _logger.e("Error al asignar vehículo: $e");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al asignar vehículo')),
         );
+      await _logAction(widget.usuario.correo, Tipo.modificacion, "Error al asignar vehículo.");
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Selecciona un vehículo primero')),
       );
+    await _logAction(widget.usuario.correo, Tipo.baja, "Intentó asignar un vehículo sin seleccionar.");
+    }
+  }
+
+  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: correo,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
     }
   }
 
@@ -141,7 +188,8 @@ class _VehiclesScreenAssignState extends State<VehiclesScreenAssign> {
                       itemCount: filteredVehicles.length,
                       itemBuilder: (context, index) {
                         return ListTile(
-                          leading: const Icon(Icons.car_repair, color: Colors.blue),
+                          leading:
+                              const Icon(Icons.car_repair, color: Colors.blue),
                           title: Text(filteredVehicles[index].marca),
                           subtitle: Text(
                             'Modelo: ${filteredVehicles[index].modelo}\nPlaca: ${filteredVehicles[index].placa}',
@@ -154,7 +202,8 @@ class _VehiclesScreenAssignState extends State<VehiclesScreenAssign> {
                   : const Center(child: Text('No se encontraron vehículos')),
             ),
             const SizedBox(height: 10),
-            const Text('Vehículo seleccionado:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text('Vehículo seleccionado:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),

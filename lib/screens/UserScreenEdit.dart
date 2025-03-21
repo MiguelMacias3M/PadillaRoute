@@ -232,7 +232,7 @@ class _UserScreenEditState extends State<UserScreenEdit> {
 
       await usuariosHelper.update(
           widget.usuarioSeleccionado.idUsuario, updatedUser);
-      await _logAction(widget.usuarioSeleccionado.correo, Tipo.modifiacion,
+      await _logAction(widget.usuarioSeleccionado.correo, Tipo.modificacion,
           "Usuario actualizado");
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -242,7 +242,7 @@ class _UserScreenEditState extends State<UserScreenEdit> {
       Navigator.pop(context); // Regresar a UserScreenManagement.dart
     } catch (e) {
       _logger.e("Error al actualizar usuario: $e");
-      await _logAction(widget.usuarioSeleccionado.correo, Tipo.modifiacion,
+      await _logAction(widget.usuarioSeleccionado.correo, Tipo.modificacion,
           "Error al actualizar usuario: $e");
 
       print("Error al actualizar: $e"); // Imprime el error

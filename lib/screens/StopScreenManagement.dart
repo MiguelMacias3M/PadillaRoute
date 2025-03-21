@@ -28,7 +28,8 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
   @override
   void initState() {
     super.initState();
-    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a consulta de paradas");
+    _logAction(
+        widget.usuario.correo, Tipo.alta, "Ingreso a consulta de paradas");
     paradasHelper = ParadasHelper(RealtimeDbHelper());
     _loadStops();
   }
@@ -46,8 +47,9 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
         stops = stopList;
         filteredStops = stopList;
       });
-    await _logAction(widget.usuario.correo, Tipo.alta, "Cargó la lista de paradas");
-    }  catch (e) {
+      await _logAction(
+          widget.usuario.correo, Tipo.alta, "Cargó la lista de paradas");
+    } catch (e) {
       _logger.e("Error loading stops: $e");
       print("Error loading stops: $e");
       ScaffoldMessenger.of(context).showSnackBar(
@@ -59,8 +61,8 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
   void _filterStops(String query) {
     setState(() {
       filteredStops = stops
-          .where((stop) =>
-              stop.nombre.toLowerCase().contains(query.toLowerCase()))
+          .where(
+              (stop) => stop.nombre.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -138,9 +140,13 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
         onPressed: () async {
           await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => StopScreenRegister(usuario: widget.usuario,)),
+            MaterialPageRoute(
+                builder: (context) => StopScreenRegister(
+                      usuario: widget.usuario,
+                    )),
           );
-          await _logAction(widget.usuario.correo, Tipo.alta, "Registró una nueva parada");
+          await _logAction(
+              widget.usuario.correo, Tipo.alta, "Registró una nueva parada");
           _loadStops();
         },
         backgroundColor: Colors.blue,
@@ -161,12 +167,18 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
           children: [
             Text(
               parada.nombre,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blueAccent),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.blueAccent),
             ),
             SizedBox(height: 5),
-            Text('🕒 Hora de llegada: ${parada.horaLlegada}', style: TextStyle(fontSize: 14)),
-            Text('🕑 Hora de salida: ${parada.horaSalida}', style: TextStyle(fontSize: 14)),
-            Text('📍 Coordenadas: ${parada.coordenadas}', style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic)),
+            Text('🕒 Hora de llegada: ${parada.horaLlegada}',
+                style: TextStyle(fontSize: 14)),
+            Text('🕑 Hora de salida: ${parada.horaSalida}',
+                style: TextStyle(fontSize: 14)),
+            Text('📍 Coordenadas: ${parada.coordenadas}',
+                style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic)),
             SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -175,14 +187,18 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
                   onPressed: () async {
                     await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => StopScreenEdit(usuario: widget.usuario, parada: parada)),
+                      MaterialPageRoute(
+                          builder: (context) => StopScreenEdit(
+                              usuario: widget.usuario, parada: parada)),
                     );
-                    await _logAction(widget.usuario.correo, Tipo.modifiacion, "Editó la parada ${parada.nombre}");
+                    await _logAction(widget.usuario.correo, Tipo.modificacion,
+                        "Editó la parada ${parada.nombre}");
                     _loadStops();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.amber,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
                   child: Text('Editar', style: TextStyle(color: Colors.black)),
                 ),
@@ -191,7 +207,8 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
                   onPressed: () async {
                     try {
                       await paradasHelper.delete(parada.idParada);
-                      await _logAction(widget.usuario.correo, Tipo.baja, "Eliminó la parada ${parada.nombre}");
+                      await _logAction(widget.usuario.correo, Tipo.baja,
+                          "Eliminó la parada ${parada.nombre}");
                       _loadStops();
                     } catch (e) {
                       _logger.e("Error eliminando parada: $e");
@@ -199,9 +216,11 @@ class _StopScreenManagementState extends State<StopScreenManagement> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: Text('Eliminar', style: TextStyle(color: Colors.white)),
+                  child:
+                      Text('Eliminar', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),

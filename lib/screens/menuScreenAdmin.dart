@@ -10,8 +10,6 @@ import 'package:padillaroutea/screens/UserScreenSelect.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
-import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
-import 'package:padillaroutea/screens/loginscreen.dart';
 
 class MenuScreenAdmin extends StatelessWidget {
   final Usuario usuario;
@@ -46,7 +44,8 @@ class MenuScreenAdmin extends StatelessWidget {
         automaticallyImplyLeading: false,
         title: const Text(
           'Menú Principal',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
+          style: TextStyle(
+              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
         ),
         backgroundColor: Colors.blueAccent,
         elevation: 4,
@@ -66,24 +65,31 @@ class MenuScreenAdmin extends StatelessWidget {
           crossAxisSpacing: 20,
           mainAxisSpacing: 20,
           children: [
-            _menuItem(context, Icons.people, 'Usuarios', screen: UserScreenSelect(usuario: usuario)),
-            _menuItem(context, Icons.directions_bus, 'Rutas', screen: RoutesScreenManagement(usuario: usuario)),
-            _menuItem(context, Icons.location_on, 'Monitorear', screen: MonitoringScreenManagement(usuario: usuario)),
-            _menuItem(context, Icons.directions_car, 'Vehículos', screen: VehiclesScreenManagement(usuario: usuario)),
+            _menuItem(context, Icons.people, 'Usuarios',
+                screen: UserScreenSelect(usuario: usuario)),
+            _menuItem(context, Icons.directions_bus, 'Rutas',
+                screen: RoutesScreenManagement(usuario: usuario)),
+            _menuItem(context, Icons.location_on, 'Monitorear',
+                screen: MonitoringScreenManagement(usuario: usuario)),
+            _menuItem(context, Icons.directions_car, 'Vehículos',
+                screen: VehiclesScreenManagement(usuario: usuario)),
             //_menuItem(context, Icons.bar_chart, 'Reportes'),
-            _menuItem(context, Icons.local_parking, 'Paradas', screen: StopScreenManagement(usuario: usuario)),
-            _menuItem(context, Icons.warning_amber, 'Incidencias', screen: IncidentsScreenAdmin(usuario: usuario)),
+            _menuItem(context, Icons.local_parking, 'Paradas',
+                screen: StopScreenManagement(usuario: usuario)),
+            _menuItem(context, Icons.warning_amber, 'Incidencias',
+                screen: IncidentsScreenAdmin(usuario: usuario)),
           ],
         ),
       ),
     );
   }
 
-  Widget _menuItem(BuildContext context, IconData icon, String title, {Widget? screen}) {
+  Widget _menuItem(BuildContext context, IconData icon, String title,
+      {Widget? screen}) {
     return GestureDetector(
       onTap: () {
         if (screen != null) {
-          _logAction(usuario.correo, Tipo.modifiacion, "Accedió a $title");
+          _logAction(usuario.correo, Tipo.modificacion, "Accedió a $title");
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => screen),
@@ -110,7 +116,10 @@ class MenuScreenAdmin extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87),
             ),
           ],
         ),

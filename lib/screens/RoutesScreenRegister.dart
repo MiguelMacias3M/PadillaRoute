@@ -12,7 +12,7 @@ import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 
 class RoutesScreenRegister extends StatefulWidget {
-final Usuario usuario; // Agregar este parámetro
+  final Usuario usuario;
 
   RoutesScreenRegister({required this.usuario});
   @override
@@ -42,9 +42,11 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
       setState(() {
         stops = allStops;
       });
-      _logAction(widget.usuario.correo, Tipo.alta, "Cargó las paradas disponibles");
+      _logAction(
+          widget.usuario.correo, Tipo.alta, "Cargó las paradas disponibles");
     } catch (e) {
-      _logAction(widget.usuario.correo, Tipo.alta, "Error al cargar paradas: $e");
+      _logAction(
+          widget.usuario.correo, Tipo.alta, "Error al cargar paradas: $e");
     }
   }
 
@@ -52,21 +54,24 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
     setState(() {
       selectedStops = [null]; // Inicializa con una parada vacía
     });
-  _logAction(widget.usuario.correo, Tipo.alta, "Inicializó la selección de paradas");
+    _logAction(
+        widget.usuario.correo, Tipo.alta, "Inicializó la selección de paradas");
   }
 
   void _addStop() {
     setState(() {
       selectedStops.add(null); // Añadir un nuevo campo vacío
     });
-  _logAction(widget.usuario.correo, Tipo.alta, "Agregó un nuevo campo de parada");
+    _logAction(
+        widget.usuario.correo, Tipo.alta, "Agregó un nuevo campo de parada");
   }
 
   void _removeStop(int index) {
     setState(() {
       selectedStops.removeAt(index);
     });
-  _logAction(widget.usuario.correo, Tipo.baja, "Eliminó la parada en el índice $index");
+    _logAction(widget.usuario.correo, Tipo.baja,
+        "Eliminó la parada en el índice $index");
   }
 
   Future<void> _registerRoute() async {
@@ -88,7 +93,8 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
         try {
           // Guardar la ruta en la base de datos
           await _rutasHelper.setNew(nuevaRuta);
-          _logAction(widget.usuario.correo, Tipo.alta, "Registró una nueva ruta: ${nuevaRuta.nombre}");
+          _logAction(widget.usuario.correo, Tipo.alta,
+              "Registró una nueva ruta: ${nuevaRuta.nombre}");
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Ruta registrada con éxito!'),
             backgroundColor: Colors.green,
@@ -97,10 +103,13 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
           // Redirigir a la pantalla de gestión de rutas después del registro
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => RoutesScreenManagement(usuario: widget.usuario)),
+            MaterialPageRoute(
+                builder: (context) =>
+                    RoutesScreenManagement(usuario: widget.usuario)),
           );
         } catch (e) {
-          _logAction(widget.usuario.correo, Tipo.alta, "Error al registrar ruta: $e");
+          _logAction(
+              widget.usuario.correo, Tipo.alta, "Error al registrar ruta: $e");
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Error al registrar la ruta: $e'),
             backgroundColor: Colors.red,
@@ -179,7 +188,10 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
               onTap: () {},
               child: const Text(
                 'Asignar paradas',
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 17),
+                style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17),
               ),
             ),
             const SizedBox(height: 15),
@@ -201,9 +213,11 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
                         }).toList(),
                         onChanged: (Parada? newValue) {
                           setState(() {
-                            selectedStops[index] = newValue; // Guardar la parada seleccionada
+                            selectedStops[index] =
+                                newValue; // Guardar la parada seleccionada
                           });
-                          _logAction(widget.usuario.correo, Tipo.modifiacion, "Seleccionó la parada ${newValue?.nombre}");
+                          _logAction(widget.usuario.correo, Tipo.modificacion,
+                              "Seleccionó la parada ${newValue?.nombre}");
                         },
                       ),
                       IconButton(
@@ -225,7 +239,8 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
                   shape: const CircleBorder(),
                   padding: const EdgeInsets.all(15),
                 ),
-                child: const Icon(Icons.add, color: Color.fromARGB(255, 0, 0, 0)),
+                child:
+                    const Icon(Icons.add, color: Color.fromARGB(255, 0, 0, 0)),
               ),
             ),
             const SizedBox(height: 10),
@@ -234,7 +249,8 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
                 onPressed: _registerRoute,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -271,17 +287,22 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
                   CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 30,
-                    child: Icon(Icons.directions_bus, color: Colors.blue, size: 40),
+                    child: Icon(Icons.directions_bus,
+                        color: Colors.blue, size: 40),
                   ),
                   SizedBox(height: 10),
                   Text(
                     'Gestión de Rutas',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
-            _drawerItem(context, Icons.home, 'Inicio', MenuScreenAdmin(usuario: widget.usuario)),
+            _drawerItem(context, Icons.home, 'Inicio',
+                MenuScreenAdmin(usuario: widget.usuario)),
             const Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', null),
           ],
@@ -290,7 +311,8 @@ class _RoutesScreenRegisterState extends State<RoutesScreenRegister> {
     );
   }
 
-  Widget _drawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
+  Widget _drawerItem(
+      BuildContext context, IconData icon, String title, Widget? screen) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
       title: Text(

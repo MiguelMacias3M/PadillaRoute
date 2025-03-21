@@ -48,7 +48,7 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
           widget.usuario.correo, Tipo.alta, "Cargó la lista de usuarios");
     } catch (e) {
       _logger.e("Error al cargar usuarios: $e");
-      await _logAction(widget.usuario.correo, Tipo.modifiacion,
+      await _logAction(widget.usuario.correo, Tipo.modificacion,
           "Error al cargar usuarios: $e");
     }
   }
@@ -120,7 +120,8 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
               controller: _searchController,
               onChanged: (value) {
                 _filterUsers(value);
-                _logAction(widget.usuario.correo, Tipo.modifiacion, "Filtró usuarios con: $value");
+                _logAction(widget.usuario.correo, Tipo.modificacion,
+                    "Filtró usuarios con: $value");
               },
               decoration: InputDecoration(
                 prefixIcon: Icon(Icons.search),
@@ -189,9 +190,9 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
                   ],
                 ),
                 onTap: () async {
-                  await _logAction(widget.usuario.correo, Tipo.modifiacion,
+                  await _logAction(widget.usuario.correo, Tipo.modificacion,
                       "Accedió a la edición de usuario: ${usuario.correo}");
-                  
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -205,28 +206,6 @@ class _UserScreenManagementState extends State<UserScreenManagement> {
                   });
                 },
               ),
-              // if (usuario.rol == Rol.chofer)
-              //   Padding(
-              //     padding: const EdgeInsets.all(10.0),
-              //     child: ElevatedButton(
-              //       style: ElevatedButton.styleFrom(
-              //         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              //       ),
-              //       onPressed: () {
-              //         // Redirigir a la pantalla de asignación de vehículo solo si el rol es chofer
-              //         Navigator.push(
-              //           context,
-              //           MaterialPageRoute(
-              //             builder: (context) => VehiclesScreenAssign(rutaSeleccionada: usuario),
-              //           ),
-              //         ).then((_) {
-              //           // Recargar los usuarios después de asignar un vehículo
-              //           _loadUsers();
-              //         });
-              //       },
-              //       child: Text("Asignar vehículo"),
-              //     ),
-              //   ),
             ],
           ),
         );

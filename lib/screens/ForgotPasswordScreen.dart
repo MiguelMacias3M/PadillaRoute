@@ -18,17 +18,19 @@ class ForgotPasswordScreen extends StatelessWidget {
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Por favor, ingresa tu correo')));
-      _logAction(email, Tipo.baja, "Intento de recuperación fallido (correo vacío)");
+      _logAction(
+          email, Tipo.baja, "Intento de recuperación fallido (correo vacío)");
       return;
     }
 
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Se ha enviado un correo de recuperación a $email')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Se ha enviado un correo de recuperación a $email')));
 
-      _logAction(email, Tipo.alta, "Solicitud de recuperación de contraseña enviada");
+      _logAction(
+          email, Tipo.alta, "Solicitud de recuperación de contraseña enviada");
 
       Navigator.pushReplacement(
         context,
@@ -39,15 +41,19 @@ class ForgotPasswordScreen extends StatelessWidget {
 
       if (e.code == 'user-not-found') {
         errorMessage = 'No hay un usuario registrado con ese correo.';
-        _logAction(email, Tipo.baja, "Intento de recuperación fallido (usuario no encontrado)");
+        _logAction(email, Tipo.baja,
+            "Intento de recuperación fallido (usuario no encontrado)");
       } else if (e.code == 'invalid-email') {
         errorMessage = 'El correo electrónico ingresado no es válido.';
-        _logAction(email, Tipo.baja, "Intento de recuperación fallido (correo inválido)");
+        _logAction(email, Tipo.baja,
+            "Intento de recuperación fallido (correo inválido)");
       } else {
-        _logAction(email, Tipo.baja, "Error en recuperación de contraseña: ${e.code}");
+        _logAction(
+            email, Tipo.baja, "Error en recuperación de contraseña: ${e.code}");
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(errorMessage)));
       _logger.e("Error en recuperación de contraseña: ${e.code}");
     }
   }
