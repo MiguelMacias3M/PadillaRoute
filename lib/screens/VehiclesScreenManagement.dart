@@ -7,7 +7,6 @@ import 'package:padillaroutea/screens/menuScreenAdmin.dart';
 import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
 import 'package:padillaroutea/screens/StopScreenManagement.dart';
 import 'package:padillaroutea/screens/UserScreenManagement.dart';
-import 'package:padillaroutea/screens/UserScreenSelect.dart';
 import 'package:padillaroutea/screens/VehiclesScreen.dart';
 import 'package:padillaroutea/screens/VehiclesScreenEdit.dart';
 import 'package:padillaroutea/screens/loginscreen.dart';
@@ -35,14 +34,21 @@ class _VehiclesScreenManagementState extends State<VehiclesScreenManagement> {
   void initState() {
     super.initState();
     vehiculosHelper = VehiculosHelper(RealtimeDbHelper());
+    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a consulta de vehiculos");
     _loadVehicles();
   }
 
   Future<void> _loadVehicles() async {
+  try{
     List<Vehiculo> vehicleList = await vehiculosHelper.getAll();
     setState(() {
       vehiculos = vehicleList;
     });
+  await _logAction(widget.usuario.correo, Tipo.alta, 'Cargó los vehículos');
+    } catch (e) {
+      _logger.e("Error al cargar vehículos: $e");
+      await _logAction(widget.usuario.correo, Tipo.baja, 'Error al cargar los vehículos');
+    }
   }
 
   Future<void> _logAction(String correo, Tipo tipo, String accion) async {
@@ -104,6 +110,7 @@ class _VehiclesScreenManagementState extends State<VehiclesScreenManagement> {
                     context,
                     MaterialPageRoute(builder: (context) => VehiclesScreen(usuario: widget.usuario)),
                   );
+                _logAction(widget.usuario.correo, Tipo.alta, 'Registró un nuevo vehículo');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
@@ -178,9 +185,10 @@ class _VehiclesScreenManagementState extends State<VehiclesScreenManagement> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          VehiclesScreenEdit(vehiculo: vehiculo),
+                          VehiclesScreenEdit(vehiculo: vehiculo, usuario: widget.usuario),
                     ),
                   );
+                _logAction(widget.usuario.correo, Tipo.modificacion, 'Editó el vehículo ${vehiculo.marca}');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,
@@ -236,7 +244,7 @@ class _VehiclesScreenManagementState extends State<VehiclesScreenManagement> {
             _drawerItem(context, Icons.directions_car, 'Vehículos', VehiclesScreenManagement(usuario: widget.usuario)),
             _drawerItem(context, Icons.warning_amber, 'Incidencias', IncidentsScreenAdmin(usuario: widget.usuario)),
             _drawerItem(context, Icons.local_parking, 'Paradas', StopScreenManagement(usuario: widget.usuario)),
-            //_drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement(usuario: usuario)),
+            _drawerItem(context, Icons.location_on, 'Monioreo', MonitoringScreenManagement(usuario: widget.usuario)),
             Divider(color: Colors.white),
             _drawerItem(context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
           ],

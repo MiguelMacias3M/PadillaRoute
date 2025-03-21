@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 
 class VehiclesScreenEdit extends StatefulWidget {
   final Vehiculo vehiculo;
-
-  VehiclesScreenEdit({required this.vehiculo});
+final Usuario usuario;
+  VehiclesScreenEdit({required this.vehiculo, required this.usuario});
 
   @override
   _VehiclesScreenEditState createState() => _VehiclesScreenEditState();
@@ -18,6 +23,9 @@ class _VehiclesScreenEditState extends State<VehiclesScreenEdit> {
   late TextEditingController _numeroCombiController;
   late TextEditingController _placaController;
   late TextEditingController _capacidadController;
+  UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
 
   String? _selectedStatus;
   final List<String> _statusOptions = ['Activo', 'Inactivo', 'Mantenimiento'];
@@ -46,7 +54,25 @@ class _VehiclesScreenEditState extends State<VehiclesScreenEdit> {
     _numeroCombiController.dispose();
     _placaController.dispose();
     _capacidadController.dispose();
+    _logAction(widget.usuario.correo, Tipo.alta, "Ingreso a edicion de vehiculos");
     super.dispose();
+  }
+
+  Future<void> _logAction(String correo, Tipo tipo, String accion) async {
+    final logEntry = Log(
+      idLog: DateTime.now().millisecondsSinceEpoch,
+      tipo: tipo,
+      usuario: correo,
+      accion: accion,
+      fecha: DateTime.now().toIso8601String(),
+    );
+
+    try {
+      await logsHelper.setNew(logEntry);
+      _logger.i("Log registrado: $accion");
+    } catch (e) {
+      _logger.e("Error al registrar log: $e");
+    }
   }
 
   @override
@@ -173,6 +199,8 @@ class _VehiclesScreenEditState extends State<VehiclesScreenEdit> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Cambios guardados correctamente')),
       );
+      await _logAction(widget.usuario.correo, Tipo.modificacion, 'Modificó vehículo ${widget.vehiculo.idVehiculo}');
+
 
       Navigator.pop(context);
     } catch (e) {
@@ -181,16 +209,17 @@ class _VehiclesScreenEditState extends State<VehiclesScreenEdit> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al actualizar: $e')),
       );
+    await _logAction(widget.usuario.correo, Tipo.modificacion, 'Error al modificar vehículo ${widget.vehiculo.idVehiculo}: $e');
     }
   }
 }
 
 // --- Actualización del onPressed en la lista de vehículos ---
-void navigateToEditScreen(BuildContext context, Vehiculo vehiculo) {
+void navigateToEditScreen(BuildContext context, Vehiculo vehiculo, Usuario usuario) {
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => VehiclesScreenEdit(vehiculo: vehiculo),
+      builder: (context) => VehiclesScreenEdit(vehiculo: vehiculo, usuario: usuario),
     ),
   );
 }
