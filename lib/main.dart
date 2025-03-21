@@ -6,7 +6,6 @@ import 'package:padillaroutea/objectbox.g.dart';
 import 'package:padillaroutea/services/connectors/objectbox_connector.dart';
 import 'package:firebase_messaging/firebase_messaging.dart'; 
 import 'package:padillaroutea/screens/loginscreen.dart'; 
-import 'package:padillaroutea/screens/user/IncidentsScreenRegister.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -131,7 +130,6 @@ class MyApp extends StatelessWidget {
       initialRoute: '/', // Definimos una ruta inicial
       routes: {
         '/': (context) => LoginScreen(), // Ruta principal
-        '/incidentsScreenRegister': (context) => IncidentsScreenRegister(), // Agregamos la ruta de incidencias
       },
     );
   }
