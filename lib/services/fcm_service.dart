@@ -33,6 +33,35 @@ Future<void> sendFCMMessage(String title, String body, String topic, String acce
   }
 }
 
+// Función para enviar un mensaje de FCM a un usuario específico usando su FCM Token
+Future<void> sendFCMMessageToUser(String title, String body, String fcmToken, String accessToken) async {
+  final url = Uri.parse(serverUrl);
+
+  final response = await http.post(
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
+    },
+    body: jsonEncode({
+      "message": {
+        "token": fcmToken,  // Usamos el token del usuario aquí
+        "notification": {
+          "title": title,
+          "body": body,
+        }
+      }
+    }),
+  );
+print("URL de FCM: $url");
+  if (response.statusCode == 200) {
+    print('Notificación enviada con éxito');
+  } else {
+    print('Error al enviar la notificación: ${response.statusCode} - ${response.body}');
+  }
+}
+
+
 // Función pública para obtener el accessToken
 Future<String> getAccessToken() async {
   final jwt = await _generateJWT();

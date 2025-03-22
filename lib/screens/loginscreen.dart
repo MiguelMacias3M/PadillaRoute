@@ -92,10 +92,12 @@ class _LoginScreenState extends State<LoginScreen> {
         final rolUsuario = usuario.rol;
         Widget nextScreen;
 
+        // Guardar el token FCM después de iniciar sesión
+      await saveUserFCMToken(usuario.idUsuario); // Guarda el FCM Token
+
         switch (rolUsuario) {
           case Rol.chofer:
             nextScreen = RouteScreenManagementU(usuario: usuario);
-            _subscribeToTopic('choferes_y_gerentes');
             break;
           case Rol.administrativo:
             nextScreen = SplashScreenAdmin(usuario: usuario);
@@ -138,6 +140,16 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = false;
     }
   }
+
+  Future<void> saveUserFCMToken(int userId) async {
+  try {
+    String token = await FirebaseMessaging.instance.getToken() ?? "";
+    // Guardar el token FCM en la base de datos usando el UsuariosHelper
+    await usuariosHelper.updateFCMToken(userId, token);
+  } catch (e) {
+    print("Error al obtener y guardar el FCM Token: $e");
+  }
+}
 
   Future<void> _subscribeToTopic(String topic) async {
     try {

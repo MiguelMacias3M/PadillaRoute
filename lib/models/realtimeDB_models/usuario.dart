@@ -20,6 +20,7 @@ class Usuario {
   final Rol rol;
   final bool activo;
   final int? idVehiculo;  // Cambiar a int? para aceptar null
+  final String? fcmToken;
 
   Usuario({
     required this.idUsuario,
@@ -31,6 +32,7 @@ class Usuario {
     required this.rol,
     required this.activo,
     this.idVehiculo,  // Esto puede ser null ahora
+    this.fcmToken,
   });
 
   factory Usuario.fromJson(Map<String, dynamic> json) => _$UsuarioFromJson(json);

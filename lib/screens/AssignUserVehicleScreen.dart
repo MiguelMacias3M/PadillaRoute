@@ -28,7 +28,8 @@ class AssignUserVehicleScreen extends StatefulWidget {
 
 class _AssignUserVehicleScreenState extends State<AssignUserVehicleScreen> {
   final TextEditingController _userSearchController = TextEditingController();
-  final TextEditingController _vehicleSearchController = TextEditingController();
+  final TextEditingController _vehicleSearchController =
+      TextEditingController();
   String? selectedUser;
   int? selectedUserId;
   String? selectedVehicle;
@@ -70,8 +71,8 @@ class _AssignUserVehicleScreenState extends State<AssignUserVehicleScreen> {
   void _filterUsers(String query) {
     setState(() {
       filteredUsers = users
-          .where((user) =>
-              user.nombre.toLowerCase().contains(query.toLowerCase()))
+          .where(
+              (user) => user.nombre.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -104,19 +105,20 @@ class _AssignUserVehicleScreenState extends State<AssignUserVehicleScreen> {
   Future<void> _assignUserAndVehicle() async {
     if (selectedUserId != null && selectedVehicleId != null) {
       try {
-      // Actualizar la ruta
+        // Actualizar la ruta
         await rutasHelper.update(widget.rutaSeleccionada.idRuta, {
           "idChofer": selectedUserId,
           "idVehiculo": selectedVehicleId,
         });
 
         // Actualizar el idVehiculo en el registro del usuario
-      await usuariosHelper.update(selectedUserId!, {
-        "idVehiculo": selectedVehicleId,
-      });
+        await usuariosHelper.update(selectedUserId!, {
+          "idVehiculo": selectedVehicleId,
+        });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Usuario y vehículo asignados correctamente')),
+          const SnackBar(
+              content: Text('Usuario y vehículo asignados correctamente')),
         );
 
         // Enviar notificación FCM
@@ -145,16 +147,26 @@ class _AssignUserVehicleScreenState extends State<AssignUserVehicleScreen> {
 
   Future<void> _sendAssignmentNotification() async {
     try {
-      final accessToken = await getAccessToken();
-      await sendFCMMessage(
-        "Asignación de Chofer y Vehículo",
-        "${selectedUser} se te ha asignado el vehículo ${selectedVehicle} y la ruta a cubrir es: ${widget.rutaSeleccionada.nombre}.",
-        "choferes_y_gerentes", // Tema para los usuarios a los que enviar la notificación
-        accessToken,
-      );
-      print("Notificación de asignación enviada.");
+      // Obtener el FCM Token del usuario seleccionado
+      final fcmToken = await usuariosHelper.getUserFCMToken(selectedUserId!);
+      
+      if (fcmToken != null && fcmToken.isNotEmpty) {
+        final accessToken = await getAccessToken();
+        
+        // Usar la nueva función para enviar la notificación al usuario específico
+        await sendFCMMessageToUser(
+          "Asignación de Chofer y Vehículo",
+          "${selectedUser} se te ha asignado el vehículo ${selectedVehicle} y la ruta a cubrir es: ${widget.rutaSeleccionada.nombre}.",
+          fcmToken, // Token FCM del usuario
+          accessToken,
+        );
+      } else {
+        print(
+            "10- No se encontró el FCM Token para el usuario seleccionado en la pantalla de asignacion.");
+      }
     } catch (e) {
-      print("Error al enviar la notificación de asignación: $e");
+      print(
+          "11- Error al enviar la notificación de asignación: $e, en la pantalla de asignacion");
     }
   }
 

@@ -71,6 +71,40 @@ class UsuariosHelper {
     }
   }
 
+  Future<String?> getUserFCMToken(int idUsuario) async {
+  try {
+    final keyValue = await getKey(idUsuario, "idUsuario");
+    if (keyValue != null) {
+      final data = await database.getEntryById(ref, keyValue);
+      print("1- Datos obtenidos del usuario desde el servicio: $data");
+
+      print("2- FCM Token desde el servicio: ${data['fcmToken']}");
+       return data['fcmToken'];  // Devuelve el token FCM
+    } else {
+      return null;  // No se encontró el usuario
+    }
+  } catch (e) {
+    print("3- Error al obtener el FCM Token: $e. desde el servicio");
+    return null;  // En caso de error
+  }
+}
+
+
+// Actualizar el token FCM en la base de datos
+  Future<void> updateFCMToken(int userId, String token) async {
+    try {
+      final keyValue = await getKey(userId, "idUsuario");
+      if (keyValue != null) {
+        await database.updateEntry(ref, keyValue, {'fcmToken': token});
+        print("4- Token FCM actualizado correctamente.");
+      } else {
+        print("5- Usuario no encontrado para actualizar el token.");
+      }
+    } catch (e) {
+      print("6- Error al actualizar el token FCM: $e");
+    }
+  }
+
   Future<String?> getKey(dynamic id, String field) async {
     return database.getKeyByField(ref, field, id);
   }
