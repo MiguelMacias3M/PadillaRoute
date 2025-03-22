@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/MonitoringRouteSceen.dart';
-import 'package:padillaroutea/screens/loginscreen.dart';
 import 'package:padillaroutea/services/firebase_auth/firebase_auth_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
