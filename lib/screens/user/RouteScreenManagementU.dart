@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/screens/user/RouteScreenU.dart';
-import 'package:padillaroutea/screens/user/SupportScreenUser.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
-import 'package:padillaroutea/screens/loginscreen.dart';
 import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
 import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
+import 'package:padillaroutea/screens/user/menulateralChofer.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class RouteScreenManagementU extends StatefulWidget {
-  final Usuario chofer;
+  final Usuario usuario;
 
-  RouteScreenManagementU({required this.chofer});
+  RouteScreenManagementU({required this.usuario});
 
   @override
   _RouteScreenManagementUState createState() => _RouteScreenManagementUState();
@@ -24,10 +28,15 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   List<Ruta> rutas = [];
   bool isLoading = true;
   Vehiculo? vehiculoAsignado;
+  UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
 
   @override
   void initState() {
     super.initState();
+    logAction(widget.usuario.correo, Tipo.alta, "Panel de bienvenida abierto",
+        logsHelper, _logger);
     _loadRutas();
     _loadVehiculo();
   }
@@ -36,15 +45,21 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
     try {
       List<Ruta> todasLasRutas = await rutasHelper.getAll();
       List<Ruta> rutasFiltradas = todasLasRutas
-          .where((ruta) => ruta.idChofer == widget.chofer.idUsuario)
+          .where((ruta) => ruta.idChofer == widget.usuario.idUsuario)
           .toList();
 
       setState(() {
         rutas = rutasFiltradas;
         isLoading = false;
       });
+      logAction(widget.usuario.correo, Tipo.alta, "Cargó rutas asignadas",
+          logsHelper, _logger);
     } catch (e) {
       print("Error cargando rutas: $e");
+      _logger.e("Error cargando rutas: $e");
+      logAction(widget.usuario.correo, Tipo.baja, "Error cargando rutas: $e",
+          logsHelper, _logger);
+
       setState(() {
         isLoading = false;
       });
@@ -52,17 +67,27 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   }
 
   Future<void> _loadVehiculo() async {
-    if (widget.chofer.idVehiculo != null) {
+    if (widget.usuario.idVehiculo != null) {
       try {
         Vehiculo? vehiculo =
-            await vehiculosHelper.get(widget.chofer.idVehiculo!);
+            await vehiculosHelper.get(widget.usuario.idVehiculo!);
         setState(() {
           vehiculoAsignado = vehiculo;
         });
+        logAction(widget.usuario.correo, Tipo.alta, "Cargó vehículo asignado",
+            logsHelper, _logger);
       } catch (e) {
         print("Error cargando vehículo: $e");
+        _logger.e("Error cargando vehículo: $e");
+        logAction(widget.usuario.correo, Tipo.baja,
+            "Error cargando vehículo: $e", logsHelper, _logger);
       }
     }
+  }
+
+  void _menuLateralChofer(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
 
   @override
@@ -70,14 +95,15 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Bienvenido, ${widget.chofer.nombre}',
+          'Bienvenido, ${widget.usuario.nombre}',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.blue.shade800,
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.white),
       ),
-      drawer: _buildDrawer(context),
+      drawer: buildDrawer(
+          context, widget.usuario, _menuLateralChofer, 'Panel de bienvenida'),
       body: Stack(
         children: [
           Padding(
@@ -197,11 +223,15 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
                 alignment: Alignment.centerRight,
                 child: ElevatedButton(
                   onPressed: () {
+                    logAction(widget.usuario.correo, Tipo.alta,
+                        "Inició ruta: ${ruta.nombre}", logsHelper, _logger);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                              RouteScreenU(routeName: ruta.nombre)),
+                          builder: (context) => RouteScreenU(
+                                routeName: ruta.nombre,
+                                usuario: widget.usuario,
+                              )),
                     );
                   },
                   style:
@@ -216,68 +246,6 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildDrawer(BuildContext context) {
-    return Drawer(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue.shade900, Colors.blue.shade600],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Column(
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue.shade700,
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 35,
-                    child: Icon(Icons.person, color: Colors.blue, size: 40),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    widget.chofer.nombre,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-            _drawerItem(context, Icons.home, 'Inicio',
-                RouteScreenManagementU(chofer: widget.chofer)),
-            _drawerItem(
-                context, Icons.support_agent, 'Soporte', SupportScreenUser()),
-            Spacer(),
-            _drawerItem(
-                context, Icons.exit_to_app, 'Cerrar sesión', LoginScreen()),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _drawerItem(
-      BuildContext context, IconData icon, String title, Widget screen) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white),
-      title: Text(title, style: TextStyle(fontSize: 16, color: Colors.white)),
-      onTap: () => Navigator.push(
-          context, MaterialPageRoute(builder: (context) => screen)),
     );
   }
 }

@@ -2,14 +2,23 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:padillaroutea/screens/user/IncidentsScreenRegister.dart';
 import 'package:padillaroutea/services/fcm_service.dart';
+import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
+import 'package:padillaroutea/screens/user/menulateralChofer.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class RouteScreenU extends StatefulWidget {
   final String routeName;
+  final Usuario usuario;
 
-  RouteScreenU({required this.routeName});
+  RouteScreenU({required this.routeName, required this.usuario});
 
   @override
   _RouteScreenUState createState() => _RouteScreenUState();
@@ -30,28 +39,50 @@ class _RouteScreenUState extends State<RouteScreenU> {
     LatLng(22.324216, -102.293004),
     LatLng(22.321520, -102.293886),
   ];
+  UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
 
   @override
   void initState() {
     super.initState();
+    logAction(widget.usuario.correo, Tipo.alta,
+        "Inicialización de RouteScreenU", logsHelper, _logger);
     _checkLocationPermissions();
   }
 
   Future<void> _checkLocationPermissions() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
-        print("❌ Permisos de ubicación denegados");
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          print("❌ Permisos de ubicación denegados");
+          logAction(widget.usuario.correo, Tipo.baja,
+              "Permisos de ubicación denegados", logsHelper, _logger);
+          return;
+        }
+      }
+      if (permission == LocationPermission.deniedForever) {
+        logAction(
+            widget.usuario.correo,
+            Tipo.baja,
+            "Permisos de ubicación denegados permanentemente",
+            logsHelper,
+            _logger);
+        print("❌ Permisos de ubicación denegados permanentemente");
         return;
       }
+      print("✅ Permisos de ubicación concedidos");
+      _getCurrentLocation();
+      logAction(widget.usuario.correo, Tipo.alta,
+          "Permisos de ubicación concedidos", logsHelper, _logger);
+      _getCurrentLocation();
+    } catch (e) {
+      print("❌ Error en checkLocationPermissions: $e");
+      logAction(widget.usuario.correo, Tipo.baja,
+          "Error en checkLocationPermissions: $e", logsHelper, _logger);
     }
-    if (permission == LocationPermission.deniedForever) {
-      print("❌ Permisos de ubicación denegados permanentemente");
-      return;
-    }
-    print("✅ Permisos de ubicación concedidos");
-    _getCurrentLocation();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -79,15 +110,21 @@ class _RouteScreenUState extends State<RouteScreenU> {
         );
       });
 
+      logAction(widget.usuario.correo, Tipo.alta,
+          "Ubicación obtenida: $_currentPosition", logsHelper, _logger);
       print("📍 Ubicación obtenida: $_currentPosition");
       setState(() {});
     } catch (e) {
       print("❌ Error obteniendo la ubicación: $e");
+      logAction(widget.usuario.correo, Tipo.baja,
+          "Error obteniendo la ubicación: $e", logsHelper, _logger);
     }
   }
 
   Future<void> _startNavigation() async {
     if (_currentPosition == null) {
+      logAction(widget.usuario.correo, Tipo.baja,
+          "Intento de iniciar ruta sin ubicación", logsHelper, _logger);
       print("⚠️ No se puede iniciar la ruta sin ubicación.");
       return;
     }
@@ -99,6 +136,8 @@ class _RouteScreenUState extends State<RouteScreenU> {
     });
 
     print("🚀 Ruta iniciada a las $_startTime");
+    logAction(widget.usuario.correo, Tipo.alta,
+        "Ruta iniciada a las $_startTime", logsHelper, _logger);
     // Enviar notificación a los usuarios con roles 'gerente' y 'administrativo' al iniciar la ruta
     _sendNotification("La ruta ${widget.routeName} ha comenzado.");
 
@@ -121,14 +160,20 @@ class _RouteScreenUState extends State<RouteScreenU> {
     final uri = Uri.parse(googleMapsUrl);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
+      logAction(widget.usuario.correo, Tipo.alta,
+          "Se abrió Google Maps para la ruta", logsHelper, _logger);
     } else {
       print("❌ No se pudo abrir Google Maps.");
+      logAction(widget.usuario.correo, Tipo.baja, "Error al abrir Google Maps",
+          logsHelper, _logger);
     }
   }
 
   Future<void> _registerStop() async {
     if (_currentPosition == null) {
       print("⚠️ No se puede registrar una parada sin ubicación.");
+      logAction(widget.usuario.correo, Tipo.baja,
+          "Intento de registrar parada sin ubicación", logsHelper, _logger);
       return;
     }
 
@@ -153,7 +198,11 @@ class _RouteScreenUState extends State<RouteScreenU> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context);
+                logAction(widget.usuario.correo, Tipo.modificacion,
+                    "Canceló el registro de parada", logsHelper, _logger);
+              },
               child: Text("Cancelar"),
             ),
             TextButton(
@@ -183,6 +232,12 @@ class _RouteScreenUState extends State<RouteScreenU> {
                 });
 
                 Navigator.pop(context);
+                logAction(
+                    widget.usuario.correo,
+                    Tipo.alta,
+                    "Registró parada con $passengers pasajeros",
+                    logsHelper,
+                    _logger);
               },
               child: Text("Guardar"),
             ),
@@ -191,8 +246,11 @@ class _RouteScreenUState extends State<RouteScreenU> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => IncidentsScreenRegister()),
+                      builder: (context) =>
+                          IncidentsScreenRegister(usuario: widget.usuario)),
                 );
+                logAction(widget.usuario.correo, Tipo.modificacion,
+                    "Reportó incidencia durante la ruta", logsHelper, _logger);
               },
               style: TextButton.styleFrom(backgroundColor: Colors.red),
               child: Text("Incidencia", style: TextStyle(color: Colors.white)),
@@ -205,6 +263,8 @@ class _RouteScreenUState extends State<RouteScreenU> {
 
   Future<void> _endNavigation() async {
     if (_startTime == null) {
+      logAction(widget.usuario.correo, Tipo.baja,
+          "Intento de finalizar ruta sin haber iniciado", logsHelper, _logger);
       print("⚠️ No puedes finalizar una ruta que no ha comenzado.");
       return;
     }
@@ -215,6 +275,8 @@ class _RouteScreenUState extends State<RouteScreenU> {
 // Enviar notificación a los usuarios con roles 'gerente' y 'administrativo' al finalizar la ruta
     _sendNotification("La ruta ${widget.routeName} ha finalizado.");
     print("🏁 Ruta finalizada a las $_endTime");
+    logAction(widget.usuario.correo, Tipo.alta,
+        "Ruta finalizada a las $_endTime", logsHelper, _logger);
     _showSummary();
   }
 
@@ -257,9 +319,18 @@ class _RouteScreenUState extends State<RouteScreenU> {
       await sendFCMMessage("Actualización de Ruta", message,
           "administrativos_y_gerentes", accessToken);
       print("Notificación enviada: $message");
+      logAction(widget.usuario.correo, Tipo.alta,
+          "Notificación enviada: $message", logsHelper, _logger);
     } catch (e) {
       print("Error al enviar la notificación: $e");
+      logAction(widget.usuario.correo, Tipo.baja,
+          "Error al enviar notificación: $e", logsHelper, _logger);
     }
+  }
+
+  void _menuLateralChofer(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
 
   @override
@@ -269,6 +340,8 @@ class _RouteScreenUState extends State<RouteScreenU> {
         title: Text(widget.routeName),
         backgroundColor: Colors.blueAccent,
       ),
+      drawer: buildDrawer(
+          context, widget.usuario, _menuLateralChofer, 'Registro de viaje'),
       body: Column(
         children: [
           Expanded(
