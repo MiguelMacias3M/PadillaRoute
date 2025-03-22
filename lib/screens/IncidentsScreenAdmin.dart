@@ -8,6 +8,7 @@ import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
 import 'package:padillaroutea/screens/registroDeLogs.dart';
+import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 
 class IncidentsScreenAdmin extends StatefulWidget {
   final Usuario usuario;
@@ -128,30 +129,69 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
     );
   }
 
-  Widget _incidentItem(IncidenteRegistro incidente) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: ListTile(
-        title: Text(incidente.descripcion,
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('ID Usuario: ${incidente.idUsuario}'),
-        trailing: ElevatedButton(
-          onPressed: () {
-            _showIncidentDetails(context, incidente);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
-            ),
+ Widget _incidentItem(IncidenteRegistro incidente) {
+  return FutureBuilder<Usuario?>(
+    future: UsuariosHelper(RealtimeDbHelper()).get(incidente.idUsuario),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Card(
+          margin: EdgeInsets.symmetric(vertical: 10),
+          elevation: 3,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: ListTile(
+            title: Text(incidente.descripcion,
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('Cargando usuario...'),
+            trailing: CircularProgressIndicator(),
           ),
-          child: Text('Ver incidencia', style: TextStyle(color: Colors.white)),
+        );
+      }
+
+      if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+        return Card(
+          margin: EdgeInsets.symmetric(vertical: 10),
+          elevation: 3,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: ListTile(
+            title: Text(incidente.descripcion,
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('Usuario no encontrado'),
+          ),
+        );
+      }
+
+      final usuario = snapshot.data!;
+      return Card(
+        margin: EdgeInsets.symmetric(vertical: 10),
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: ListTile(
+          title: Text(incidente.descripcion,
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(usuario.nombre),
+            ],
+          ),
+          trailing: ElevatedButton(
+            onPressed: () {
+              _showIncidentDetails(context, incidente);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+            ),
+            child: Text('Ver incidencia', style: TextStyle(color: Colors.white)),
+          ),
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
+}
+
 
   void _showIncidentDetails(BuildContext context, IncidenteRegistro incidente) {
     logAction(
