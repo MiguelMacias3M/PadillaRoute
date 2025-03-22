@@ -95,6 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
         switch (rolUsuario) {
           case Rol.chofer:
             nextScreen = RouteScreenManagementU(usuario: usuario);
+            _subscribeToTopic('choferes_y_gerentes');
             break;
           case Rol.administrativo:
             nextScreen = SplashScreenAdmin(usuario: usuario);

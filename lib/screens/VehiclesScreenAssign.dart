@@ -15,10 +15,11 @@ import 'package:padillaroutea/screens/registroDeLogs.dart';
 class VehiclesScreenAssign extends StatefulWidget {
   final Ruta rutaSeleccionada; // Agregar este parámetro
   final Usuario usuario;
+  final Usuario? usuarioAsignado; 
 
   const VehiclesScreenAssign(
       {required this.rutaSeleccionada,
-      required this.usuario}); // Incluir en el constructor
+      required this.usuario, this.usuarioAsignado}); // Incluir en el constructor
 
   @override
   _VehiclesScreenAssignState createState() => _VehiclesScreenAssignState();

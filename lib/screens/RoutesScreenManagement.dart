@@ -13,6 +13,7 @@ import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
 import 'package:padillaroutea/screens/registroDeLogs.dart';
+import 'package:padillaroutea/screens/AssignUserVehicleScreen.dart';
 
 class RoutesScreenManagement extends StatefulWidget {
   final Usuario usuario;
@@ -215,25 +216,14 @@ class _RoutesScreenManagementState extends State<RoutesScreenManagement> {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _actionButton(
-                    context, 'Asignar usuario', Colors.blue, Icons.person_add,
-                    () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RoutesScreenAssign(
-                          usuario: widget.usuario, rutaSeleccionada: ruta),
-                    ),
-                  ).then((_) => _loadRoutes()); // Recargar al regresar
-                }),
                 const SizedBox(width: 10),
                 _actionButton(
-                    context, 'Asignar vehiculo', Colors.green, Icons.car_crash,
+                    context, 'Asignar usuario y vehiculo', Colors.green, Icons.car_crash,
                     () {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => VehiclesScreenAssign(
+                          builder: (context) => AssignUserVehicleScreen(
                                 rutaSeleccionada: ruta,
                                 usuario: widget.usuario,
                               )));
