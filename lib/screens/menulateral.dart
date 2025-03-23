@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
+import 'package:padillaroutea/screens/ReportsScreen.dart';
 import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
@@ -61,6 +62,8 @@ Widget buildDrawer(BuildContext context, dynamic usuario, Function _menuLateral,
               StopScreenManagement(usuario: usuario)),
           drawerItem(context, Icons.location_on, 'Monitoreo',
               MonitoringScreenManagement(usuario: usuario)),
+          drawerItem(context, Icons.report, 'Reportes',
+              ReportsScreen(usuario: usuario)),
           const Divider(color: Colors.white),
           ListTile(
             leading: Icon(Icons.exit_to_app, color: Colors.white),
