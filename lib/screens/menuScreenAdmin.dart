@@ -4,6 +4,7 @@ import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
 import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
+import 'package:padillaroutea/screens/ReportsScreen.dart';
 import 'package:padillaroutea/screens/RoutesScreenManagement.dart';
 import 'package:padillaroutea/screens/StopScreenManagement.dart';
 import 'package:padillaroutea/screens/UserScreenSelect.dart';
@@ -65,7 +66,7 @@ class MenuScreenAdmin extends StatelessWidget {
                 screen: MonitoringScreenManagement(usuario: usuario)),
             _menuItem(context, Icons.directions_car, 'Vehículos',
                 screen: VehiclesScreenManagement(usuario: usuario)),
-            //_menuItem(context, Icons.bar_chart, 'Reportes'),
+            _menuItem(context, Icons.bar_chart, 'Reportes', screen: ReportsScreen(usuario: usuario)),
             _menuItem(context, Icons.local_parking, 'Paradas',
                 screen: StopScreenManagement(usuario: usuario)),
             _menuItem(context, Icons.warning_amber, 'Incidencias',
