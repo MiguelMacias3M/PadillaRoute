@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
+import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
+import 'package:logger/logger.dart';
+import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
+import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class ReportsScreen extends StatefulWidget {
   final Usuario usuario;
@@ -10,13 +17,15 @@ class ReportsScreen extends StatefulWidget {
   _ReportsScreenState createState() => _ReportsScreenState();
 }
 
-
 class _ReportsScreenState extends State<ReportsScreen> {
   String _selectedFilter = 'Día';
   DateTime? _startDate;
   DateTime? _endDate;
   DateTime? _selectedDay;
   int? _selectedMonth;
+  UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? picked = await showDatePicker(
@@ -35,6 +44,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
           _endDate = picked;
         }
       });
+
+      await logAction(widget.usuario.correo, Tipo.modificacion,
+          "Seleccionó fecha: ${picked.toLocal()}", logsHelper, _logger);
     }
   }
 
@@ -42,6 +54,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('📄 Generando reporte...')),
     );
+    logAction(widget.usuario.correo, Tipo.alta, "Generó reporte", logsHelper,
+        _logger);
+  }
+
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
   }
 
   Widget _buildFilterInputs() {
@@ -95,6 +114,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
             setState(() {
               _selectedMonth = val;
             });
+            logAction(widget.usuario.correo, Tipo.modificacion,
+                "Seleccionó mes: $val", logsHelper, _logger);
           },
         );
       default:
@@ -104,8 +125,18 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   String _monthName(int month) {
     const List<String> months = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre'
     ];
     return months[month - 1];
   }
@@ -117,6 +148,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         title: Text('📊 Generar Reportes'),
         backgroundColor: Colors.blueAccent,
       ),
+      drawer: buildDrawer(context, widget.usuario, _menuLateral, 'Reportes'),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -138,6 +170,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   _selectedDay = null;
                   _selectedMonth = null;
                 });
+                logAction(
+                    widget.usuario.correo,
+                    Tipo.modificacion,
+                    "Cambió filtro a: ${['Día', 'Semana', 'Mes'][index]}",
+                    logsHelper,
+                    _logger);
               },
               borderRadius: BorderRadius.circular(10),
               children: ['Día', 'Semana', 'Mes']
