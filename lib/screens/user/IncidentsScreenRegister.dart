@@ -7,13 +7,16 @@ import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/screens/user/menulateralChofer.dart'; // importacion del menu lateral
 import 'package:padillaroutea/screens/registroDeLogs.dart';
+import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 
 class IncidentsScreenRegister extends StatefulWidget {
   final Usuario usuario;
+  final Ruta ruta;
 
-  IncidentsScreenRegister({required this.usuario});
+  IncidentsScreenRegister({required this.ruta, required this.usuario});
   @override
   _IncidentsScreenRegisterState createState() =>
       _IncidentsScreenRegisterState();
@@ -52,10 +55,10 @@ class _IncidentsScreenRegisterState extends State<IncidentsScreenRegister> {
 
     IncidenteRegistro nuevoIncidente = IncidenteRegistro(
       idRegistro: DateTime.now().millisecondsSinceEpoch,
-      idUsuario: 1, // Reemplazar con el ID del usuario autenticado si aplica
+      idUsuario: widget.usuario.idUsuario,
       descripcion: descripcion,
       fecha: DateTime.now().toString(),
-      idVehiculo: 1, // Reemplazar con el ID del vehículo si aplica
+      idVehiculo: widget.ruta.idVehiculo,
     );
     try {
       await incidentesHelper.setNew(nuevoIncidente);
@@ -113,7 +116,7 @@ class _IncidentsScreenRegisterState extends State<IncidentsScreenRegister> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Ruta Rincón',
+              widget.ruta.nombre,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),

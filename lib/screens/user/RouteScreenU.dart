@@ -13,12 +13,13 @@ import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/screens/user/menulateralChofer.dart'; // importacion del menu lateral
 import 'package:padillaroutea/screens/registroDeLogs.dart';
+import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 
 class RouteScreenU extends StatefulWidget {
-  final String routeName;
+  final Ruta ruta;
   final Usuario usuario;
 
-  RouteScreenU({required this.routeName, required this.usuario});
+  RouteScreenU({required this.ruta, required this.usuario});
 
   @override
   _RouteScreenUState createState() => _RouteScreenUState();
@@ -139,7 +140,7 @@ class _RouteScreenUState extends State<RouteScreenU> {
     logAction(widget.usuario.correo, Tipo.alta,
         "Ruta iniciada a las $_startTime", logsHelper, _logger);
     // Enviar notificación a los usuarios con roles 'gerente' y 'administrativo' al iniciar la ruta
-    _sendNotification("La ruta ${widget.routeName} ha comenzado.");
+    _sendNotification("La ruta ${widget.ruta.nombre} ha comenzado.");
 
     String origin =
         "${_currentPosition!.latitude},${_currentPosition!.longitude}";
@@ -246,8 +247,10 @@ class _RouteScreenUState extends State<RouteScreenU> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          IncidentsScreenRegister(usuario: widget.usuario)),
+                      builder: (context) => IncidentsScreenRegister(
+                            usuario: widget.usuario,
+                            ruta: widget.ruta,
+                          )),
                 );
                 logAction(widget.usuario.correo, Tipo.modificacion,
                     "Reportó incidencia durante la ruta", logsHelper, _logger);
@@ -273,7 +276,7 @@ class _RouteScreenUState extends State<RouteScreenU> {
       _endTime = DateTime.now();
     });
 // Enviar notificación a los usuarios con roles 'gerente' y 'administrativo' al finalizar la ruta
-    _sendNotification("La ruta ${widget.routeName} ha finalizado.");
+    _sendNotification("La ruta ${widget.ruta.nombre} ha finalizado.");
     print("🏁 Ruta finalizada a las $_endTime");
     logAction(widget.usuario.correo, Tipo.alta,
         "Ruta finalizada a las $_endTime", logsHelper, _logger);
@@ -337,7 +340,7 @@ class _RouteScreenUState extends State<RouteScreenU> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.routeName),
+        title: Text(widget.ruta.nombre),
         backgroundColor: Colors.blueAccent,
       ),
       drawer: buildDrawer(

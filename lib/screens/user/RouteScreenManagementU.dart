@@ -229,7 +229,7 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => RouteScreenU(
-                                routeName: ruta.nombre,
+                                ruta: ruta,
                                 usuario: widget.usuario,
                               )),
                     );
