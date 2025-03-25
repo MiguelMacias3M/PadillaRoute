@@ -54,6 +54,39 @@ class IncidentesHelper {
     }
   }
 
+  Future<List<IncidenteRegistro>> fetchByMonth(int year, int month) async {
+    final data = await database.fetchEntriesByMonth(ref, year, month);
+    if (data.isNotEmpty) {
+      return data
+          .map((e) => IncidenteRegistro.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<IncidenteRegistro>> fetchByDate(DateTime date) async {
+    final data = await database.fetchEntriesByDate(ref, date);
+    if (data.isNotEmpty) {
+      return data
+          .map((e) => IncidenteRegistro.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<IncidenteRegistro>> fetchByDateRange(DateTime startDate, DateTime endDate) async {
+    final data = await database.fetchEntriesByDateRange(ref, startDate, endDate);
+    if (data.isNotEmpty) {
+      return data
+          .map((e) => IncidenteRegistro.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } else {
+      return [];
+    }
+  }
+
   Future<String?> getKey(int id, String field) async {
     return database.getKeyByField(ref, field, id);
   } // WORKS!!!
