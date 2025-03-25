@@ -10,14 +10,18 @@ class IncidenteRegistro {
   final String descripcion;
   final String fecha;
 
-  IncidenteRegistro({
-    required this.idRegistro,
-    required this.idUsuario,
-    required this.idVehiculo,
-    required this.descripcion,
-    required this.fecha
-  });
+  IncidenteRegistro(
+      {required this.idRegistro,
+      required this.idUsuario,
+      required this.idVehiculo,
+      required this.descripcion,
+      required this.fecha});
 
-  factory IncidenteRegistro.fromJson(Map<String, dynamic> json) => _$IncidenteRegistroFromJson(json);
+  factory IncidenteRegistro.fromJson(Map<String, dynamic> json) =>
+      _$IncidenteRegistroFromJson(json);
   Map<String, dynamic> toJson() => _$IncidenteRegistroToJson(this);
+
+  static List<String> getKeys() {
+    return ['ID', 'Usuario', 'Vehiculo', 'Descripción', 'Fecha'];
+  }
 }

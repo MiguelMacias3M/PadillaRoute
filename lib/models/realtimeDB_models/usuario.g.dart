@@ -16,6 +16,7 @@ Usuario _$UsuarioFromJson(Map<String, dynamic> json) => Usuario(
       rol: $enumDecode(_$RolEnumMap, json['rol']),
       activo: json['activo'] as bool,
       idVehiculo: (json['idVehiculo'] as num?)?.toInt(),
+      fcmToken: json['fcmToken'] as String?,
     );
 
 Map<String, dynamic> _$UsuarioToJson(Usuario instance) => <String, dynamic>{
@@ -28,6 +29,7 @@ Map<String, dynamic> _$UsuarioToJson(Usuario instance) => <String, dynamic>{
       'rol': _$RolEnumMap[instance.rol]!,
       'activo': instance.activo,
       'idVehiculo': instance.idVehiculo,
+      'fcmToken': instance.fcmToken,
     };
 
 const _$RolEnumMap = {

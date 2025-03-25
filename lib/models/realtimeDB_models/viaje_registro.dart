@@ -14,7 +14,7 @@ class ViajeRegistro {
   final int totalPasajeros;
   final int distanciaRecorrida;
   final int velocidadPromedio;
-  final int litrosCombustibleConsumidoAprox;
+  final String coordenadas;
 
   ViajeRegistro({
     required this.idRegistro,
@@ -28,9 +28,13 @@ class ViajeRegistro {
     required this.totalPasajeros,
     required this.distanciaRecorrida,
     required this.velocidadPromedio,
-    required this.litrosCombustibleConsumidoAprox
+    required this.coordenadas
   });
 
   factory ViajeRegistro.fromJson(Map<String, dynamic> json) => _$ViajeRegistroFromJson(json);
   Map<String, dynamic> toJson() => _$ViajeRegistroToJson(this);
+
+  static List<String> getKeys() {
+    return ['ID', 'Ruta', 'Vehiculo', 'Usuario', 'Paradas', 'Hora Inicio', 'Hora Final', 'Tiempo Total', 'Total Pasajeros', 'Distancia Recorrida', 'Velocidad Promedio', 'Litros Combustible Consumido Aprox'];
+  }
 }
