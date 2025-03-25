@@ -16,7 +16,10 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 
 class ReportsScreen extends StatefulWidget {
-  const ReportsScreen({super.key, required usuario});
+  final Usuario usuario;
+
+  const ReportsScreen({super.key, required this.usuario});
+
   @override
   _ReportsScreenState createState() => _ReportsScreenState();
 }
@@ -125,6 +128,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
         _logger);
   }
 
+  void _menuLateral(BuildContext context) {
+    // Solo cerrar el Drawer (menú lateral)
+    Navigator.pop(context); // Esto cierra el menú lateral
+  }
+  
   Widget _buildFilterInputs() {
     switch (_selectedFilter) {
       case 'Día':
