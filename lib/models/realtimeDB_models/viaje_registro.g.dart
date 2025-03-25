@@ -19,8 +19,7 @@ ViajeRegistro _$ViajeRegistroFromJson(Map<String, dynamic> json) =>
       totalPasajeros: (json['totalPasajeros'] as num).toInt(),
       distanciaRecorrida: (json['distanciaRecorrida'] as num).toInt(),
       velocidadPromedio: (json['velocidadPromedio'] as num).toInt(),
-      litrosCombustibleConsumidoAprox:
-          (json['litrosCombustibleConsumidoAprox'] as num).toInt(),
+      coordenadas: json['coordenadas'] as String,
     );
 
 Map<String, dynamic> _$ViajeRegistroToJson(ViajeRegistro instance) =>
@@ -36,6 +35,5 @@ Map<String, dynamic> _$ViajeRegistroToJson(ViajeRegistro instance) =>
       'totalPasajeros': instance.totalPasajeros,
       'distanciaRecorrida': instance.distanciaRecorrida,
       'velocidadPromedio': instance.velocidadPromedio,
-      'litrosCombustibleConsumidoAprox':
-          instance.litrosCombustibleConsumidoAprox,
+      'coordenadas': instance.coordenadas,
     };
