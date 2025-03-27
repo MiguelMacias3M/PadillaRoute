@@ -55,8 +55,7 @@
         <!-- Clave de API de Google Maps -->
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyAKAfaEcXLH-reGFbTDPJ2e2zseCAzh2-I"/>
-
+            android:value="TU_API_KEY_AQUI"/>
         <!-- Flutter meta-data -->
         <meta-data
             android:name="flutterEmbedding"
