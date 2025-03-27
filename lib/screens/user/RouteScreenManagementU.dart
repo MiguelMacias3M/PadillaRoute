@@ -10,7 +10,7 @@ import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
-import 'package:padillaroutea/screens/user/menulateralChofer.dart'; // importacion del menu lateral
+import 'package:padillaroutea/screens/user/menulateralChofer.dart'; // menú lateral
 import 'package:padillaroutea/screens/registroDeLogs.dart';
 
 class RouteScreenManagementU extends StatefulWidget {
@@ -25,18 +25,18 @@ class RouteScreenManagementU extends StatefulWidget {
 class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   final RutasHelper rutasHelper = RutasHelper(RealtimeDbHelper());
   final VehiculosHelper vehiculosHelper = VehiculosHelper(RealtimeDbHelper());
+  final UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
+  final Logger _logger = Logger();
+
   List<Ruta> rutas = [];
   bool isLoading = true;
   Vehiculo? vehiculoAsignado;
-  UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
-  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
-  final Logger _logger = Logger();
 
   @override
   void initState() {
     super.initState();
-    logAction(widget.usuario.correo, Tipo.alta, "Panel de bienvenida abierto",
-        logsHelper, _logger);
+    logAction(widget.usuario.correo, Tipo.alta, "Panel de bienvenida abierto", logsHelper, _logger);
     _loadRutas();
     _loadVehiculo();
   }
@@ -52,13 +52,12 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
         rutas = rutasFiltradas;
         isLoading = false;
       });
-      logAction(widget.usuario.correo, Tipo.alta, "Cargó rutas asignadas",
-          logsHelper, _logger);
+
+      logAction(widget.usuario.correo, Tipo.alta, "Cargó rutas asignadas", logsHelper, _logger);
     } catch (e) {
       print("Error cargando rutas: $e");
       _logger.e("Error cargando rutas: $e");
-      logAction(widget.usuario.correo, Tipo.baja, "Error cargando rutas: $e",
-          logsHelper, _logger);
+      logAction(widget.usuario.correo, Tipo.baja, "Error cargando rutas: $e", logsHelper, _logger);
 
       setState(() {
         isLoading = false;
@@ -69,25 +68,21 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   Future<void> _loadVehiculo() async {
     if (widget.usuario.idVehiculo != null) {
       try {
-        Vehiculo? vehiculo =
-            await vehiculosHelper.get(widget.usuario.idVehiculo!);
+        Vehiculo? vehiculo = await vehiculosHelper.get(widget.usuario.idVehiculo!);
         setState(() {
           vehiculoAsignado = vehiculo;
         });
-        logAction(widget.usuario.correo, Tipo.alta, "Cargó vehículo asignado",
-            logsHelper, _logger);
+        logAction(widget.usuario.correo, Tipo.alta, "Cargó vehículo asignado", logsHelper, _logger);
       } catch (e) {
         print("Error cargando vehículo: $e");
         _logger.e("Error cargando vehículo: $e");
-        logAction(widget.usuario.correo, Tipo.baja,
-            "Error cargando vehículo: $e", logsHelper, _logger);
+        logAction(widget.usuario.correo, Tipo.baja, "Error cargando vehículo: $e", logsHelper, _logger);
       }
     }
   }
 
   void _menuLateralChofer(BuildContext context) {
-    // Solo cerrar el Drawer (menú lateral)
-    Navigator.pop(context); // Esto cierra el menú lateral
+    Navigator.pop(context); // Cerrar menú lateral
   }
 
   @override
@@ -102,8 +97,7 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.white),
       ),
-      drawer: buildDrawer(
-          context, widget.usuario, _menuLateralChofer, 'Panel de bienvenida'),
+      drawer: buildDrawer(context, widget.usuario, _menuLateralChofer, 'Panel de bienvenida'),
       body: Stack(
         children: [
           Padding(
@@ -114,8 +108,7 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
                     ? Center(
                         child: Text(
                           'No tienes rutas asignadas',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       )
                     : ListView.builder(
@@ -142,8 +135,7 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
           color: Colors.blue.shade800,
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
-            BoxShadow(
-                color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+            BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
           ],
         ),
         child: Column(
@@ -151,10 +143,7 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
           children: [
             Text(
               'El vehículo que te fue asignado es:',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
+              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 5),
             Row(
@@ -164,10 +153,7 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
                 SizedBox(width: 10),
                 Text(
                   '${vehiculoAsignado!.marca} - ${vehiculoAsignado!.modelo} - ${vehiculoAsignado!.placa}',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -198,25 +184,23 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
             children: [
               Text(
                 ruta.nombre,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: Colors.white),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
               ),
               SizedBox(height: 5),
               Wrap(
-                children: ruta.paradas
-                    .map<Widget>((stop) => Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: Text(
-                            stop,
-                            style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                fontSize: 14,
-                                color: Colors.white70),
-                          ),
-                        ))
-                    .toList(),
+                children: ruta.paradas.map<Widget>((stop) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Text(
+                      stop,
+                      style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        fontSize: 14,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
               SizedBox(height: 10),
               Align(
@@ -228,18 +212,15 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => RouteScreenU(
-                                ruta: ruta,
-                                usuario: widget.usuario,
-                              )),
+                        builder: (context) => RouteScreenU(
+                          ruta: ruta,
+                          usuario: widget.usuario,
+                        ),
+                      ),
                     );
                   },
-                  style:
-                      ElevatedButton.styleFrom(backgroundColor: Colors.white),
-                  child: Text(
-                    'Hacer ruta',
-                    style: TextStyle(color: Colors.blue.shade800),
-                  ),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                  child: Text('Hacer ruta', style: TextStyle(color: Colors.blue.shade800)),
                 ),
               ),
             ],
