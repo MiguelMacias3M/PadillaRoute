@@ -21,6 +21,8 @@ import 'package:logger/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:padillaroutea/main.dart'; // Donde esté definida tu instancia objectBox
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
+import 'package:padillaroutea/services/data_sync/data_sync.dart';
+import 'package:padillaroutea/services/objectbox_services/viajes_registro_helper.dart';
 
 
 class RouteScreenU extends StatefulWidget {
@@ -34,26 +36,37 @@ class RouteScreenU extends StatefulWidget {
 }
 
 class _RouteScreenUState extends State<RouteScreenU> {
-  Completer<GoogleMapController> _controller = Completer();
   LatLng? _currentPosition;
-  List<Map<String, dynamic>> _stopRecords = [];
-  Set<Marker> _markers = {};
   DateTime? _startTime;
   DateTime? _endTime;
-  double _totalDistance = 0.0;
-  double _averageSpeed = 0.0;
+  final Completer<GoogleMapController> _controller = Completer();
+  final List<Map<String, dynamic>> _stopRecords = [];
+  final Set<Marker> _markers = {};
+  final double _totalDistance = 0.0;
+  final double _averageSpeed = 0.0;
 
   final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
   final Logger _logger = Logger();
   final UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
   final ViajesHelper viajesHelper = ViajesHelper(RealtimeDbHelper());
+  final ViajesRegistroHelper viajesObjHelper = ViajesRegistroHelper(objectBox);
+
+  late final DataSync _taskScheduler;
 
   @override
   void initState() {
     super.initState();
     logAction(widget.usuario.correo, Tipo.alta,
         "Inicialización de RouteScreenU", logsHelper, _logger);
+    _taskScheduler = DataSync(viajesObjHelper, viajesHelper);
     _checkLocationPermissions();
+    _taskScheduler.startTimer();
+  }
+
+  @override
+  void dispose() {
+    _taskScheduler.stopTimer();
+    super.dispose();
   }
 
   Future<void> _checkLocationPermissions() async {
@@ -208,7 +221,7 @@ class _RouteScreenUState extends State<RouteScreenU> {
       totalPasajeros: _stopRecords.fold(0, (sum, stop) => sum + (stop["passengers"] as int)),
       distanciaRecorrida: _totalDistance.toInt(),
       velocidadPromedio: _averageSpeed.toInt(),
-      litrosCombustibleConsumidoAprox: 1,
+      coordenadas: "falta agregar este campo"
     );
 
     await viajesHelper.setNew(registroRealtime);
@@ -224,7 +237,7 @@ class _RouteScreenUState extends State<RouteScreenU> {
       totalPasajeros: registroRealtime.totalPasajeros,
       distanciaRecorrida: _totalDistance,
       velocidadPromedio: _averageSpeed,
-      combustibleConsumidoPromedio: 1.0,
+      coordenadas: "falta agrgar este campo",
       finalizado: true,
     );
 
