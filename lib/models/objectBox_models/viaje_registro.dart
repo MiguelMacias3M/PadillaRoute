@@ -14,13 +14,14 @@ class ViajeRegistro {
 
   String horaInicio;
   String horaFinal;
+  String coordenadas;
 
   int tiempoTotal;
   int totalPasajeros;
 
   double distanciaRecorrida;
   double velocidadPromedio;
-  double combustibleConsumidoPromedio;
+
 
   bool finalizado;
 
@@ -36,7 +37,7 @@ class ViajeRegistro {
     required this.totalPasajeros,
     required this.distanciaRecorrida,
     required this.velocidadPromedio,
-    required this.combustibleConsumidoPromedio,
+    required this.coordenadas,
     required this.finalizado,
   });
 
@@ -57,7 +58,7 @@ class ViajeRegistro {
       "total_personas": totalPasajeros,
       "distancia_recorrida": distanciaRecorrida,
       "velocidad_promedio": velocidadPromedio,
-      "combustible_consumido_promedio": combustibleConsumidoPromedio
+      "coordenadas": coordenadas
     };
   }
 }
