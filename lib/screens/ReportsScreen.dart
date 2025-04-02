@@ -90,7 +90,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       case 'Mes':
         return incidentesHelper.fetchByMonth(year, _selectedMonth!);
 
-      default:
+      default:  
         return Future.value([]);
     }
   }
@@ -132,7 +132,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
     // Solo cerrar el Drawer (menú lateral)
     Navigator.pop(context); // Esto cierra el menú lateral
   }
-  
   Widget _buildFilterInputs() {
     switch (_selectedFilter) {
       case 'Día':

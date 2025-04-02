@@ -22,7 +22,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
       id: const obx_int.IdUid(1, 4728545412672262595),
       name: 'ViajeRegistro',
-      lastPropertyId: const obx_int.IdUid(17, 5729657044769026602),
+      lastPropertyId: const obx_int.IdUid(18, 6374138542372822814),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
@@ -81,14 +81,14 @@ final _entities = <obx_int.ModelEntity>[
             type: 9,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(16, 6429469094011943501),
-            name: 'combustibleConsumidoPromedio',
-            type: 8,
-            flags: 0),
-        obx_int.ModelProperty(
             id: const obx_int.IdUid(17, 5729657044769026602),
             name: 'finalizado',
             type: 1,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(18, 6374138542372822814),
+            name: 'coordenadas',
+            type: 9,
             flags: 0)
       ],
       relations: <obx_int.ModelRelation>[],
@@ -145,7 +145,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
         6941642670277637253,
         2654915024769224228,
         1211653528266574720,
-        6045165561185031209
+        6045165561185031209,
+        6429469094011943501
       ],
       retiredRelationUids: const [],
       modelVersion: 5,
@@ -165,7 +166,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
           final horaInicioOffset = fbb.writeString(object.horaInicio);
           final paradasRegistroOffset = fbb.writeString(object.paradasRegistro);
           final horaFinalOffset = fbb.writeString(object.horaFinal);
-          fbb.startTable(18);
+          final coordenadasOffset = fbb.writeString(object.coordenadas);
+          fbb.startTable(19);
           fbb.addInt64(1, object.idRuta);
           fbb.addInt64(2, object.idVehiculo);
           fbb.addOffset(4, horaInicioOffset);
@@ -177,8 +179,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
           fbb.addInt64(12, object.id);
           fbb.addInt64(13, object.idChofer);
           fbb.addOffset(14, horaFinalOffset);
-          fbb.addFloat64(15, object.combustibleConsumidoPromedio);
           fbb.addBool(16, object.finalizado);
+          fbb.addOffset(17, coordenadasOffset);
           fbb.finish(fbb.endTable());
           return object.id;
         },
@@ -208,8 +210,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
               const fb.Float64Reader().vTableGet(buffer, rootOffset, 20, 0);
           final velocidadPromedioParam =
               const fb.Float64Reader().vTableGet(buffer, rootOffset, 22, 0);
-          final combustibleConsumidoPromedioParam =
-              const fb.Float64Reader().vTableGet(buffer, rootOffset, 34, 0);
+          final coordenadasParam =
+              const fb.StringReader(asciiOptimization: true)
+                  .vTableGet(buffer, rootOffset, 38, '');
           final finalizadoParam =
               const fb.BoolReader().vTableGet(buffer, rootOffset, 36, false);
           final object = ViajeRegistro(
@@ -224,7 +227,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
               totalPasajeros: totalPasajerosParam,
               distanciaRecorrida: distanciaRecorridaParam,
               velocidadPromedio: velocidadPromedioParam,
-              combustibleConsumidoPromedio: combustibleConsumidoPromedioParam,
+              coordenadas: coordenadasParam,
               finalizado: finalizadoParam);
 
           return object;
@@ -280,11 +283,11 @@ class ViajeRegistro_ {
   static final horaFinal =
       obx.QueryStringProperty<ViajeRegistro>(_entities[0].properties[10]);
 
-  /// See [ViajeRegistro.combustibleConsumidoPromedio].
-  static final combustibleConsumidoPromedio =
-      obx.QueryDoubleProperty<ViajeRegistro>(_entities[0].properties[11]);
-
   /// See [ViajeRegistro.finalizado].
   static final finalizado =
-      obx.QueryBooleanProperty<ViajeRegistro>(_entities[0].properties[12]);
+      obx.QueryBooleanProperty<ViajeRegistro>(_entities[0].properties[11]);
+
+  /// See [ViajeRegistro.coordenadas].
+  static final coordenadas =
+      obx.QueryStringProperty<ViajeRegistro>(_entities[0].properties[12]);
 }

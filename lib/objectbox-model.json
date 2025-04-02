@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:4728545412672262595",
-      "lastPropertyId": "17:5729657044769026602",
+      "lastPropertyId": "18:6374138542372822814",
       "name": "ViajeRegistro",
       "properties": [
         {
@@ -65,14 +65,14 @@
           "type": 9
         },
         {
-          "id": "16:6429469094011943501",
-          "name": "combustibleConsumidoPromedio",
-          "type": 8
-        },
-        {
           "id": "17:5729657044769026602",
           "name": "finalizado",
           "type": 1
+        },
+        {
+          "id": "18:6374138542372822814",
+          "name": "coordenadas",
+          "type": 9
         }
       ],
       "relations": []
@@ -97,7 +97,8 @@
     6941642670277637253,
     2654915024769224228,
     1211653528266574720,
-    6045165561185031209
+    6045165561185031209,
+    6429469094011943501
   ],
   "retiredRelationUids": [],
   "version": 1
