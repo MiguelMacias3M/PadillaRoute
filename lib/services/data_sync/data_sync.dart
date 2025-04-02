@@ -6,11 +6,11 @@ import 'package:padillaroutea/models/objectBox_models/viaje_registro.dart';
 import 'dart:async';
 
 class DataSync {
-  final ViajesHelper _realTimeViajesHelper;
-  final ViajesRegistroHelper _objectBox;
+  final ViajesHelper realTimeViajesHelper;
+  final ViajesRegistroHelper objectBox;
   Timer? _timer;
 
-  DataSync(this._objectBox, this._realTimeViajesHelper);
+  DataSync(this.objectBox, this.realTimeViajesHelper);
 
   void startTimer() {
     _timer = Timer.periodic(const Duration(milliseconds: 300000), (timer) {
@@ -24,12 +24,12 @@ class DataSync {
     _timer?.cancel();
   }
   bool checkForPendingSyncronization() {
-    final List<ViajeRegistro> registros = _objectBox.getAllRegistros();
+    final List<ViajeRegistro> registros = objectBox.getAllRegistros();
     return registros.isNotEmpty;
   }
 
   void syncDat(String coordenadas) {
-    final List<ViajeRegistro> registros = _objectBox.getAllRegistros();
+    final List<ViajeRegistro> registros = objectBox.getAllRegistros();
     final objItem = registros[0];
 
     final castedItem = viajeRegistroRealTime.ViajeRegistro(
@@ -46,8 +46,8 @@ class DataSync {
         velocidadPromedio: objItem.velocidadPromedio.toInt(),
         coordenadas: coordenadas);
 
-    _realTimeViajesHelper.setNew(castedItem).then((value) {
-      _objectBox.deleteRegistro();
+    realTimeViajesHelper.setNew(castedItem).then((value) {
+      objectBox.deleteRegistro();
     });
   }
 }
