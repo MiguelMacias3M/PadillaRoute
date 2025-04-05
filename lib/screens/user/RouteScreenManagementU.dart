@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/screens/user/RouteScreenU.dart';
+import 'package:padillaroutea/services/data_sync/data_sync.dart';
 import 'package:padillaroutea/services/realtime_db_services/rutas_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
@@ -12,11 +15,16 @@ import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:padillaroutea/screens/user/menulateralChofer.dart'; // menú lateral
 import 'package:padillaroutea/screens/registroDeLogs.dart';
+import 'package:padillaroutea/models/objectBox_models/viaje_registro.dart'
+    as ob;
+import 'package:padillaroutea/main.dart';
+import 'package:padillaroutea/services/objectbox_services/viajes_registro_helper.dart';
+import 'package:padillaroutea/services/realtime_db_services/viajes_helper.dart';
 
 class RouteScreenManagementU extends StatefulWidget {
   final Usuario usuario;
 
-  RouteScreenManagementU({required this.usuario});
+  const RouteScreenManagementU({super.key, required this.usuario});
 
   @override
   _RouteScreenManagementUState createState() => _RouteScreenManagementUState();
@@ -29,6 +37,11 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
   final Logger _logger = Logger();
 
+  final ViajesRegistroHelper viajesObjHelper = ViajesRegistroHelper(objectBox);
+
+  late final DataSync _taskScheduler;
+  final ViajesHelper viajesHelper = ViajesHelper(RealtimeDbHelper());
+
   List<Ruta> rutas = [];
   bool isLoading = true;
   Vehiculo? vehiculoAsignado;
@@ -36,9 +49,18 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   @override
   void initState() {
     super.initState();
-    logAction(widget.usuario.correo, Tipo.alta, "Panel de bienvenida abierto", logsHelper, _logger);
+    logAction(widget.usuario.correo, Tipo.alta, "Panel de bienvenida abierto",
+        logsHelper, _logger);
     _loadRutas();
     _loadVehiculo();
+    _taskScheduler = DataSync(viajesObjHelper, viajesHelper);
+    _taskScheduler.startTimer();
+  }
+
+  @override
+  void dispose() {
+    _taskScheduler.stopTimer();
+    super.dispose();
   }
 
   Future<void> _loadRutas() async {
@@ -53,11 +75,13 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
         isLoading = false;
       });
 
-      logAction(widget.usuario.correo, Tipo.alta, "Cargó rutas asignadas", logsHelper, _logger);
+      logAction(widget.usuario.correo, Tipo.alta, "Cargó rutas asignadas",
+          logsHelper, _logger);
     } catch (e) {
       print("Error cargando rutas: $e");
       _logger.e("Error cargando rutas: $e");
-      logAction(widget.usuario.correo, Tipo.baja, "Error cargando rutas: $e", logsHelper, _logger);
+      logAction(widget.usuario.correo, Tipo.baja, "Error cargando rutas: $e",
+          logsHelper, _logger);
 
       setState(() {
         isLoading = false;
@@ -68,15 +92,18 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   Future<void> _loadVehiculo() async {
     if (widget.usuario.idVehiculo != null) {
       try {
-        Vehiculo? vehiculo = await vehiculosHelper.get(widget.usuario.idVehiculo!);
+        Vehiculo? vehiculo =
+            await vehiculosHelper.get(widget.usuario.idVehiculo!);
         setState(() {
           vehiculoAsignado = vehiculo;
         });
-        logAction(widget.usuario.correo, Tipo.alta, "Cargó vehículo asignado", logsHelper, _logger);
+        logAction(widget.usuario.correo, Tipo.alta, "Cargó vehículo asignado",
+            logsHelper, _logger);
       } catch (e) {
         print("Error cargando vehículo: $e");
         _logger.e("Error cargando vehículo: $e");
-        logAction(widget.usuario.correo, Tipo.baja, "Error cargando vehículo: $e", logsHelper, _logger);
+        logAction(widget.usuario.correo, Tipo.baja,
+            "Error cargando vehículo: $e", logsHelper, _logger);
       }
     }
   }
@@ -85,30 +112,64 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
     Navigator.pop(context); // Cerrar menú lateral
   }
 
+  // void _saveRegistro() {
+  //   final registro = ob.ViajeRegistro(
+  //     idRuta: 1,
+  //     idVehiculo: widget.usuario.idVehiculo ?? 1,
+  //     idChofer: widget.usuario.idUsuario,
+  //     paradasRegistro: jsonEncode({"Uno": "Uno"}),
+  //     horaInicio: DateTime.now().toIso8601String(),
+  //     horaFinal: DateTime.now().toIso8601String(),
+  //     tiempoTotal: DateTime.now().millisecond,
+  //     totalPasajeros: 12,
+  //     distanciaRecorrida: 1.00,
+  //     velocidadPromedio: 1.00,
+  //     coordenadas: "0.0,0.0",
+  //     finalizado: true,
+  //   );
+
+  //   viajesObjHelper.saveRegistro(registro);
+  // }
+
+  // void _checkDB() {
+  //   final resultado = viajesObjHelper.getAllRegistros();
+  //   if (resultado.isNotEmpty) {
+  //     print(resultado[0].toJson());
+  //   } else {
+  //     print("DB is empty");
+  //   }
+  // }
+
+  // void _vaciarDB() {
+  //   viajesObjHelper.deleteRegistro();
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Bienvenido, ${widget.usuario.nombre}',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.blue.shade800,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      drawer: buildDrawer(context, widget.usuario, _menuLateralChofer, 'Panel de bienvenida'),
+      drawer: buildDrawer(
+          context, widget.usuario, _menuLateralChofer, 'Panel de bienvenida'),
       body: Stack(
         children: [
           Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : rutas.isEmpty
-                    ? Center(
+                    ? const Center(
                         child: Text(
                           'No tienes rutas asignadas',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       )
                     : ListView.builder(
@@ -119,6 +180,28 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
                       ),
           ),
           if (vehiculoAsignado != null) _floatingVehicleInfo(),
+          // ListView(
+          //   children: [
+          //     ElevatedButton(
+          //         onPressed: _saveRegistro,
+          //         style: ElevatedButton.styleFrom(
+          //             backgroundColor: Colors.blue,
+          //             foregroundColor: Colors.blueGrey),
+          //         child: const Text("Guardar Regisgtro")),
+          //     ElevatedButton(
+          //         onPressed: _checkDB,
+          //         style: ElevatedButton.styleFrom(
+          //             backgroundColor: Colors.purple,
+          //             foregroundColor: Colors.white),
+          //         child: const Text("Revisar DB")),
+          //                   ElevatedButton(
+          //         onPressed: _checkDB,
+          //         style: ElevatedButton.styleFrom(
+          //             backgroundColor: Colors.red,
+          //             foregroundColor: Colors.white),
+          //         child: const Text("Vaciar DB"))
+          //   ],
+          // )
         ],
       ),
     );
@@ -135,7 +218,8 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
           color: Colors.blue.shade800,
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
-            BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+            BoxShadow(
+                color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
           ],
         ),
         child: Column(
@@ -143,7 +227,10 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
           children: [
             Text(
               'El vehículo que te fue asignado es:',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 5),
             Row(
@@ -153,7 +240,10 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
                 SizedBox(width: 10),
                 Text(
                   '${vehiculoAsignado!.marca} - ${vehiculoAsignado!.modelo} - ${vehiculoAsignado!.placa}',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -184,7 +274,10 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
             children: [
               Text(
                 ruta.nombre,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.white),
               ),
               SizedBox(height: 5),
               Wrap(
@@ -219,8 +312,10 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
                       ),
                     );
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
-                  child: Text('Hacer ruta', style: TextStyle(color: Colors.blue.shade800)),
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                  child: Text('Hacer ruta',
+                      style: TextStyle(color: Colors.blue.shade800)),
                 ),
               ),
             ],
