@@ -10,21 +10,31 @@ class WifiController {
   final StreamController<bool> _connectionController = StreamController<bool>.broadcast();
   Stream<bool> get connectionStream => _connectionController.stream;
 
-  WifiController() {
-    _connectivity.onConnectivityChanged.listen((List<ConnectivityResult> results) {
-      _internetChecker.hasConnection.then((hasInternet) {
-        _connectionController.add(hasInternet);
-      });
-    });
+  bool _lastStatus = false;
+  Timer? _periodicTimer;
+
+  WifiController({Duration checkInterval = const Duration(seconds: 5)}) {
+    _connectivity.onConnectivityChanged.listen((_) => _checkStatus());
+    _periodicTimer = Timer.periodic(checkInterval, (_) => _checkStatus());
+    _checkStatus();
+  }
+
+  Future<void> _checkStatus() async {
+    final hasInternet = await _internetChecker.hasConnection;
+    if (hasInternet != _lastStatus) {
+      _lastStatus = hasInternet;
+      _connectionController.add(hasInternet);
+    }
   }
 
   Future<bool> checkConnection () async {
-    bool hasInternet = await _internetChecker.hasConnection;
+    final hasInternet = await _internetChecker.hasConnection;
     _connectionController.add(hasInternet);
     return hasInternet;
   }
 
   void dispose() {
+    _periodicTimer?.cancel();
     _connectionController.close();
   }
 
