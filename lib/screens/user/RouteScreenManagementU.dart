@@ -20,6 +20,7 @@ import 'package:padillaroutea/models/objectBox_models/viaje_registro.dart'
 import 'package:padillaroutea/main.dart';
 import 'package:padillaroutea/services/objectbox_services/viajes_registro_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/viajes_helper.dart';
+import 'package:padillaroutea/services/wifi_connection/wifi_controller.dart';
 
 class RouteScreenManagementU extends StatefulWidget {
   final Usuario usuario;
@@ -34,23 +35,35 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   final RutasHelper rutasHelper = RutasHelper(RealtimeDbHelper());
   final VehiculosHelper vehiculosHelper = VehiculosHelper(RealtimeDbHelper());
   final UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
-  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
-  final Logger _logger = Logger();
-
   final ViajesRegistroHelper viajesObjHelper = ViajesRegistroHelper(objectBox);
-
-  late final DataSync _taskScheduler;
   final ViajesHelper viajesHelper = ViajesHelper(RealtimeDbHelper());
+  final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
 
   List<Ruta> rutas = [];
   bool isLoading = true;
   Vehiculo? vehiculoAsignado;
 
+  final Logger _logger = Logger();
+
+  late final DataSync _taskScheduler;
+
+  final WifiController _wifiController = WifiController();
+  bool _hasInternet = true;
+  bool _isDialogOpen = false;
+
   @override
   void initState() {
     super.initState();
-    logAction(widget.usuario.correo, Tipo.alta, "Panel de bienvenida abierto",
-        logsHelper, _logger);
+    logAction(widget.usuario.correo, Tipo.alta, "Panel de bienvenida abierto", logsHelper, _logger);
+    _wifiController.connectionStream.listen((status) {
+      setState(() => _hasInternet = status);
+      if (!_hasInternet && !_isDialogOpen) {
+        _showConnectionLostDialog();
+      } else if (_hasInternet && _isDialogOpen) {
+        Navigator.of(context).pop();
+        _isDialogOpen = false;
+      }
+    });
     _loadRutas();
     _loadVehiculo();
     _taskScheduler = DataSync(viajesObjHelper, viajesHelper);
@@ -60,6 +73,7 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   @override
   void dispose() {
     _taskScheduler.stopTimer();
+    _wifiController.dispose();
     super.dispose();
   }
 
@@ -112,6 +126,28 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
     Navigator.pop(context); // Cerrar menú lateral
   }
 
+  void _showConnectionLostDialog() {
+    _isDialogOpen = true;
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Conexión a internet perdida"),
+            content: const Text(
+                'La sincronización se restablecerá cuando la conexión se recupere.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  _isDialogOpen = false;
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        });
+  }
   // void _saveRegistro() {
   //   final registro = ob.ViajeRegistro(
   //     idRuta: 1,
@@ -150,7 +186,8 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
       appBar: AppBar(
         title: Text(
           'Bienvenido, ${widget.usuario.nombre}',
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.blue.shade800,
         centerTitle: true,
