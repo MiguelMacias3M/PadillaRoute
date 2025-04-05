@@ -13,9 +13,9 @@ class DataSync {
   DataSync(this.objectBox, this.realTimeViajesHelper);
 
   void startTimer() {
-    _timer = Timer.periodic(const Duration(milliseconds: 300000), (timer) {
+    _timer = Timer.periodic(const Duration(milliseconds: 300000), (timer) { // 1 minute = 60000 milliseconds
       if (checkForPendingSyncronization()) {
-        syncDat("111133, 131133");
+        syncDat();
       }
     });
   }
@@ -23,12 +23,13 @@ class DataSync {
   void stopTimer() {
     _timer?.cancel();
   }
+
   bool checkForPendingSyncronization() {
     final List<ViajeRegistro> registros = objectBox.getAllRegistros();
     return registros.isNotEmpty;
   }
 
-  void syncDat(String coordenadas) {
+  void syncDat() {
     final List<ViajeRegistro> registros = objectBox.getAllRegistros();
     final objItem = registros[0];
 
@@ -44,9 +45,10 @@ class DataSync {
         totalPasajeros: objItem.totalPasajeros,
         distanciaRecorrida: objItem.distanciaRecorrida.toInt(),
         velocidadPromedio: objItem.velocidadPromedio.toInt(),
-        coordenadas: coordenadas);
+        coordenadas: objItem.coordenadas);
 
     realTimeViajesHelper.setNew(castedItem).then((value) {
+      print("Datos sincronizados");
       objectBox.deleteRegistro();
     });
   }
