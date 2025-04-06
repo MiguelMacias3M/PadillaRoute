@@ -47,7 +47,7 @@
 	<true/>
 	<!-- Agrega tu clave de API para Google Maps -->
 	<key>GMSApiKey</key>
-	<string>AIzaSyAKAfaEcXLH-reGFbTDPJ2e2zseCAzh2-I</string>
+	<string>"API_KEY"</string>
 
 	<key>FirebaseAppDelegateProxyEnabled</key>
 		<false/>

@@ -208,7 +208,6 @@ class _RouteScreenUState extends State<RouteScreenU> {
       totalPasajeros: _stopRecords.fold(0, (sum, stop) => sum + (stop["passengers"] as int)),
       distanciaRecorrida: _totalDistance.toInt(),
       velocidadPromedio: _averageSpeed.toInt(),
-      litrosCombustibleConsumidoAprox: 1,
     );
 
     await viajesHelper.setNew(registroRealtime);
@@ -224,7 +223,6 @@ class _RouteScreenUState extends State<RouteScreenU> {
       totalPasajeros: registroRealtime.totalPasajeros,
       distanciaRecorrida: _totalDistance,
       velocidadPromedio: _averageSpeed,
-      combustibleConsumidoPromedio: 1.0,
       finalizado: true,
     );
 
