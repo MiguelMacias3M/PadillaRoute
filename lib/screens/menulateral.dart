@@ -6,6 +6,72 @@ import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
 import 'package:padillaroutea/screens/StopScreenManagement.dart';
 import 'package:padillaroutea/screens/MonitoringScreenManagement.dart';
+import 'package:padillaroutea/services/firebase_auth/firebase_auth_helper.dart';
+
+FirebaseAuthHelper authHelper = FirebaseAuthHelper();
+
+void _logout(BuildContext context) async {
+  try {
+    await authHelper.logOut();
+    Navigator.pushReplacementNamed(context, '/');
+  } catch (_) {
+
+  }
+}
+
+void _showLogoutConfirmationDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("¿Desea cerrar sesión?"),
+      content: const Text("¿Está seguro de que desea cerrar sesión?"),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Cancelar"),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+            _logout(context);
+          },
+          child: const Text("Cerrar sesión"),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget drawerItem(
+    BuildContext context, IconData icon, String title, Widget screen) {
+  return ListTile(
+    leading: Icon(icon, color: Colors.white),
+    title: Text(
+      title,
+      style: const TextStyle(fontSize: 16, color: Colors.white),
+    ),
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => screen),
+      );
+    },
+    tileColor: Colors.blue.shade800,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+  );
+}
+
+Widget _drawerLogoutItem(BuildContext context) {
+  return ListTile(
+      leading: const Icon(Icons.exit_to_app, color: Colors.white),
+      title: const Text( 'Cerrar sesión',
+        style: TextStyle(fontSize: 16, color: Colors.white),
+      ),
+      onTap: () => _showLogoutConfirmationDialog(context), // Solo cierra el menú
+      tileColor: Colors.blue.shade800,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+  );
+}
 
 Widget buildDrawer(BuildContext context, dynamic usuario, Function _menuLateral,
     String tituloPantalla) {
@@ -38,11 +104,11 @@ Widget buildDrawer(BuildContext context, dynamic usuario, Function _menuLateral,
                     ),
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 // Mostrar el título dinámico pasado como parámetro
                 Text(
                   tituloPantalla,
-                  style: TextStyle(
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold),
@@ -65,37 +131,9 @@ Widget buildDrawer(BuildContext context, dynamic usuario, Function _menuLateral,
           drawerItem(context, Icons.report, 'Reportes',
               ReportsScreen(usuario: usuario)),
           const Divider(color: Colors.white),
-          ListTile(
-            leading: Icon(Icons.exit_to_app, color: Colors.white),
-            title: Text(
-              'Cerrar sesión',
-              style: TextStyle(fontSize: 16, color: Colors.white),
-            ),
-            onTap: () => _menuLateral(context), // Solo cierra el menú
-            tileColor: Colors.blue.shade800,
-            contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-          ),
+          _drawerLogoutItem(context)
         ],
       ),
     ),
-  );
-}
-
-Widget drawerItem(
-    BuildContext context, IconData icon, String title, Widget screen) {
-  return ListTile(
-    leading: Icon(icon, color: Colors.white),
-    title: Text(
-      title,
-      style: TextStyle(fontSize: 16, color: Colors.white),
-    ),
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => screen),
-      );
-    },
-    tileColor: Colors.blue.shade800,
-    contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
   );
 }
