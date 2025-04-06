@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
@@ -9,7 +10,6 @@ import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart
 import 'package:padillaroutea/services/realtime_db_services/realtime_db_helper.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/user/RouteScreenManagementU.dart';
-import 'package:padillaroutea/services/wifi_connection/wifi_controller.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:padillaroutea/screens/registroDeLogs.dart';
 
@@ -23,133 +23,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+  bool _isDialogOpen = false;
 
   final Logger _logger = Logger();
   final FirebaseAuthHelper authHelper = FirebaseAuthHelper();
   final UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
   final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
 
-  final WifiController _wifiController = WifiController();
-  bool _isConnected = false;
-  bool _isDialogOpen = false;
-
   @override
   void initState() {
     super.initState();
-    _wifiController.connectionStream.listen((bool isConnected) {
-      setState(() {
-        _isConnected = isConnected;
-      });
-
-      if (!isConnected && !_isDialogOpen) {
-        _showConnectionLostDialog();
-      } else if (isConnected && _isDialogOpen) {
-        Navigator.of(context).pop();
-        _isDialogOpen = false;
-      }
-    });
-    _wifiController.checkConnection().then((bool isConnected) {
-      setState(() {
-        _isConnected = isConnected;
-      });
-    });
   }
 
   @override
   void dispose() {
-    _wifiController.dispose();
     super.dispose();
   }
-
-  Future<void> _handleLogin() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    final userEmail = _emailController.text;
-    final userPass = _passwordController.text;
-
-    if (userEmail.isEmpty || userPass.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Some values are missing!!!")));
-      logAction(
-          userEmail,
-          Tipo.baja,
-          "Intento de inicio de sesión fallido (campos vacíos)",
-          logsHelper,
-          _logger);
-      setState(() {
-        _isLoading = false; // 🔴 Detiene la animación si hay error
-      });
-      return;
-    }
-
-    try {
-      await authHelper.logIn(userEmail, userPass);
-      Usuario? usuario = await usuariosHelper.getByEmail(_emailController.text);
-
-      if (usuario != null) {
-        final rolUsuario = usuario.rol;
-        Widget nextScreen;
-
-        // Guardar el token FCM después de iniciar sesión
-      await saveUserFCMToken(usuario.idUsuario); // Guarda el FCM Token
-
-        switch (rolUsuario) {
-          case Rol.chofer:
-            nextScreen = RouteScreenManagementU(usuario: usuario);
-            break;
-          case Rol.administrativo:
-            nextScreen = SplashScreenAdmin(usuario: usuario);
-
-            _subscribeToTopic('administrativos_y_gerentes');
-            break;
-          case Rol.gerente:
-            nextScreen = SplashScreenAdmin(usuario: usuario);
-            _subscribeToTopic('administrativos_y_gerentes');
-            break;
-        }
-
-        logAction(
-            userEmail,
-            Tipo.alta,
-            "Inicio de sesión exitoso - Rol: ${rolUsuario.name}",
-            logsHelper,
-            _logger);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => nextScreen),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Usuario no encontrado")));
-        logAction(
-            userEmail,
-            Tipo.baja,
-            "Inicio de sesión fallido (usuario no encontrado)",
-            logsHelper,
-            _logger);
-        _isLoading = false;
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.toString())));
-      _logger.e("Error en inicio de sesión: $e");
-      logAction(userEmail, Tipo.baja, "Error en inicio de sesión: $e",
-          logsHelper, _logger);
-      _isLoading = false;
-    }
-  }
-
-  Future<void> saveUserFCMToken(int userId) async {
-  try {
-    String token = await FirebaseMessaging.instance.getToken() ?? "";
-    // Guardar el token FCM en la base de datos usando el UsuariosHelper
-    await usuariosHelper.updateFCMToken(userId, token);
-  } catch (e) {
-    print("Error al obtener y guardar el FCM Token: $e");
-  }
-}
 
   Future<void> _subscribeToTopic(String topic) async {
     try {
@@ -164,16 +53,54 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _showConnectionLostDialog() {
+  Future<void> saveUserFCMToken(int userId) async {
+    try {
+      String token = await FirebaseMessaging.instance.getToken() ?? "";
+      // Guardar el token FCM en la base de datos usando el UsuariosHelper
+      await usuariosHelper.updateFCMToken(userId, token);
+    } catch (e) {
+      print("Error al obtener y guardar el FCM Token: $e");
+    }
+  }
+
+  Widget _getNextScreenForRole(Rol rolUsuario, Usuario usuario) {
+    switch (rolUsuario) {
+      case Rol.chofer:
+        return RouteScreenManagementU(usuario: usuario);
+      case Rol.administrativo:
+        _subscribeToTopic('administrativos_y_gerentes');
+        return SplashScreenAdmin(usuario: usuario);
+      case Rol.gerente:
+        _subscribeToTopic('administrativos_y_gerentes');
+        return SplashScreenAdmin(usuario: usuario);
+    }
+  }
+
+  Future<void> _onSuccessfulLogin(Usuario usuario, String email) async {
+    final rolUsuario = usuario.rol;
+    await saveUserFCMToken(usuario.idUsuario); // Guarda el FCM Token
+    Widget nextScreen = _getNextScreenForRole(rolUsuario, usuario);
+    logAction(
+        email,
+        Tipo.alta,
+        "Inicio de sesión exitoso - Rol: ${rolUsuario.name}",
+        logsHelper,
+        _logger);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => nextScreen),
+    );
+  }
+
+  void _showErrorDialog(String messageTitle, String messageDescription) {
     _isDialogOpen = true;
     showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
-            title: const Text("Conexión a internet perdida"),
-            content: const Text(
-                'Revisa tu conexion a internet y vuelve a intentarlo'),
+            title: Text(messageTitle),
+            content: Text(messageDescription),
             actions: [
               TextButton(
                 onPressed: () {
@@ -185,6 +112,86 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           );
         });
+  }
+
+  void _handleAuthException(FirebaseAuthException e, String email) {
+    switch (e.code) {
+      case 'user-not-found':
+        _showErrorDialog("Usuario no encontrado.",
+            "No se hayó ningun usuario con esas credenciales.");
+      case 'network-request-failed':
+        _showErrorDialog("Sin conexión a internet.",
+            "Verifica tu conexión e intentalo de nuevo.");
+      case 'wrong-password':
+        _showErrorDialog(
+            "Credenciales invalidas.", "Email o contraseña incorrectos.");
+      default:
+        _showErrorDialog("Error de inicio de sesión.",
+            "Ocurrió un error inesperado. Intenta nuevamente.");
+    }
+    logAction(
+        email, Tipo.baja, "Error en inicio de sesión: $e", logsHelper, _logger);
+    _isLoading = false;
+  }
+
+  void _handleEmptyFields(String userEmail) {
+    _showErrorDialog(
+        "Campos vacíos", "Por favor, completa todos los campos obligatorios.");
+    logAction(
+        userEmail,
+        Tipo.baja,
+        "Intento de inicio de sesión fallido (campos vacíos)",
+        logsHelper,
+        _logger);
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  void _onUsernotFound(String email) {
+    _showErrorDialog("Usuario no encontrado.",
+        "No se encontró ningun usuario con esas credenciales.");
+    logAction(
+        email,
+        Tipo.baja,
+        "Inicio de sesión fallido (usuario no encontrado)",
+        logsHelper,
+        _logger);
+    _isLoading = false;
+  }
+
+  Future<void> _handleLogin() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final userEmail = _emailController.text;
+    final userPass = _passwordController.text;
+
+    if (userEmail.isEmpty || userPass.isEmpty) {
+      _handleEmptyFields(userEmail);
+      return;
+    }
+
+    try {
+      await authHelper.logIn(userEmail, userPass);
+      Usuario? usuario = await usuariosHelper.getByEmail(_emailController.text);
+
+      if (usuario != null) {
+        _onSuccessfulLogin(usuario, userEmail);
+      } else {
+        _onUsernotFound(userEmail);
+      }
+    } on FirebaseAuthException catch (e) {
+      _handleAuthException(e, userEmail);
+    } catch (e) {
+      _showErrorDialog("Error inesperado",
+          "Ocurrió un error inesperado. Intenta nuevamente.");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
