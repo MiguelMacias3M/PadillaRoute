@@ -54,7 +54,8 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   @override
   void initState() {
     super.initState();
-    logAction(widget.usuario.correo, Tipo.alta, "Panel de bienvenida abierto", logsHelper, _logger);
+    logAction(widget.usuario.correo, Tipo.alta, "Panel de bienvenida abierto",
+        logsHelper, _logger);
     _wifiController.connectionStream.listen((status) {
       setState(() => _hasInternet = status);
       if (!_hasInternet && !_isDialogOpen) {
@@ -148,6 +149,7 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
           );
         });
   }
+
   // void _saveRegistro() {
   //   final registro = ob.ViajeRegistro(
   //     idRuta: 1,
@@ -163,7 +165,6 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
   //     coordenadas: "0.0,0.0",
   //     finalizado: true,
   //   );
-
   //   viajesObjHelper.saveRegistro(registro);
   // }
 
@@ -198,24 +199,21 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : rutas.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No tienes rutas asignadas',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: rutas.length,
-                        itemBuilder: (context, index) {
-                          return _routeCard(context, rutas[index]);
-                        },
-                      ),
-          ),
+              padding: const EdgeInsets.all(16.0),
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : rutas.isEmpty
+                      ? const Center(
+                          child: Text('No tienes rutas asignadas',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                        )
+                      : ListView.builder(
+                          itemCount: rutas.length,
+                          itemBuilder: (context, index) {
+                            return _routeCard(context, rutas[index]);
+                          },
+                        )),
           if (vehiculoAsignado != null) _floatingVehicleInfo(),
           // ListView(
           //   children: [
@@ -250,11 +248,11 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
       left: 20,
       right: 20,
       child: Container(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.blue.shade800,
           borderRadius: BorderRadius.circular(15),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
                 color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
           ],
@@ -262,22 +260,22 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'El vehículo que te fue asignado es:',
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.directions_bus, color: Colors.white),
-                SizedBox(width: 10),
+                const Icon(Icons.directions_bus, color: Colors.white),
+                const SizedBox(width: 10),
                 Text(
                   '${vehiculoAsignado!.marca} - ${vehiculoAsignado!.modelo} - ${vehiculoAsignado!.placa}',
-                  style: TextStyle(
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold),
@@ -294,7 +292,7 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       elevation: 5,
-      margin: EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
@@ -305,25 +303,25 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 ruta.nombre,
-                style: TextStyle(
+                style:const  TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
                     color: Colors.white),
               ),
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
               Wrap(
                 children: ruta.paradas.map<Widget>((stop) {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8.0),
                     child: Text(
                       stop,
-                      style: TextStyle(
+                      style: const TextStyle(
                         decoration: TextDecoration.underline,
                         fontSize: 14,
                         color: Colors.white70,
@@ -332,7 +330,7 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
                   );
                 }).toList(),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton(
