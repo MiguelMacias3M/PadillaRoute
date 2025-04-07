@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:padillaroutea/screens/MenuScreenAdmin.dart';
 import 'package:padillaroutea/screens/ReportsScreen.dart';
+import 'package:padillaroutea/screens/RoutesScreenManagement.dart';
 import 'package:padillaroutea/screens/UserScreenManagement.dart';
 import 'package:padillaroutea/screens/VehiclesScreenManagement.dart';
 import 'package:padillaroutea/screens/IncidentsScreenAdmin.dart';
@@ -121,7 +122,7 @@ Widget buildDrawer(BuildContext context, dynamic usuario, Function _menuLateral,
           drawerItem(context, Icons.people, 'Usuarios',
               UserScreenManagement(usuario: usuario)),
           drawerItem(context, Icons.directions_bus, 'Rutas',
-              VehiclesScreenManagement(usuario: usuario)),
+              RoutesScreenManagement(usuario: usuario)),
           drawerItem(context, Icons.directions_car, 'Vehículos',
               VehiclesScreenManagement(usuario: usuario)),
           drawerItem(context, Icons.warning_amber, 'Incidencias',
