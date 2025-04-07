@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:padillaroutea/services/realtime_db_services/paradas_helper.dart';
+import 'package:padillaroutea/models/realtimeDB_models/parada.dart';
 import 'package:padillaroutea/models/realtimeDB_models/usuario.dart';
 import 'package:padillaroutea/models/realtimeDB_models/ruta.dart';
 import 'package:padillaroutea/models/objectBox_models/viaje_registro.dart' as ob;
@@ -19,11 +21,10 @@ import 'package:padillaroutea/services/realtime_db_services/viajes_helper.dart';
 import 'package:padillaroutea/services/connectors/objectbox_connector.dart';
 import 'package:logger/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:padillaroutea/main.dart'; // Donde esté definida tu instancia objectBox
+import 'package:padillaroutea/main.dart';
 import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/data_sync/data_sync.dart';
 import 'package:padillaroutea/services/objectbox_services/viajes_registro_helper.dart';
-
 
 class RouteScreenU extends StatefulWidget {
   final Ruta ruta;
@@ -42,25 +43,25 @@ class _RouteScreenUState extends State<RouteScreenU> {
   final Completer<GoogleMapController> _controller = Completer();
   final List<Map<String, dynamic>> _stopRecords = [];
   final Set<Marker> _markers = {};
-  final double _totalDistance = 0.0;
-  final double _averageSpeed = 0.0;
+  double _totalDistance = 0.0;
+  double _averageSpeed = 0.0;
 
   final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
   final Logger _logger = Logger();
   final UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
   final ViajesHelper viajesHelper = ViajesHelper(RealtimeDbHelper());
   final ViajesRegistroHelper viajesObjHelper = ViajesRegistroHelper(objectBox);
+  final ParadasHelper _paradasHelper = ParadasHelper(RealtimeDbHelper());
 
+  List<Parada> _paradas = [];
   late final DataSync _taskScheduler;
 
   @override
   void initState() {
     super.initState();
-    logAction(widget.usuario.correo, Tipo.alta,
-        "Inicialización de RouteScreenU", logsHelper, _logger);
     _taskScheduler = DataSync(viajesObjHelper, viajesHelper);
-    _checkLocationPermissions();
     _taskScheduler.startTimer();
+    _checkLocationPermissions();
   }
 
   @override
@@ -87,26 +88,49 @@ class _RouteScreenUState extends State<RouteScreenU> {
       setState(() {
         _currentPosition = LatLng(position.latitude, position.longitude);
       });
-
       final GoogleMapController controller = await _controller.future;
       controller.animateCamera(CameraUpdate.newLatLngZoom(_currentPosition!, 15));
-
-      // Marcador de ubicación actual
       _markers.add(Marker(
-        markerId: MarkerId("current_location"),
+        markerId: const MarkerId("ubicacion_actual"),
         position: _currentPosition!,
-        infoWindow: InfoWindow(title: "Ubicación actual"),
+        infoWindow: const InfoWindow(title: "Ubicación actual"),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
       ));
-
-      setState(() {});
+      await _fetchParadas();
+      _mostrarParadasEnMapa();
     } catch (e) {
       print("Error obteniendo ubicación: $e");
     }
   }
 
+  Future<void> _fetchParadas() async {
+    List<Parada> todas = await _paradasHelper.getAll();
+    setState(() {
+      _paradas = todas.where((p) => widget.ruta.paradas.contains(p.nombre)).toList();
+    });
+  }
+
+  void _mostrarParadasEnMapa() {
+    for (int i = 0; i < _paradas.length; i++) {
+      final parada = _paradas[i];
+      final parts = parada.coordenadas.split(',');
+      final lat = double.tryParse(parts[0]);
+      final lng = double.tryParse(parts[1]);
+      if (lat != null && lng != null) {
+        final latLng = LatLng(lat, lng);
+        _markers.add(Marker(
+          markerId: MarkerId("parada_$i"),
+          position: latLng,
+          infoWindow: InfoWindow(title: "Parada ${i + 1}", snippet: parada.nombre),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        ));
+      }
+    }
+    setState(() {});
+  }
+
   Future<void> _startNavigation() async {
-    if (_currentPosition == null) return;
+    if (_currentPosition == null || _paradas.isEmpty) return;
 
     setState(() {
       _startTime = DateTime.now();
@@ -114,48 +138,49 @@ class _RouteScreenUState extends State<RouteScreenU> {
       _endTime = null;
     });
 
-    _sendNotification("La ruta ${widget.ruta.nombre} ha comenzado.");
+    final origin = "${_currentPosition!.latitude},${_currentPosition!.longitude}";
+    final destino = _paradas.last.coordenadas;
+    final waypoints = _paradas.sublist(0, _paradas.length - 1).map((p) => p.coordenadas).join('|');
 
-    final uri = Uri.parse("https://www.google.com/maps/dir/?api=1&origin=${_currentPosition!.latitude},${_currentPosition!.longitude}&destination=${_currentPosition!.latitude},${_currentPosition!.longitude}&travelmode=driving");
+    final uri = Uri.parse("https://www.google.com/maps/dir/?api=1&origin=$origin&destination=$destino&travelmode=driving&waypoints=$waypoints");
 
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 
-  Future<void> _registerStop() async {
+    Future<void> _registerStop() async {
     if (_currentPosition == null) return;
 
-    DateTime arrivalTime = DateTime.now();
+    final DateTime arrivalTime = DateTime.now();
     TextEditingController passengersController = TextEditingController();
 
     await showDialog(
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: Text("Registrar Parada"),
+          title: const Text("Registrar Parada"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text("Ubicación: $_currentPosition"),
               TextField(
                 controller: passengersController,
-                decoration: InputDecoration(labelText: "Cantidad de pasajeros"),
+                decoration: const InputDecoration(labelText: "Cantidad de pasajeros"),
                 keyboardType: TextInputType.number,
               ),
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("Cancelar"),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancelar")),
             TextButton(
               onPressed: () {
                 int passengers = int.tryParse(passengersController.text) ?? 0;
+                DateTime departureTime = DateTime.now();
+
                 _stopRecords.add({
                   "arrivalTime": arrivalTime.toIso8601String(),
-                  "departureTime": DateTime.now().toIso8601String(),
+                  "departureTime": departureTime.toIso8601String(),
                   "location": {
                     "lat": _currentPosition!.latitude,
                     "lng": _currentPosition!.longitude,
@@ -164,11 +189,11 @@ class _RouteScreenUState extends State<RouteScreenU> {
                 });
 
                 _markers.add(Marker(
-                  markerId: MarkerId("stop_${_stopRecords.length}"),
+                  markerId: MarkerId("stop_\${_stopRecords.length}"),
                   position: _currentPosition!,
                   infoWindow: InfoWindow(
-                    title: "Parada ${_stopRecords.length}",
-                    snippet: "Pasajeros: $passengers",
+                    title: "Parada \${_stopRecords.length}",
+                    snippet: "Pasajeros: \$passengers",
                   ),
                   icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
                 ));
@@ -176,7 +201,7 @@ class _RouteScreenUState extends State<RouteScreenU> {
                 setState(() {});
                 Navigator.pop(context);
               },
-              child: Text("Guardar"),
+              child: const Text("Guardar"),
             ),
             TextButton(
               onPressed: () {
@@ -191,12 +216,20 @@ class _RouteScreenUState extends State<RouteScreenU> {
                 );
               },
               style: TextButton.styleFrom(backgroundColor: Colors.red),
-              child: Text("Incidencia", style: TextStyle(color: Colors.white)),
+              child: const Text("Incidencia", style: TextStyle(color: Colors.white)),
             )
           ],
         );
       },
     );
+  }
+  Future<void> _sendNotification(String message) async {
+    try {
+      final accessToken = await getAccessToken();
+      await sendFCMMessage("Actualización de Ruta", message, "administrativos_y_gerentes", accessToken);
+    } catch (e) {
+      print("Error al enviar notificación: $e");
+    }
   }
 
   Future<void> _endNavigation() async {
@@ -221,7 +254,7 @@ class _RouteScreenUState extends State<RouteScreenU> {
       totalPasajeros: _stopRecords.fold(0, (sum, stop) => sum + (stop["passengers"] as int)),
       distanciaRecorrida: _totalDistance.toInt(),
       velocidadPromedio: _averageSpeed.toInt(),
-      coordenadas: "falta agregar este campo"
+      coordenadas: "-",
     );
 
     await viajesHelper.setNew(registroRealtime);
@@ -237,7 +270,7 @@ class _RouteScreenUState extends State<RouteScreenU> {
       totalPasajeros: registroRealtime.totalPasajeros,
       distanciaRecorrida: _totalDistance,
       velocidadPromedio: _averageSpeed,
-      coordenadas: "falta agrgar este campo",
+      coordenadas: "-",
       finalizado: true,
     );
 
@@ -246,41 +279,41 @@ class _RouteScreenUState extends State<RouteScreenU> {
   }
 
   void _showSummary(int tiempoTotal) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (_) {
-        return AlertDialog(
-          title: Text("Felicidades 🎉"),
-          content: Column(
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("🕒 Inicio: $_startTime"),
-              Text("🏁 Fin: $_endTime"),
-              Text("⏳ Tiempo: $tiempoTotal min"),
-              Text("🟢 Paradas: ${_stopRecords.length}"),
-              Text("👥 Total pasajeros: ${_stopRecords.fold(0, (sum, stop) => sum + (stop["passengers"] as int))}"),
-              Text("📏 Distancia: ${_totalDistance.toStringAsFixed(2)} m"),
-              Text("🚀 Velocidad: ${_averageSpeed.toStringAsFixed(2)} m/s"),
+              Text("✨ Felicidades, has terminado el viaje", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              Divider(),
+              Text("Inicio: $_startTime"),
+              Text("Fin: $_endTime"),
+              Text("Duración: $tiempoTotal min"),
+              Text("Paradas realizadas: ${_stopRecords.length}"),
+              for (int i = 0; i < _stopRecords.length; i++)
+                Text("Parada ${i + 1}: Pasajeros: ${_stopRecords[i]["passengers"]}, Llegada: ${_stopRecords[i]["arrivalTime"]}, Salida: ${_stopRecords[i]["departureTime"]}"),
+              Text("Pasajeros totales: ${_stopRecords.fold(0, (sum, stop) => sum + (stop["passengers"] as int))}"),
+              Text("Distancia: ${_totalDistance.toStringAsFixed(2)} m"),
+              Text("Velocidad promedio: ${_averageSpeed.toStringAsFixed(2)} m/s"),
+              SizedBox(height: 10),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Aceptar"),
+                ),
+              ),
             ],
           ),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text("OK"))],
         );
       },
     );
-  }
-
-  Future<void> _sendNotification(String message) async {
-    try {
-      final accessToken = await getAccessToken();
-      await sendFCMMessage("Actualización de Ruta", message,
-          "administrativos_y_gerentes", accessToken);
-    } catch (e) {
-      print("Error al enviar notificación: $e");
-    }
-  }
-
-  void _menuLateralChofer(BuildContext context) {
-    Navigator.pop(context);
   }
 
   @override
@@ -304,6 +337,10 @@ class _RouteScreenUState extends State<RouteScreenU> {
         ],
       ),
     );
+  }
+
+  void _menuLateralChofer(BuildContext context) {
+    Navigator.pop(context);
   }
 
   Widget _buildNavigationButtons() {
