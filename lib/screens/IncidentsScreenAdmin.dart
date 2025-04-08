@@ -10,7 +10,8 @@ import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu
 import 'package:padillaroutea/screens/registroDeLogs.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
 import 'package:intl/intl.dart';
-
+import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart';
+import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
 
 class IncidentsScreenAdmin extends StatefulWidget {
   final Usuario usuario;
@@ -199,58 +200,66 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
   }
 
   void _showIncidentDetails(BuildContext context, IncidenteRegistro incidente) {
-    logAction(
-        widget.usuario.correo,
-        Tipo.modificacion,
-        "Visualización de detalles de incidencia ID: ${incidente.idRegistro}",
-        logsHelper,
-        _logger);
+  logAction(
+    widget.usuario.correo,
+    Tipo.modificacion,
+    "Visualización de detalles de incidencia ID: ${incidente.idRegistro}",
+    logsHelper,
+    _logger,
+  );
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return FutureBuilder<Usuario?>(
-          future: UsuariosHelper(RealtimeDbHelper()).get(incidente.idUsuario),
-          builder: (context, snapshot) {
-            final usuario = snapshot.data;
-            final fechaHora = DateTime.parse(incidente.fecha);
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      final fechaHora = DateTime.parse(incidente.fecha);
 
-            return AlertDialog(
-              title: Text('Detalles de la incidencia'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Num. Registro: ${incidente.idRegistro}.'),
-                  SizedBox(height: 5),
-                  Text(
-                      'Usuario: ${snapshot.connectionState == ConnectionState.waiting ? 'Cargando...' : usuario?.nombre ?? 'No encontrado'}.'),
-                  SizedBox(height: 5),
-                  Text('Descripción: ${incidente.descripcion}.'),
-                  SizedBox(height: 5),
-                  Text('Fecha: ${DateFormat('yyyy-MM-dd').format(fechaHora)}  a las: ${DateFormat('HH:mm:ss').format(fechaHora)} hrs.'),
-                  SizedBox(height: 5),
-                  Text('ID Vehículo: ${incidente.idVehiculo}'),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    logAction(
-                        widget.usuario.correo,
-                        Tipo.baja,
-                        "Cierre de detalles de incidencia ID: ${incidente.idRegistro}",
-                        logsHelper,
-                        _logger);
-                  },
-                  child: Text('Cerrar'),
+      // FutureBuilder anidado: Usuario y Vehiculo
+      return FutureBuilder<Usuario?>(
+        future: UsuariosHelper(RealtimeDbHelper()).get(incidente.idUsuario),
+        builder: (context, usuarioSnapshot) {
+          return FutureBuilder<Vehiculo?>(
+            future: VehiculosHelper(RealtimeDbHelper()).get(incidente.idVehiculo),
+            builder: (context, vehiculoSnapshot) {
+              final usuario = usuarioSnapshot.data;
+              final vehiculo = vehiculoSnapshot.data;
+
+              return AlertDialog(
+                title: Text('Detalles de la incidencia'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Num. Registro: ${incidente.idRegistro}.'),
+                    SizedBox(height: 5),
+                    Text('Usuario: ${usuario?.nombre ?? "No encontrado"}.'),
+                    SizedBox(height: 5),
+                    Text('Descripción: ${incidente.descripcion}.'),
+                    SizedBox(height: 5),
+                    Text('Fecha: ${DateFormat('yyyy-MM-dd').format(fechaHora)} a las: ${DateFormat('HH:mm:ss').format(fechaHora)} hrs.'),
+                    SizedBox(height: 5),
+                    Text('Vehículo: ${vehiculo != null ? vehiculo.numeroSerie : "No encontrado"}'),
+                  ],
                 ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      logAction(
+                          widget.usuario.correo,
+                          Tipo.baja,
+                          "Cierre de detalles de incidencia ID: ${incidente.idRegistro}",
+                          logsHelper,
+                          _logger);
+                    },
+                    child: Text('Cerrar'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    },
+  );
+}
 }
