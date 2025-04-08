@@ -274,7 +274,7 @@ class _RouteScreenManagementUState extends State<RouteScreenManagementU> {
                 const Icon(Icons.directions_bus, color: Colors.white),
                 const SizedBox(width: 10),
                 Text(
-                  '${vehiculoAsignado!.marca} - ${vehiculoAsignado!.modelo} - ${vehiculoAsignado!.placa}',
+                  '${vehiculoAsignado!.marca}, con el número: ${vehiculoAsignado!.numeroSerie}.',
                   style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,

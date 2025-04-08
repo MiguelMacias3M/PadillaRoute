@@ -9,6 +9,9 @@ import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
 import 'package:padillaroutea/screens/registroDeLogs.dart';
 import 'package:padillaroutea/services/realtime_db_services/usuarios_helper.dart';
+import 'package:intl/intl.dart';
+import 'package:padillaroutea/models/realtimeDB_models/vehiculo.dart';
+import 'package:padillaroutea/services/realtime_db_services/vehiculos_helper.dart';
 
 class IncidentsScreenAdmin extends StatefulWidget {
   final Usuario usuario;
@@ -129,114 +132,134 @@ class _IncidentsScreenAdminState extends State<IncidentsScreenAdmin> {
     );
   }
 
- Widget _incidentItem(IncidenteRegistro incidente) {
-  return FutureBuilder<Usuario?>(
-    future: UsuariosHelper(RealtimeDbHelper()).get(incidente.idUsuario),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return Card(
-          margin: EdgeInsets.symmetric(vertical: 10),
-          elevation: 3,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          child: ListTile(
-            title: Text(incidente.descripcion,
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text('Cargando usuario...'),
-            trailing: CircularProgressIndicator(),
-          ),
-        );
-      }
-
-      if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
-        return Card(
-          margin: EdgeInsets.symmetric(vertical: 10),
-          elevation: 3,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          child: ListTile(
-            title: Text(incidente.descripcion,
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text('Usuario no encontrado'),
-          ),
-        );
-      }
-
-      final usuario = snapshot.data!;
-      return Card(
-        margin: EdgeInsets.symmetric(vertical: 10),
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: ListTile(
-          title: Text(incidente.descripcion,
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(usuario.nombre),
-            ],
-          ),
-          trailing: ElevatedButton(
-            onPressed: () {
-              _showIncidentDetails(context, incidente);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
-              ),
+  Widget _incidentItem(IncidenteRegistro incidente) {
+    return FutureBuilder<Usuario?>(
+      future: UsuariosHelper(RealtimeDbHelper()).get(incidente.idUsuario),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Card(
+            margin: EdgeInsets.symmetric(vertical: 10),
+            elevation: 3,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            child: ListTile(
+              title: Text(incidente.descripcion,
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text('Cargando usuario...'),
+              trailing: CircularProgressIndicator(),
             ),
-            child: Text('Ver incidencia', style: TextStyle(color: Colors.white)),
-          ),
-        ),
-      );
-    },
-  );
-}
+          );
+        }
 
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+          return Card(
+            margin: EdgeInsets.symmetric(vertical: 10),
+            elevation: 3,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            child: ListTile(
+              title: Text(incidente.descripcion,
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text('Usuario no encontrado'),
+            ),
+          );
+        }
 
-  void _showIncidentDetails(BuildContext context, IncidenteRegistro incidente) {
-    logAction(
-        widget.usuario.correo,
-        Tipo.modificacion,
-        "Visualización de detalles de incidencia ID: ${incidente.idRegistro}",
-        logsHelper,
-        _logger);
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Detalles de la incidencia'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('ID Registro: ${incidente.idRegistro}'),
-              SizedBox(height: 5),
-              Text('ID Usuario: ${incidente.idUsuario}'),
-              SizedBox(height: 5),
-              Text('Descripción: ${incidente.descripcion}'),
-              SizedBox(height: 5),
-              Text('Fecha: ${incidente.fecha}'),
-              SizedBox(height: 5),
-              Text('ID Vehículo: ${incidente.idVehiculo}'),
-            ],
-          ),
-          actions: [
-            TextButton(
+        final usuario = snapshot.data!;
+        return Card(
+          margin: EdgeInsets.symmetric(vertical: 10),
+          elevation: 3,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: ListTile(
+            title: Text(incidente.descripcion,
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(usuario.nombre),
+              ],
+            ),
+            trailing: ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                logAction(
-                    widget.usuario.correo,
-                    Tipo.baja,
-                    "Cierre de detalles de incidencia ID: ${incidente.idRegistro}",
-                    logsHelper,
-                    _logger);
+                _showIncidentDetails(context, incidente);
               },
-              child: Text('Cerrar'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
+              child:
+                  Text('Ver incidencia', style: TextStyle(color: Colors.white)),
             ),
-          ],
+          ),
         );
       },
     );
   }
+
+  void _showIncidentDetails(BuildContext context, IncidenteRegistro incidente) {
+  logAction(
+    widget.usuario.correo,
+    Tipo.modificacion,
+    "Visualización de detalles de incidencia ID: ${incidente.idRegistro}",
+    logsHelper,
+    _logger,
+  );
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      final fechaHora = DateTime.parse(incidente.fecha);
+
+      // FutureBuilder anidado: Usuario y Vehiculo
+      return FutureBuilder<Usuario?>(
+        future: UsuariosHelper(RealtimeDbHelper()).get(incidente.idUsuario),
+        builder: (context, usuarioSnapshot) {
+          return FutureBuilder<Vehiculo?>(
+            future: VehiculosHelper(RealtimeDbHelper()).get(incidente.idVehiculo),
+            builder: (context, vehiculoSnapshot) {
+              final usuario = usuarioSnapshot.data;
+              final vehiculo = vehiculoSnapshot.data;
+
+              return AlertDialog(
+                title: Text('Detalles de la incidencia'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Num. Registro: ${incidente.idRegistro}.'),
+                    SizedBox(height: 5),
+                    Text('Usuario: ${usuario?.nombre ?? "No encontrado"}.'),
+                    SizedBox(height: 5),
+                    Text('Descripción: ${incidente.descripcion}.'),
+                    SizedBox(height: 5),
+                    Text('Fecha: ${DateFormat('yyyy-MM-dd').format(fechaHora)} a las: ${DateFormat('HH:mm:ss').format(fechaHora)} hrs.'),
+                    SizedBox(height: 5),
+                    Text('Vehículo: ${vehiculo != null ? vehiculo.numeroSerie : "No encontrado"}'),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      logAction(
+                          widget.usuario.correo,
+                          Tipo.baja,
+                          "Cierre de detalles de incidencia ID: ${incidente.idRegistro}",
+                          logsHelper,
+                          _logger);
+                    },
+                    child: Text('Cerrar'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    },
+  );
+}
 }
