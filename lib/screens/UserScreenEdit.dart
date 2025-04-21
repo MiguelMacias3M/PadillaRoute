@@ -8,6 +8,7 @@ import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
 import 'package:padillaroutea/screens/registroDeLogs.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class UserScreenEdit extends StatefulWidget {
   final Usuario usuarioSeleccionado;
@@ -24,7 +25,6 @@ class _UserScreenEditState extends State<UserScreenEdit> {
   late TextEditingController _lastNameController;
   late TextEditingController _phoneController;
   late TextEditingController _emailController;
-  late TextEditingController _passwordController;
   UsuariosHelper usuariosHelper = UsuariosHelper(RealtimeDbHelper());
   final LogsHelper logsHelper = LogsHelper(RealtimeDbHelper());
   final Logger _logger = Logger();
@@ -56,7 +56,6 @@ class _UserScreenEditState extends State<UserScreenEdit> {
         text: widget.usuarioSeleccionado.telefono.toString());
     _emailController =
         TextEditingController(text: widget.usuarioSeleccionado.correo);
-    _passwordController = TextEditingController(text: '••••••••'); // Encriptado
 
     _selectedRole = _roleOptions.firstWhere(
       (role) => role.toLowerCase() == widget.usuarioSeleccionado.rol.name,
@@ -72,7 +71,6 @@ class _UserScreenEditState extends State<UserScreenEdit> {
     _lastNameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
@@ -119,12 +117,32 @@ class _UserScreenEditState extends State<UserScreenEdit> {
             _inputField('Correo', _emailController,
                 inputType: TextInputType.emailAddress),
             SizedBox(height: 10),
-            _inputField('Contraseña: encriptado', _passwordController,
-                isPassword: true),
-            SizedBox(height: 10),
             _roleDropdown(),
             SizedBox(height: 10),
             _statusDropdown(),
+            SizedBox(height: 10),
+            Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue.shade200),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline, color: Colors.blue),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Si buscas actualizar una contraseña: La contraseña no puede ser modificada desde esta pantalla.\n'
+                      'Si se desea cambiarla, ve a "¿Olvidaste tu contraseña?" desde la pantalla de inicio de sesión.',
+                      style: TextStyle(color: Colors.black87),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             SizedBox(height: 20),
             Center(
               child: ElevatedButton(
