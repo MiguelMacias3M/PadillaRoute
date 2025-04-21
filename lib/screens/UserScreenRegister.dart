@@ -7,6 +7,8 @@ import 'package:padillaroutea/models/realtimeDB_models/log.dart';
 import 'package:padillaroutea/services/realtime_db_services/logs_helper.dart';
 import 'package:padillaroutea/screens/menulateral.dart'; // importacion del menu lateral
 import 'package:padillaroutea/screens/registroDeLogs.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class UserScreenRegister extends StatefulWidget {
   final Usuario usuario;
@@ -66,6 +68,9 @@ class _UserScreenRegisterState extends State<UserScreenRegister> {
     });
 
     try {
+      // Crear usuario en Firebase Auth
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+
       final telefono = int.parse(telefonoText);
 
       final rolEnum = Rol.values.firstWhere(
